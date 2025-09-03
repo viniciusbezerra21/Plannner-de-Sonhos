@@ -66,6 +66,116 @@ let eventos = {
   ]
 };
 // exemplo de estrutura: { "2025-08-29": [ {nome, hora, local, descricao} ] }
+// Armazena os eventos atualmente exibidos (máx. 4)
+let displayedEvents = [];
+
+// Função auxiliar para transformar o tipo em classe CSS
+const getEventTypeClass = (type) => {
+    if (!type) return 'default';
+    const normalizedType = type.toLowerCase();
+    switch (normalizedType) {
+        case 'reunião':
+            return 'meeting';
+        case 'degustação':
+            return 'tasting';
+        case 'prova':
+            return 'fitting';
+        default:
+            return normalizedType;
+    }
+};
+
+function renderUpcomingEvents() {
+    const upcomingEventsList = document.querySelector('.events-list');
+    const now = new Date();
+
+    // Junta todos os eventos futuros
+    let allUpcomingEvents = [];
+    for (const dateStr in eventos) {
+        eventos[dateStr].forEach(event => {
+            const eventDateTime = new Date(`${dateStr}T${event.hora || '00:00'}`);
+
+            // Só entra na lista inicial se ainda não passou
+            if (eventDateTime >= now) {
+                allUpcomingEvents.push({ ...event, date: dateStr });
+            }
+        });
+    }
+
+    // Ordena os futuros do mais próximo para o mais distante
+    allUpcomingEvents.sort((a, b) => {
+        const dateTimeA = new Date(`${a.date}T${a.hora || '00:00'}`);
+        const dateTimeB = new Date(`${b.date}T${b.hora || '00:00'}`);
+        return dateTimeA - dateTimeB;
+    });
+
+    // Verifica quais são os novos eventos que ainda não foram exibidos
+    const newEvents = allUpcomingEvents.filter(ev => {
+        return !displayedEvents.some(d => d.nome === ev.nome && d.date === ev.date);
+    });
+
+    // Adiciona novos eventos na lista, mantendo no máximo 4
+    newEvents.forEach(ev => {
+        if (displayedEvents.length < 4) {
+            displayedEvents.push(ev);
+        } else {
+            // Remove o mais antigo (primeiro da lista)
+            displayedEvents.shift();
+            displayedEvents.push(ev);
+        }
+    });
+
+    // Reordena todos os exibidos (incluindo os passados que já estavam na lista)
+    displayedEvents.sort((a, b) => {
+        const dateTimeA = new Date(`${a.date}T${a.hora || '00:00'}`);
+        const dateTimeB = new Date(`${b.date}T${b.hora || '00:00'}`);
+        return dateTimeA - dateTimeB;
+    });
+
+    // Atualiza o HTML
+    upcomingEventsList.innerHTML = '';
+    displayedEvents.forEach(event => {
+        const [year, month, day] = event.date.split('-');
+        const formattedDate = `${day}/${month}/${year}`;
+        const eventTypeClass = getEventTypeClass(event.tipo);
+
+        const eventHTML = `
+            <div class="event-item high-priority">
+                <div class="event-content">
+                    <h4 class="event-title">${event.nome}</h4>
+                    <div class="event-details">
+                        <div class="event-detail">
+                            <svg class="calendar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                <line x1="16" y1="2" x2="16" y2="6" />
+                                <line x1="8" y1="2" x2="8" y2="6" />
+                                <line x1="3" y1="10" x2="21" y2="10" />
+                            </svg>
+                            ${formattedDate}
+                        </div>
+                        <div class="event-detail">
+                            <svg class="clock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <circle cx="12" cy="12" r="10" />
+                                <polyline points="12,6 12,12 16,14" />
+                            </svg>
+                            ${event.hora || 'Dia todo'}
+                        </div>
+                    </div>
+                    <div class="event-location">
+                        <svg class="map-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                            <circle cx="12" cy="10" r="3" />
+                        </svg>
+                        ${event.local || 'Não definido'}
+                    </div>
+                </div>
+                <span class="event-type ${eventTypeClass}">${event.tipo || 'Evento'}</span>
+            </div>
+        `;
+        upcomingEventsList.insertAdjacentHTML('beforeend', eventHTML);
+    });
+}
+
 
 // cria cabeçalho só 1 vez
 diasSemana.forEach(dia => {
@@ -201,6 +311,7 @@ btnSalvarDay.addEventListener("click", (e) => {
 
   // re-renderiza calendário para mostrar ponto
   renderCalendar(dataAtual);
+  renderUpcomingEvents();
 
   console.log("Eventos:", eventos);
 });
@@ -303,5 +414,9 @@ btnSalvar.addEventListener("click", (e) => {
 
   janelaModal.style.display = "none";
   renderCalendar(dataAtual);
+  renderUpcomingEvents();
+
+  console.log("Eventos:", eventos)
 });
+
 
