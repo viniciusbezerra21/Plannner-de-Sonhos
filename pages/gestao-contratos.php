@@ -212,7 +212,7 @@
                 </div>
               </div>
             <?php else: ?>
-              <!-- Usuário não logado -->
+              
               <a
                 href="../user/login.php"
                 class="btn-primary"

@@ -171,7 +171,6 @@
   }
   ?>
 
-  <!-- Header atualizado com novo design e menu mobile -->
   <header class="header">
     <div class="container">
       <div class="header-content">
@@ -190,18 +189,23 @@
         <nav class="nav">
           <a href="index.php" class="nav-link">Início</a>
 
-          <!-- Dropdown Funcionalidades -->
-          <div class="dropdown">
-            <a href="pages/funcionalidades.php" class="nav-link dropdown-toggle">Funcionalidades ▾</a>
-            <div class="dropdown-menu">
-              <a href="pages/calendario.php">Calendário</a>
-              <a href="pages/orcamento.php">Orçamento</a>
-              <a href="pages/gestao-contratos.php">Gestão de Contratos</a>
-              <a href="pages/tarefas.php">Lista de Tarefas</a>
+          <?php if (isset($_SESSION['usuario_logado'])): ?>
+            <!-- Usuário logado - Dropdown Funcionalidades -->
+            <div class="dropdown">
+              <a href="pages/funcionalidades.php" class="nav-link dropdown-toggle">Funcionalidades ▾</a>
+              <div class="dropdown-menu">
+                <a href="pages/calendario.php">Calendário</a>
+                <a href="pages/orcamento.php">Orçamento</a>
+                <a href="pages/gestao-contratos.php">Gestão de Contratos</a>
+                <a href="pages/tarefas.php">Lista de Tarefas</a>
+              </div>
             </div>
-          </div>
 
-          <a href="pages/contato.php" class="nav-link">Contato</a>
+            <a href="pages/contato.php" class="nav-link">Contato</a>
+          <?php else: ?>
+            <!-- Usuário não logado - Link simples -->
+            <a href="pages/funcionalidades.php" class="nav-link">Funcionalidades</a>
+          <?php endif; ?>
 
           <?php if (isset($_SESSION['usuario_logado'])): ?>
             <!-- Usuário logado -->
@@ -266,11 +270,6 @@
           <?php endif; ?>
         </nav>
 
-        <!-- CTA Button Desktop -->
-        <button class="btn-primary" style="display: none">
-          Solicitar Demonstração
-        </button>
-
         <!-- Mobile menu button -->
         <button id="hamburgerBtn" class="mobile-menu-btn" onclick="toggleMobileMenu()">
           <span class="hamburger-line"></span>
@@ -291,9 +290,10 @@
             ">
           <a href="index.php" class="nav-link" style="padding: 0.5rem 0">Início</a>
           <a href="pages/funcionalidades.php" class="nav-link" style="padding: 0.5rem 0">Funcionalidades</a>
-          <a href="pages/contato.php" class="nav-link" style="padding: 0.5rem 0">Contato</a>
-
+          
           <?php if (isset($_SESSION['usuario_logado'])): ?>
+            <a href="pages/contato.php" class="nav-link" style="padding: 0.5rem 0">Contato</a>
+
             <div style="border-top: 1px solid hsl(var(--border)); margin-top: 1rem; padding-top: 1rem;">
               <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
                 <?php if (!empty($_SESSION['usuario_logado']['foto_perfil']) && file_exists('uploads/perfil/' . $_SESSION['usuario_logado']['foto_perfil'])): ?>
@@ -311,10 +311,10 @@
                     <?php echo htmlspecialchars($_SESSION['usuario_logado']['email']); ?></div>
                 </div>
               </div>
-              <a href="pages/perfil.php" class="nav-link" style="padding: 0.5rem 0">Meu Perfil</a>
+              <a href="user/perfil.php" class="nav-link" style="padding: 0.5rem 0">Meu Perfil</a>
               <a href="pages/dashboard.php" class="nav-link" style="padding: 0.5rem 0">Dashboard</a>
               <a href="pages/casamento.php" class="nav-link" style="padding: 0.5rem 0">Meu Casamento</a>
-              <a href="pages/logout.php" class="nav-link" style="padding: 0.5rem 0; color: #ef4444;">Sair</a>
+              <a href="user/logout.php" class="nav-link" style="padding: 0.5rem 0; color: #ef4444;">Sair</a>
             </div>
           <?php else: ?>
             <a href="user/login.php" class="btn-primary" style="align-items: center">Login</a>
