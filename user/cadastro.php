@@ -73,7 +73,7 @@
     <header class="header">
       <div class="container">
         <div class="header-content">
-          <a href="../index.html" class="logo">
+          <a href="../index.php" class="logo">
             <div class="heart-icon">
               <svg
                 width="16"
@@ -90,7 +90,7 @@
           </a>
 
           <nav class="nav">
-            <a href="../index.html" class="nav-link">Início</a>
+            <a href="../index.php" class="nav-link">Início</a>
             <a href="login.php" class="btn-primary" style="align-items: center"
               >Login</a
             >

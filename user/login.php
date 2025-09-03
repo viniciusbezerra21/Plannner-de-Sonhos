@@ -72,7 +72,7 @@
   <header class="header">
     <div class="container">
       <div class="header-content">
-        <a href="../index.html" class="logo">
+        <a href="../index.php" class="logo">
           <div class="heart-icon">
             <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
               <path
@@ -82,7 +82,7 @@
           <span class="logo-text">WeddingEasy</span>
         </a>
         <nav class="nav">
-          <a href="../index.html" class="nav-link">Início</a>
+          <a href="../index.php" class="nav-link">Início</a>
           <a href="cadastro.php" class="btn-primary" style="align-items: center">Cadastre-se</a>
         </nav>
         <button id="hamburgerBtn" class="mobile-menu-btn" onclick="toggleMobileMenu()">
@@ -100,7 +100,7 @@
               border-top: 1px solid hsl(var(--border));
               margin-top: 0.5rem;
             ">
-          <a href="../index.html" class="nav-link">Início</a>
+          <a href="../index.php" class="nav-link">Início</a>
 
           <a href="cadastro.php" class="btn-primary" style="align-items: center">Cadastre-se</a>
         </nav>
