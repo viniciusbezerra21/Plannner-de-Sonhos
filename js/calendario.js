@@ -15,7 +15,7 @@ const inputHoraDay = janelaModalDay.querySelector("#hora");
 const inputLocalDay = janelaModalDay.querySelector("#local");
 
 // container do calendário
-const headerRow = document.querySelector(".calendar-header-row");\
+const headerRow = document.querySelector(".calendar-header-row");
 const diasContainer = document.querySelector(".calendar-days");
 const monthLabel = document.querySelector(".calendar-month");
 const btnPrev = document.querySelector(".prev");
