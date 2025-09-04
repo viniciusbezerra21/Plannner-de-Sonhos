@@ -120,6 +120,62 @@
       animation: slideIn 0.3s ease-out;
     }
 
+    /* Modal de Login */
+    .login-modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+    }
+
+    .login-modal-content {
+      background-color: hsl(var(--card));
+      margin: 15% auto;
+      padding: 2rem;
+      border: none;
+      border-radius: 1rem;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      position: relative;
+    }
+
+    .login-modal-close {
+      color: hsl(var(--muted-foreground));
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      position: absolute;
+      right: 1rem;
+      top: 1rem;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .login-modal-close:hover {
+      color: hsl(var(--foreground));
+    }
+
+    .login-modal h2 {
+      color: hsl(var(--foreground));
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .login-modal p {
+      color: hsl(var(--muted-foreground));
+      margin-bottom: 2rem;
+      font-size: 1rem;
+    }
+
     @keyframes slideIn {
       from {
         transform: translateX(100%);
@@ -158,6 +214,12 @@
         right: 0.5rem;
         left: 0.5rem;
       }
+
+      .login-modal-content {
+        margin: 50% auto;
+        width: 95%;
+        padding: 1.5rem;
+      }
     }
   </style>
 </head>
@@ -170,6 +232,16 @@
     unset($_SESSION['mensagem_sucesso']);
   }
   ?>
+
+  <!-- Modal de Login (movido para o topo) -->
+  <div id="loginModal" class="login-modal">
+    <div class="login-modal-content">
+      <span class="login-modal-close" onclick="closeLoginModal()">&times;</span>
+      <h2>Você precisa estar logado</h2>
+      <p>Faça login para acessar esta funcionalidade.</p>
+      <a href="user/login.php" class="btn-primary">Login</a>
+    </div>
+  </div>
 
   <header class="header">
     <div class="container">
@@ -203,7 +275,6 @@
 
             <a href="pages/contato.php" class="nav-link">Contato</a>
           <?php else: ?>
-            <!-- Usuário não logado - Link simples -->
             <a href="pages/funcionalidades.php" class="nav-link">Funcionalidades</a>
           <?php endif; ?>
 
@@ -290,7 +361,7 @@
             ">
           <a href="index.php" class="nav-link" style="padding: 0.5rem 0">Início</a>
           <a href="pages/funcionalidades.php" class="nav-link" style="padding: 0.5rem 0">Funcionalidades</a>
-          
+
           <?php if (isset($_SESSION['usuario_logado'])): ?>
             <a href="pages/contato.php" class="nav-link" style="padding: 0.5rem 0">Contato</a>
 
@@ -306,9 +377,11 @@
                 <?php endif; ?>
                 <div>
                   <div style="font-weight: 600; font-size: 0.9rem;">
-                    <?php echo htmlspecialchars($_SESSION['usuario_logado']['nome']); ?></div>
+                    <?php echo htmlspecialchars($_SESSION['usuario_logado']['nome']); ?>
+                  </div>
                   <div style="font-size: 0.8rem; color: hsl(var(--muted-foreground));">
-                    <?php echo htmlspecialchars($_SESSION['usuario_logado']['email']); ?></div>
+                    <?php echo htmlspecialchars($_SESSION['usuario_logado']['email']); ?>
+                  </div>
                 </div>
               </div>
               <a href="user/perfil.php" class="nav-link" style="padding: 0.5rem 0">Meu Perfil</a>
@@ -648,16 +721,26 @@
             <span>contato@weddingeasy.com</span>
           </div>
         </div>
-
         <div class="footer-links">
           <h3>Navegação</h3>
           <ul>
             <li><a href="index.php">Início</a></li>
-            <li><a href="pages/funcionalidades.php">Funcionalidades</a></li>
-            <li><a href="pages/contato.php">Contato</a></li>
+            <li>
+              <?php if (isset($_SESSION['usuario_logado'])): ?>
+                <a href="pages/funcionalidades.php">Funcionalidades</a>
+              <?php else: ?>
+                <a href="#" onclick="openLoginModal()">Funcionalidades</a>
+              <?php endif; ?>
+            </li>
+            <li>
+              <?php if (isset($_SESSION['usuario_logado'])): ?>
+                <a href="pages/contato.php">Contato</a>
+              <?php else: ?>
+                <a href="#" onclick="openLoginModal()">Contato</a>
+              <?php endif; ?>
+            </li>
           </ul>
         </div>
-
         <div class="footer-modules">
           <h3>Legal</h3>
           <ul>
@@ -694,7 +777,7 @@
       </div>
     </div>
   </footer>
-
+  
   <!-- JavaScript para funcionalidade do menu mobile -->
   <script>
     // Mobile menu toggle
@@ -712,6 +795,15 @@
       dropdown.classList.toggle("active");
     }
 
+    // Modal functions
+    function openLoginModal() {
+      document.getElementById("loginModal").style.display = "block";
+    }
+
+    function closeLoginModal() {
+      document.getElementById("loginModal").style.display = "none";
+    }
+
     // Fechar dropdown quando clicar fora
     document.addEventListener('click', function (event) {
       const profile = document.querySelector('.user-profile');
@@ -721,6 +813,14 @@
         dropdown?.classList.remove("active");
       }
     });
+
+    // Fecha modal ao clicar fora
+    window.onclick = function (event) {
+      const modal = document.getElementById("loginModal");
+      if (event.target === modal) {
+        closeLoginModal();
+      }
+    };
 
     // Smooth scroll for anchor links
     document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
