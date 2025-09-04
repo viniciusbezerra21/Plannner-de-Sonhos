@@ -1,6 +1,7 @@
 <?php session_start(); ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
+<<<<<<< HEAD
 
 <head>
   <meta charset="UTF-8" />
@@ -107,6 +108,18 @@
     }
 
     @media (max-width: 768px) {
+=======
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WeddingEasy</title>
+    <link rel="stylesheet" href="../Style/styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+>>>>>>> bb362d3 (Titulos, pagina login ADM)
       .user-profile {
         order: -1;
       }

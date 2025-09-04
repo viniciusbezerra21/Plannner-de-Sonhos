@@ -1,4 +1,3 @@
-/* Aplicando novo sistema de cores e design baseado no arquivo de referência */
 :root {
   --primary: 291 47% 71%;
   --primary-foreground: 322 100% 98.8%;
@@ -267,7 +266,7 @@ p {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: #1f1f1f;
   animation: heartbeat 2s ease-in-out infinite;
 }
 
