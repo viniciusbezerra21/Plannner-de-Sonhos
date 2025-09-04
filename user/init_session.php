@@ -8,7 +8,7 @@ if (isset($_SESSION['usuario_id']) && !isset($_SESSION['usuario_logado'])) {
     $hostname = "127.0.0.1";
     $user = "root";
     $password = "root";
-    $database = "casamento";
+    $database = "weddingeasy";
 
     $conn = new mysqli($hostname, $user, $password, $database);
     

@@ -367,8 +367,8 @@
 
             <div style="border-top: 1px solid hsl(var(--border)); margin-top: 1rem; padding-top: 1rem;">
               <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
-                <?php if (!empty($_SESSION['usuario_logado']['foto_perfil']) && file_exists('uploads/perfil/' . $_SESSION['usuario_logado']['foto_perfil'])): ?>
-                  <img src="uploads/perfil/<?php echo htmlspecialchars($_SESSION['usuario_logado']['foto_perfil']); ?>"
+                <?php if (!empty($_SESSION['usuario_logado']['foto_perfil']) && file_exists('uploads/' . $_SESSION['usuario_logado']['foto_perfil'])): ?>
+                  <img src="perfil/<?php echo htmlspecialchars($_SESSION['usuario_logado']['foto_perfil']); ?>"
                     alt="Foto do perfil" class="user-avatar" style="width: 32px; height: 32px;" />
                 <?php else: ?>
                   <div class="user-avatar-default" style="width: 32px; height: 32px; font-size: 0.8rem;">
@@ -726,17 +726,13 @@
           <ul>
             <li><a href="index.php">Início</a></li>
             <li>
-              <?php if (isset($_SESSION['usuario_logado'])): ?>
                 <a href="pages/funcionalidades.php">Funcionalidades</a>
-              <?php else: ?>
-                <a href="#" onclick="openLoginModal()">Funcionalidades</a>
-              <?php endif; ?>
             </li>
             <li>
               <?php if (isset($_SESSION['usuario_logado'])): ?>
                 <a href="pages/contato.php">Contato</a>
               <?php else: ?>
-                <a href="#" onclick="openLoginModal()">Contato</a>
+                <a href="#" onclick="openLoginModal()"></a>
               <?php endif; ?>
             </li>
           </ul>

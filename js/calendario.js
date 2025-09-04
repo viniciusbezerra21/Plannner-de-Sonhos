@@ -1,3 +1,6 @@
+// --- CONFIGURAÇÃO DA API ---
+const API_URL = 'api_eventos.php'; // Ajuste o caminho conforme necessário
+
 // --- MODAL CRIAÇÃO LIVRE (botão "criar novo evento") ---
 const btnJanelaModal = document.getElementById('criar-novo-evento');
 const janelaModal = document.getElementById('janela-modal');
@@ -15,7 +18,7 @@ const inputHoraDay = janelaModalDay.querySelector("#hora");
 const inputLocalDay = janelaModalDay.querySelector("#local");
 
 // container do calendário
-const headerRow = document.querySelector(".calendar-header-row");\
+const headerRow = document.querySelector(".calendar-header-row");
 const diasContainer = document.querySelector(".calendar-days");
 const monthLabel = document.querySelector(".calendar-month");
 const btnPrev = document.querySelector(".prev");
@@ -30,44 +33,115 @@ const meses = [
 let dataAtual = new Date();
 let diaSelecionado = null;
 
-// estrutura para guardar os eventos
-let eventos = {
-  "2025-08-15": [
-    {
-      nome: "Reunião com Fotógrafo",
-      hora: "14:00",
-      local: "Studio Fotográfico",
-      tipo: "Reunião"
-    }
-  ],
-  "2025-08-18": [
-    {
-      nome: "Degustação do Buffet",
-      hora: "19:00",
-      local: "Restaurante Elegance",
-      tipo: "Degustação"
-    }
-  ],
-  "2025-08-22": [
-    {
-      nome: "Prova do Vestido",
-      hora: "15:30",
-      local: "Atelier Noiva Bella",
-      tipo: "Prova"
-    }
-  ],
-  "2025-08-25": [
-    {
-      nome: "Reunião com Decorador",
-      hora: "10:00",
-      local: "Escritório Decor & Arte",
-      tipo: "Reunião"
-    }
-  ]
-};
-// exemplo de estrutura: { "2025-08-29": [ {nome, hora, local, descricao} ] }
+// estrutura para guardar os eventos (agora será preenchida do banco)
+let eventos = {};
+
 // Armazena os eventos atualmente exibidos (máx. 4)
 let displayedEvents = [];
+
+// --- FUNÇÕES DA API ---
+async function carregarEventos() {
+    try {
+        const response = await fetch(`${API_URL}?action=eventos`);
+        if (!response.ok) {
+            throw new Error('Erro ao carregar eventos');
+        }
+        
+        // Recebe os dados do banco e organiza por data
+        const dadosEventos = await response.json();
+        eventos = {};
+        
+        // Se dadosEventos é um objeto organizado por data (como no código antigo)
+        if (typeof dadosEventos === 'object' && !Array.isArray(dadosEventos)) {
+            eventos = dadosEventos;
+        } 
+        // Se dadosEventos é um array de eventos
+        else if (Array.isArray(dadosEventos)) {
+            dadosEventos.forEach(evento => {
+                const dataStr = evento.data;
+                if (!eventos[dataStr]) {
+                    eventos[dataStr] = [];
+                }
+                eventos[dataStr].push(evento);
+            });
+        }
+        
+        renderCalendar(dataAtual);
+        renderUpcomingEvents();
+    } catch (error) {
+        console.error('Erro ao carregar eventos:', error);
+        alert('Erro ao carregar eventos. Verifique sua conexão.');
+    }
+}
+
+async function salvarEvento(dadosEvento) {
+    try {
+        const response = await fetch(`${API_URL}?action=criar_evento`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(dadosEvento)
+        });
+        
+        const resultado = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(resultado.error || 'Erro ao salvar evento');
+        }
+        
+        return resultado;
+    } catch (error) {
+        console.error('Erro ao salvar evento:', error);
+        throw error;
+    }
+}
+
+async function atualizarEvento(id, dadosEvento) {
+    try {
+        const response = await fetch(`${API_URL}?action=atualizar_evento`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id, ...dadosEvento })
+        });
+        
+        const resultado = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(resultado.error || 'Erro ao atualizar evento');
+        }
+        
+        return resultado;
+    } catch (error) {
+        console.error('Erro ao atualizar evento:', error);
+        throw error;
+    }
+}
+
+async function deletarEvento(id) {
+    try {
+        const response = await fetch(`${API_URL}?action=deletar_evento`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id })
+        });
+        
+        const resultado = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(resultado.error || 'Erro ao deletar evento');
+        }
+        
+        return resultado;
+    } catch (error) {
+        console.error('Erro ao deletar evento:', error);
+        throw error;
+    }
+}
 
 // Função auxiliar para transformar o tipo em classe CSS
 const getEventTypeClass = (type) => {
@@ -87,19 +161,41 @@ const getEventTypeClass = (type) => {
 
 function renderUpcomingEvents() {
     const upcomingEventsList = document.querySelector('.events-list');
+    if (!upcomingEventsList) return;
+    
     const now = new Date();
 
     // Junta todos os eventos futuros
     let allUpcomingEvents = [];
     for (const dateStr in eventos) {
-        eventos[dateStr].forEach(event => {
-            const eventDateTime = new Date(`${dateStr}T${event.hora || '00:00'}`);
+        if (eventos[dateStr] && Array.isArray(eventos[dateStr])) {
+            eventos[dateStr].forEach(event => {
+                // Cria data do evento
+                const eventDate = new Date(dateStr);
+                if (event.hora) {
+                    const [hora, minuto] = event.hora.split(':');
+                    eventDate.setHours(parseInt(hora), parseInt(minuto));
+                }
 
-            // Só entra na lista inicial se ainda não passou
-            if (eventDateTime >= now) {
-                allUpcomingEvents.push({ ...event, date: dateStr });
-            }
-        });
+                // Só entra na lista se ainda não passou (considera o dia todo se não tem hora)
+                const agora = new Date();
+                if (event.hora) {
+                    if (eventDate >= agora) {
+                        allUpcomingEvents.push({ ...event, date: dateStr });
+                    }
+                } else {
+                    // Se não tem hora, considera se a data é hoje ou futura
+                    const hoje = new Date();
+                    hoje.setHours(0, 0, 0, 0);
+                    const dataEvento = new Date(dateStr);
+                    dataEvento.setHours(0, 0, 0, 0);
+                    
+                    if (dataEvento >= hoje) {
+                        allUpcomingEvents.push({ ...event, date: dateStr });
+                    }
+                }
+            });
+        }
     }
 
     // Ordena os futuros do mais próximo para o mais distante
@@ -109,28 +205,8 @@ function renderUpcomingEvents() {
         return dateTimeA - dateTimeB;
     });
 
-    // Verifica quais são os novos eventos que ainda não foram exibidos
-    const newEvents = allUpcomingEvents.filter(ev => {
-        return !displayedEvents.some(d => d.nome === ev.nome && d.date === ev.date);
-    });
-
-    // Adiciona novos eventos na lista, mantendo no máximo 4
-    newEvents.forEach(ev => {
-        if (displayedEvents.length < 4) {
-            displayedEvents.push(ev);
-        } else {
-            // Remove o mais antigo (primeiro da lista)
-            displayedEvents.shift();
-            displayedEvents.push(ev);
-        }
-    });
-
-    // Reordena todos os exibidos (incluindo os passados que já estavam na lista)
-    displayedEvents.sort((a, b) => {
-        const dateTimeA = new Date(`${a.date}T${a.hora || '00:00'}`);
-        const dateTimeB = new Date(`${b.date}T${b.hora || '00:00'}`);
-        return dateTimeA - dateTimeB;
-    });
+    // Pega apenas os 4 próximos eventos
+    displayedEvents = allUpcomingEvents.slice(0, 4);
 
     // Atualiza o HTML
     upcomingEventsList.innerHTML = '';
@@ -140,7 +216,7 @@ function renderUpcomingEvents() {
         const eventTypeClass = getEventTypeClass(event.tipo);
 
         const eventHTML = `
-            <div class="event-item high-priority">
+            <div class="event-item high-priority" data-event-id="${event.id || ''}">
                 <div class="event-content">
                     <h4 class="event-title">${event.nome}</h4>
                     <div class="event-details">
@@ -169,13 +245,19 @@ function renderUpcomingEvents() {
                         ${event.local || 'Não definido'}
                     </div>
                 </div>
-                <span class="event-type ${eventTypeClass}">${event.tipo || 'Evento'}</span>
+                <div class="event-actions">
+                    <span class="event-type ${eventTypeClass}">${event.tipo || 'Evento'}</span>
+                    ${event.id ? `<button class="btn-delete-event" onclick="handleDeleteEvent(${event.id})" title="Excluir evento">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M18 6L6 18M6 6l12 12"/>
+                        </svg>
+                    </button>` : ''}
+                </div>
             </div>
         `;
         upcomingEventsList.insertAdjacentHTML('beforeend', eventHTML);
     });
 }
-
 
 // cria cabeçalho só 1 vez
 diasSemana.forEach(dia => {
@@ -251,8 +333,10 @@ btnNext.addEventListener("click", () => {
   renderCalendar(dataAtual);
 });
 
-// render inicial
-renderCalendar(dataAtual);
+// --- MODAL DE VISUALIZAÇÃO ---
+const janelaModalView = document.getElementById("janela-modal-view");
+const listaEventos = document.getElementById("listaEventos");
+const btnFecharView = document.getElementById("btnFecharView");
 
 // abrir modal ao clicar no dia do calendário
 diasContainer.addEventListener("click", (e) => {
@@ -269,9 +353,17 @@ diasContainer.addEventListener("click", (e) => {
       const div = document.createElement("div");
       div.className = "evento-item";
       div.innerHTML = `
-        <p><strong>${ev.nome}</strong></p>
-        <p>Hora: ${ev.hora || "—"}</p>
-        <p>Local: ${ev.local || "—"}</p>
+        <div class="evento-content">
+          <p><strong>${ev.nome}</strong></p>
+          <p>Hora: ${ev.hora || "—"}</p>
+          <p>Local: ${ev.local || "—"}</p>
+          <p>Tipo: ${ev.tipo || "—"}</p>
+        </div>
+        ${ev.id ? `<button class="btn-delete-event-modal" onclick="handleDeleteEvent(${ev.id})" title="Excluir evento">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>` : ''}
         <hr>
       `;
       listaEventos.appendChild(div);
@@ -284,7 +376,7 @@ diasContainer.addEventListener("click", (e) => {
 });
 
 // salvar evento no dia
-btnSalvarDay.addEventListener("click", (e) => {
+btnSalvarDay.addEventListener("click", async (e) => {
   e.preventDefault();
   if (!diaSelecionado) return;
 
@@ -293,27 +385,45 @@ btnSalvarDay.addEventListener("click", (e) => {
   const hora = inputHoraDay.value;
   const local = inputLocalDay.value.trim();
 
-  if (!nome) return; // nome é obrigatório
+  if (!nome) {
+    alert('Nome do evento é obrigatório');
+    return;
+  }
 
-  // cria obj evento
-  const evento = { nome, hora, local };
+  try {
+    // Salva no banco
+    const dadosEvento = {
+      nome,
+      data: dataStr,
+      hora,
+      local,
+      tipo: 'Evento'
+    };
+    
+    const resultado = await salvarEvento(dadosEvento);
+    
+    // Atualiza localmente também para não precisar recarregar tudo
+    if (resultado.id) {
+      const novoEvento = { ...dadosEvento, id: resultado.id };
+      if (!eventos[dataStr]) eventos[dataStr] = [];
+      eventos[dataStr].push(novoEvento);
+    }
+    
+    // Recarrega os eventos do banco para garantir sincronização
+    await carregarEventos();
 
-  if (!eventos[dataStr]) eventos[dataStr] = [];
-  eventos[dataStr].push(evento);
+    // limpa inputs
+    inputNomeDay.value = "";
+    inputHoraDay.value = "";
+    inputLocalDay.value = "";
 
-  // limpa inputs
-  inputNomeDay.value = "";
-  inputHoraDay.value = "";
-  inputLocalDay.value = "";
+    // fecha modal
+    janelaModalDay.style.display = "none";
 
-  // fecha modal
-  janelaModalDay.style.display = "none";
-
-  // re-renderiza calendário para mostrar ponto
-  renderCalendar(dataAtual);
-  renderUpcomingEvents();
-
-  console.log("Eventos:", eventos);
+    console.log("Evento salvo com sucesso!");
+  } catch (error) {
+    alert('Erro ao salvar evento: ' + error.message);
+  }
 });
 
 // cancelar modal do dia
@@ -333,58 +443,20 @@ btnJanelaModal.addEventListener("click", () => {
   janelaModal.style.display = "flex";
 });
 
-// fechar modal clicando fora
-window.addEventListener("click", (e) => {
-  if (e.target === janelaModal) janelaModal.style.display = "none";
-  if (e.target === janelaModalDay) janelaModalDay.style.display = "none";
-});
-
-// --- MODAL DE VISUALIZAÇÃO ---
-const janelaModalView = document.getElementById("janela-modal-view");
-const listaEventos = document.getElementById("listaEventos");
-const btnFecharView = document.getElementById("btnFecharView");
-
-// abrir modal ao clicar no dia do calendário
-diasContainer.addEventListener("click", (e) => {
-  const alvo = e.target.closest(".calendar-day");
-  if (!alvo || alvo.classList.contains("other-month")) return;
-
-  diaSelecionado = alvo;
-  const dataStr = alvo.dataset.date;
-
-  if (eventos[dataStr] && eventos[dataStr].length > 0) {
-    // já tem evento → abre modal de visualização
-    listaEventos.innerHTML = "";
-    eventos[dataStr].forEach(ev => {
-      const div = document.createElement("div");
-      div.className = "evento-item";
-      div.innerHTML = `
-        <p><strong>${ev.nome}</strong></p>
-        <p>Hora: ${ev.hora || "—"}</p>
-        <p>Local: ${ev.local || "—"}</p>
-        <hr>
-      `;
-      listaEventos.appendChild(div);
-    });
-    janelaModalView.style.display = "flex";
-  } else {
-    // sem evento → abre modal de criação
-    janelaModalDay.style.display = "flex";
-  }
-});
-
 // fechar modal de visualização
 btnFecharView.addEventListener("click", () => {
   janelaModalView.style.display = "none";
 });
 
+// fechar modal clicando fora
 window.addEventListener("click", (e) => {
   if (e.target === janelaModal) janelaModal.style.display = "none";
   if (e.target === janelaModalDay) janelaModalDay.style.display = "none";
   if (e.target === janelaModalView) janelaModalView.style.display = "none";
 });
 
-btnSalvar.addEventListener("click", (e) => {
+// salvar evento do modal livre
+btnSalvar.addEventListener("click", async (e) => {
   e.preventDefault();
 
   const dataStr = document.getElementById("data").value;
@@ -402,21 +474,62 @@ btnSalvar.addEventListener("click", (e) => {
     return;
   }
 
-  const evento = { nome, hora, local };
-  if (!eventos[dataStr]) eventos[dataStr] = [];
-  eventos[dataStr].push(evento);
+  try {
+    const dadosEvento = {
+      nome,
+      data: dataStr,
+      hora,
+      local,
+      tipo: 'Evento'
+    };
+    
+    const resultado = await salvarEvento(dadosEvento);
+    
+    // Atualiza localmente também
+    if (resultado.id) {
+      const novoEvento = { ...dadosEvento, id: resultado.id };
+      if (!eventos[dataStr]) eventos[dataStr] = [];
+      eventos[dataStr].push(novoEvento);
+    }
+    
+    // Recarrega os eventos do banco
+    await carregarEventos();
 
-  // limpar inputs
-  document.getElementById("nome").value = "";
-  document.getElementById("hora").value = "";
-  document.getElementById("local").value = "";
-  document.getElementById("data").value = "";
+    // limpar inputs
+    document.getElementById("nome").value = "";
+    document.getElementById("hora").value = "";
+    document.getElementById("local").value = "";
+    document.getElementById("data").value = "";
 
-  janelaModal.style.display = "none";
-  renderCalendar(dataAtual);
-  renderUpcomingEvents();
+    janelaModal.style.display = "none";
 
-  console.log("Eventos:", eventos)
+    console.log("Evento salvo com sucesso!");
+  } catch (error) {
+    alert('Erro ao salvar evento: ' + error.message);
+  }
 });
 
+// Função para deletar evento
+async function handleDeleteEvent(eventId) {
+  if (!confirm('Tem certeza que deseja excluir este evento?')) {
+    return;
+  }
 
+  try {
+    await deletarEvento(eventId);
+    await carregarEventos(); // Recarrega os eventos
+    janelaModalView.style.display = "none"; // Fecha modal se estiver aberto
+    console.log("Evento deletado com sucesso!");
+  } catch (error) {
+    alert('Erro ao deletar evento: ' + error.message);
+  }
+}
+
+// Inicialização
+document.addEventListener('DOMContentLoaded', () => {
+  // Carrega eventos do banco ao inicializar
+  carregarEventos();
+  
+  // render inicial do calendário
+  renderCalendar(dataAtual);
+});

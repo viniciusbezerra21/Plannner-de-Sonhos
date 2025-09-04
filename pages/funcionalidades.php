@@ -567,12 +567,20 @@
           </div>
         </div>
 
-        <div class="footer-links">
+         <div class="footer-links">
           <h3>Links Rápidos</h3>
           <ul>
             <li><a href="../index.php">Início</a></li>
-            <li><a href="funcionalidades.php">Funcionalidades</a></li>
-            <li><a href="contato.php">Contato</a></li>
+            <li>
+                <a href="funcionalidades.php">Funcionalidades</a>
+            </li>
+            <li>
+              <?php if (isset($_SESSION['usuario_logado'])): ?>
+                <a href="contato.php">Contato</a>
+              <?php else: ?>
+                <a href="#" onclick="openLoginModal()"></a>
+              <?php endif; ?>
+            </li>
           </ul>
         </div>
 

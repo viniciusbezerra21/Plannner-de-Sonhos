@@ -1,4 +1,5 @@
 <?php
+
 function criptografar($dados) {
     $chave = 'receba'; 
     $iv = substr(hash('sha256', 'iv_unico'), 0, 16);
