@@ -2,6 +2,7 @@
 // Função para atualizar os dados da sessão do usuário
 function atualizarSessaoUsuario($usuario_id, $conn) {
     require_once 'crypto.php';
+
     
     $sql = "SELECT nome, email, foto_perfil FROM usuario WHERE id = ?";
     $stmt = $conn->prepare($sql);

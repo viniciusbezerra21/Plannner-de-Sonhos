@@ -1,7 +1,7 @@
 <?php
 session_start();
-require_once 'crypto.php';
-require_once 'session_helper.php'; // Incluir helper da sessão
+require_once __DIR__ . '/crypto.php';
+require_once __DIR__ . '/session_helper.php';
 
 if (!isset($_SESSION['usuario_id'])) {
     header("Location: index.php");
@@ -11,7 +11,7 @@ if (!isset($_SESSION['usuario_id'])) {
 $hostname = "127.0.0.1";
 $user = "root";
 $password = "root";
-$database = "casamento";
+$database = "weddingeasy";
 
 $conn = new mysqli($hostname, $user, $password, $database);
 if ($conn->connect_error) {
@@ -37,7 +37,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($_FILES['foto_perfil']['error'] === UPLOAD_ERR_OK) {
                 $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
                 if (in_array($_FILES['foto_perfil']['type'], $allowed_types)) {
-                    $upload_dir = "uploads/";
+                    $upload_dir = "uploads/perfil/";
+
                     if (!is_dir($upload_dir)) {
                         mkdir($upload_dir, 0777, true);
                     }

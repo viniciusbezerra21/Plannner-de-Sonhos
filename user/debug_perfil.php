@@ -3,7 +3,7 @@
 $hostname = "127.0.0.1";
 $user = "root";
 $password = "root";
-$database = "casamento";
+$database = "weddingeasy";
 
 $conn = new mysqli($hostname, $user, $password, $database);
 if ($conn->connect_error) {
