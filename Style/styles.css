@@ -266,7 +266,7 @@ p {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #1f1f1f;
+  color: #ffffff;
   animation: heartbeat 2s ease-in-out infinite;
 }
 
@@ -2891,22 +2891,28 @@ a {
 }
 
 .form-group:nth-child(1) {
-  animation-delay: 0.1s;
+  animation-delay: 0.6s;
 }
 .form-group:nth-child(2) {
-  animation-delay: 0.2s;
+  animation-delay: 0.5s;
 }
 .form-group:nth-child(3) {
-  animation-delay: 0.3s;
+  animation-delay: 0.4s;
 }
 .form-group:nth-child(4) {
-  animation-delay: 0.4s;
+  animation-delay: 0.3s;
+}
+.form-group:nth-child(5) {
+  animation-delay: 0.2s;
+}
+.form-group:nth-child(6) {
+  animation-delay: 0.1s;
 }
 
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
-  animation: glow 0.5s ease-out, breathe 2s ease-in-out infinite;
+  animation: glow 0.5s ease-out, breathe 5s ease-in-out infinite;
 }
 
 /* Animações para elementos de contato */

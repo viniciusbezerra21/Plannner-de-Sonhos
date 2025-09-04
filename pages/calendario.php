@@ -106,49 +106,93 @@
       background-color: #fef2f2;
     }
 
-    
-
     .create-event-modal {
-  display: none; /* começa escondido */
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.199); /* fundo escuro */
-  z-index: 9999;
-  justify-content: center;
-  align-items: center;
-}
+      display: none;
+      /* começa escondido */
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.199);
+      /* fundo escuro */
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+    }
 
-.create-event-modal .content {
-  background: white;
-  width: 400px;
-  height: 400px;
-  border-radius: 10px;
-  padding: 20px;
-}
+    .create-event-modal .content {
+      background: white;
+      width: 400px;
+      height: 400px;
+      border-radius: 10px;
+      padding: 20px;
+    }
 
-.calendar-day-modal{
-  display: none; /* começa escondido */
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.199); /* fundo escuro */
-  z-index: 9999;
-  justify-content: center;
-  align-items: center;
-}
+    .calendar-day-modal {
+      display: none;
+      /* começa escondido */
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.199);
+      /* fundo escuro */
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+    }
 
-.content-day{
-  background: white;
-  width: 400px;
-  height: 400px;
-  border-radius: 10px;
-  padding: 20px;
-}
+    .content-day {
+      background: white;
+      width: 400px;
+      height: 400px;
+      border-radius: 10px;
+      padding: 20px;
+    }
+
+    .card-modal {
+      background-color: hsl(var(--card));
+      border: 1px solid hsl(var(--border));
+      border-radius: 1.5rem;
+      padding: 1.5rem;
+      transition: all 0.3s;
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    .card-view {
+      width: 70%;
+      max-width: 800px;
+      padding: 2rem;
+    }
+
+    .card-view h1 {
+      margin-bottom: 1.5rem;
+    }
+
+    .event-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      max-height: 400px;
+      overflow-y: auto;
+      padding-right: 0.5rem;
+    }
+
+    .event-list .event-item {
+      background: hsl(var(--card));
+      border: 1px solid hsl(var(--border));
+      border-radius: 0.75rem;
+      padding: 1rem 1.25rem;
+      transition: all 0.2s;
+    }
+
+    .event-list .event-item:hover {
+      background: hsl(var(--muted));
+      transform: translateX(4px);
+    }
 
 
     @media (max-width: 768px) {
@@ -165,47 +209,87 @@
 
 <body>
   <div class="create-event-modal" id="janela-modal">
-    <form class="content">
-      <h1>criar novo evento</h1>
-      <label for="nome">Nome do evento</label>
-      <input type="text" id="nome" name="nome">
-      <input type="text" placeholder="Descrição do evento">
-      <label for="data">Selecione a data</label>
-      <input type="date" id="data" name="data">
-      <label for="hora">Selecione a hora</label>
-      <input type="time" name="hora" id="hora" >
-      <label for="local">Local</label>
-      <input type="text" name="local" id="local" placeholder="Local do evento">
+    <form class="card-modal contact-form">
+      <h1 class="text-primary">Adicionar Novo Evento</h1>
 
-      <button type="submit" id="btnSalvarModal">Criar novo evento</button>
-      <button type="submit" id="btnCancelar">Cancelar</button>
+      <div class="form-group">
+        <label for="nome">Nome do evento</label>
+        <input type="text" id="nome" name="nome">
+      </div>
+
+      <div class="form-group">
+        <label for="descricao">Descrição do evento</label>
+        <input type="text" id="descricao" name="descricao">
+      </div>
+
+      <div class="form-group">
+        <label for="data">Selecione a data</label>
+        <input type="date" id="data" name="data">
+      </div>
+
+      <div class="form-group">
+        <label for="hora">Selecione a hora</label>
+        <input type="time" id="hora" name="hora">
+      </div>
+
+      <div class="form-group">
+        <label for="local">Local</label>
+        <input type="text" id="local" name="local" placeholder="Local do evento">
+      </div>
+
+      <div class="form-row">
+        <button type="submit" id="btnSalvarModal" class="btn-primary">Criar novo evento</button>
+        <button type="button" id="btnCancelar" class="btn-outline">Cancelar</button>
+      </div>
     </form>
   </div>
 
   <div class="calendar-day-modal" id="janela-modal-day">
-    <form class="content-day">
-      <h1>criar novo evento</h1>
-      <label for="nome">Nome do evento</label>
-      <input type="text" id="nome" name="nome">
-      <label for="hora">Selecione a hora</label>
-      <input type="time" name="hora" id="hora" >
-      <label for="local">Local</label>
-      <input type="text" name="local" id="local" placeholder="Local do evento">
-      <input type="text" placeholder="Descrição do evento">
+    <form class="card-modal contact-form">
+      <h1 class="text-primary">Criar Novo Evento</h1>
 
-      <button type="submit" id="btnSalvar">Criar novo evento</button>
-      <button type="submit" id="btnCancelar">Cancelar</button>
-    </form> 
+      <div class="form-group">
+        <label for="nome">Nome do evento</label>
+        <input type="text" id="nome" name="nome">
+      </div>
+
+      <div class="form-group">
+        <label for="hora">Selecione a hora</label>
+        <input type="time" name="hora" id="hora">
+      </div>
+
+      <div class="form-group">
+        <label for="local">Local</label>
+        <input type="text" name="local" id="local" placeholder="Local do evento">
+      </div>
+
+      <div class="form-group">
+        <label for="descricao">Descrição do evento</label>
+        <input type="text" id="descricao" name="descricao">
+      </div>
+
+      <div class="form-row">
+        <button type="submit" id="btnSalvar" class="btn-primary">Criar novo evento</button>
+        <button type="button" id="btnCancelar" class="btn-outline">Cancelar</button>
+      </div>
+    </form>
   </div>
+
 
   <div class="view-events-modal" id="janela-modal-view">
-    <div class="content-view">
-      <h1>Eventos do Dia</h1>
-      <div id="listaEventos"></div>
-      <button id="btnFecharView">Fechar</button>
+    <div class="card card-view">
+      <h1 class="text-primary">Eventos do Dia</h1>
+
+      <div id="listaEventos" class="event-list"></div>
+
+      <div class="form-row">
+        <button type="button" id="btnFecharView" class="btn-outline">Fechar</button>
+      </div>
     </div>
   </div>
-  
+
+
+
 
   <!-- Header -->
   <header class="header">
@@ -240,67 +324,67 @@
           <a href="contato.php" class="nav-link">Contato</a>
 
           <?php if (isset($_SESSION['usuario_logado'])): ?>
-          <!-- Usuário logado -->
-          <div class="user-profile">
-            <?php if (!empty($_SESSION['usuario_logado']['foto_perfil']) && file_exists('../uploads/perfil/' . $_SESSION['usuario_logado']['foto_perfil'])): ?>
-            <img src="../uploads/perfil/<?php echo htmlspecialchars($_SESSION['usuario_logado']['foto_perfil']); ?>"
-              alt="Foto do perfil" class="user-avatar" onclick="toggleProfileDropdown()" />
-            <?php else: ?>
-            <div class="user-avatar-default" onclick="toggleProfileDropdown()">
-              <?php echo strtoupper(substr($_SESSION['usuario_logado']['nome'], 0, 1)); ?>
-            </div>
-            <?php endif; ?>
+            <!-- Usuário logado -->
+            <div class="user-profile">
+              <?php if (!empty($_SESSION['usuario_logado']['foto_perfil']) && file_exists('../uploads/perfil/' . $_SESSION['usuario_logado']['foto_perfil'])): ?>
+                <img src="../uploads/perfil/<?php echo htmlspecialchars($_SESSION['usuario_logado']['foto_perfil']); ?>"
+                  alt="Foto do perfil" class="user-avatar" onclick="toggleProfileDropdown()" />
+              <?php else: ?>
+                <div class="user-avatar-default" onclick="toggleProfileDropdown()">
+                  <?php echo strtoupper(substr($_SESSION['usuario_logado']['nome'], 0, 1)); ?>
+                </div>
+              <?php endif; ?>
 
-            <div class="profile-dropdown" id="profileDropdown">
-              <div class="profile-dropdown-header">
-                <p class="profile-dropdown-name">
-                  <?php echo htmlspecialchars($_SESSION['usuario_logado']['nome']); ?>
-                </p>
-                <p class="profile-dropdown-email">
-                  <?php echo htmlspecialchars($_SESSION['usuario_logado']['email']); ?>
-                </p>
-              </div>
-              <div class="profile-dropdown-menu">
-                <a href="../user/perfil.php" class="profile-dropdown-item">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    style="margin-right: 0.5rem; vertical-align: middle;">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                    <circle cx="12" cy="7" r="4" />
-                  </svg>
-                  Meu Perfil
-                </a>
-                <a href="dashboard.php" class="profile-dropdown-item">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    style="margin-right: 0.5rem; vertical-align: middle;">
-                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                    <line x1="9" y1="9" x2="15" y2="9" />
-                    <line x1="9" y1="15" x2="15" y2="15" />
-                  </svg>
-                  Dashboard
-                </a>
-                <a href="casamento.php" class="profile-dropdown-item">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    style="margin-right: 0.5rem; vertical-align: middle;">
-                    <path
-                      d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                  </svg>
-                  Meu Casamento
-                </a>
-                <a href="../user/logout.php" class="profile-dropdown-item logout">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    style="margin-right: 0.5rem; vertical-align: middle;">
-                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                    <polyline points="16,17 21,12 16,7" />
-                    <line x1="21" y1="12" x2="9" y2="12" />
-                  </svg>
-                  Sair
-                </a>
+              <div class="profile-dropdown" id="profileDropdown">
+                <div class="profile-dropdown-header">
+                  <p class="profile-dropdown-name">
+                    <?php echo htmlspecialchars($_SESSION['usuario_logado']['nome']); ?>
+                  </p>
+                  <p class="profile-dropdown-email">
+                    <?php echo htmlspecialchars($_SESSION['usuario_logado']['email']); ?>
+                  </p>
+                </div>
+                <div class="profile-dropdown-menu">
+                  <a href="../user/perfil.php" class="profile-dropdown-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      style="margin-right: 0.5rem; vertical-align: middle;">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                      <circle cx="12" cy="7" r="4" />
+                    </svg>
+                    Meu Perfil
+                  </a>
+                  <a href="dashboard.php" class="profile-dropdown-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      style="margin-right: 0.5rem; vertical-align: middle;">
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                      <line x1="9" y1="9" x2="15" y2="9" />
+                      <line x1="9" y1="15" x2="15" y2="15" />
+                    </svg>
+                    Dashboard
+                  </a>
+                  <a href="casamento.php" class="profile-dropdown-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      style="margin-right: 0.5rem; vertical-align: middle;">
+                      <path
+                        d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                    </svg>
+                    Meu Casamento
+                  </a>
+                  <a href="../user/logout.php" class="profile-dropdown-item logout">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      style="margin-right: 0.5rem; vertical-align: middle;">
+                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                      <polyline points="16,17 21,12 16,7" />
+                      <line x1="21" y1="12" x2="9" y2="12" />
+                    </svg>
+                    Sair
+                  </a>
+                </div>
               </div>
             </div>
-          </div>
           <?php else: ?>
-          <!-- Usuário não logado -->
-          <a href="../user/login.php" class="btn-primary" style="align-items: center">Login</a>
+            <!-- Usuário não logado -->
+            <a href="../user/login.php" class="btn-primary" style="align-items: center">Login</a>
           <?php endif; ?>
         </nav>
 
@@ -332,32 +416,32 @@
           <a href="contato.php" class="nav-link" style="padding: 0.5rem 0">Contato</a>
 
           <?php if (isset($_SESSION['usuario_logado'])): ?>
-          <div style="border-top: 1px solid hsl(var(--border)); margin-top: 1rem; padding-top: 1rem;">
-            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
-              <?php if (!empty($_SESSION['usuario_logado']['foto_perfil']) && file_exists('../uploads/perfil/' . $_SESSION['usuario_logado']['foto_perfil'])): ?>
-              <img src="../uploads/perfil/<?php echo htmlspecialchars($_SESSION['usuario_logado']['foto_perfil']); ?>"
-                alt="Foto do perfil" class="user-avatar" style="width: 32px; height: 32px;" />
-              <?php else: ?>
-              <div class="user-avatar-default" style="width: 32px; height: 32px; font-size: 0.8rem;">
-                <?php echo strtoupper(substr($_SESSION['usuario_logado']['nome'], 0, 1)); ?>
-              </div>
-              <?php endif; ?>
-              <div>
-                <div style="font-weight: 600; font-size: 0.9rem;">
-                  <?php echo htmlspecialchars($_SESSION['usuario_logado']['nome']); ?>
+            <div style="border-top: 1px solid hsl(var(--border)); margin-top: 1rem; padding-top: 1rem;">
+              <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+                <?php if (!empty($_SESSION['usuario_logado']['foto_perfil']) && file_exists('../uploads/perfil/' . $_SESSION['usuario_logado']['foto_perfil'])): ?>
+                  <img src="../uploads/perfil/<?php echo htmlspecialchars($_SESSION['usuario_logado']['foto_perfil']); ?>"
+                    alt="Foto do perfil" class="user-avatar" style="width: 32px; height: 32px;" />
+                <?php else: ?>
+                  <div class="user-avatar-default" style="width: 32px; height: 32px; font-size: 0.8rem;">
+                    <?php echo strtoupper(substr($_SESSION['usuario_logado']['nome'], 0, 1)); ?>
+                  </div>
+                <?php endif; ?>
+                <div>
+                  <div style="font-weight: 600; font-size: 0.9rem;">
+                    <?php echo htmlspecialchars($_SESSION['usuario_logado']['nome']); ?>
+                  </div>
+                  <div style="font-size: 0.8rem; color: hsl(var(--muted-foreground));">
+                    <?php echo htmlspecialchars($_SESSION['usuario_logado']['email']); ?>
+                  </div>
                 </div>
-                <div style="font-size: 0.8rem; color: hsl(var(--muted-foreground));">
-                  <?php echo htmlspecialchars($_SESSION['usuario_logado']['email']); ?>
-                </div>
               </div>
+              <a href="../user/perfil.php" class="nav-link" style="padding: 0.5rem 0">Meu Perfil</a>
+              <a href="dashboard.php" class="nav-link" style="padding: 0.5rem 0">Dashboard</a>
+              <a href="casamento.php" class="nav-link" style="padding: 0.5rem 0">Meu Casamento</a>
+              <a href="../user/logout.php" class="nav-link" style="padding: 0.5rem 0; color: #ef4444;">Sair</a>
             </div>
-            <a href="../user/perfil.php" class="nav-link" style="padding: 0.5rem 0">Meu Perfil</a>
-            <a href="dashboard.php" class="nav-link" style="padding: 0.5rem 0">Dashboard</a>
-            <a href="casamento.php" class="nav-link" style="padding: 0.5rem 0">Meu Casamento</a>
-            <a href="../user/logout.php" class="nav-link" style="padding: 0.5rem 0; color: #ef4444;">Sair</a>
-          </div>
           <?php else: ?>
-          <a href="../user/login.php" class="btn-primary" style="align-items: center">Login</a>
+            <a href="../user/login.php" class="btn-primary" style="align-items: center">Login</a>
           <?php endif; ?>
         </nav>
       </div>
@@ -419,7 +503,7 @@
                   <div class="calendar-days"></div>
                 </div>
               </div>
-              
+
 
               <!-- VISÃO SEMANA -->
               <div id="view-week" class="calendar-view" style="display: none">
@@ -838,7 +922,7 @@
     }
 
     // Fechar dropdown quando clicar fora
-    document.addEventListener('click', function (event) {
+    document.addEventListener('click', function(event) {
       const profile = document.querySelector('.user-profile');
       const dropdown = document.getElementById("profileDropdown");
 
@@ -849,7 +933,7 @@
 
     // Smooth scroll for anchor links
     document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-      anchor.addEventListener("click", function (e) {
+      anchor.addEventListener("click", function(e) {
         e.preventDefault();
         const target = document.querySelector(this.getAttribute("href"));
         if (target) {

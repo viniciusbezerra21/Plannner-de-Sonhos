@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Página Dev • Fornecedores & Clientes</title>
+    <style>
+      :root {
+        --primary: 345 91% 58%;
+        --primary-foreground: 345 100% 96%;
+        --secondary: 345 60% 45%;
+        --secondary-foreground: 345 100% 96%;
+        --background: 0 0% 12%;
+        --foreground: 345 30% 95%;
+        --muted: 345 20% 25%;
+        --muted-foreground: 345 20% 70%;
+        --card: 345 20% 18%;
+        --card-foreground: 345 30% 95%;
+        --border: 345 20% 30%;
+        --accent: 345 91% 58%;
+        --accent-foreground: 345 100% 96%;
+        --wedding-lavender: hsl(345, 60%, 90%);
+        --wedding-purple: hsl(345, 60%, 40%);
+        --wedding-rose-white: hsl(345, 100%, 98%);
+        --wedding-dark-purple: hsl(345, 70%, 15%);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        font-family: Inter, system-ui, Segoe UI, Roboto, Helvetica, Arial,
+          sans-serif;
+        color: hsl(var(--foreground));
+        background: linear-gradient(
+          135deg,
+          rgb(194, 43, 81) 0%,
+          rgb(0, 0, 0) 50%,
+          rgb(100, 4, 20) 100%
+        );
+        line-height: 1.5;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 24px;
+      }
+
+      /* Header */
+      .header {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+      }
+      .title {
+        font-weight: 800;
+        font-size: clamp(22px, 2.2vw, 28px);
+      }
+      .title b {
+        color: hsl(var(--primary));
+      }
+      .sub {
+        color: hsl(var(--muted-foreground));
+        font-weight: 500;
+      }
+
+      /* Pesquisa */
+      .search-bar {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        margin: 8px 0 22px;
+      }
+      .input {
+        background: hsl(var(--card));
+        border: 1px solid hsl(var(--border));
+        border-radius: 14px;
+        padding: 14px 16px;
+        color: hsl(var(--foreground));
+        outline: none;
+        font-weight: 500;
+        box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.25);
+      }
+      .input:focus {
+        box-shadow: 0 0 0 6px hsla(345, 91%, 58%, 0.12);
+      }
+      .btn {
+        border: 1px solid hsl(var(--border));
+        background: hsl(var(--primary));
+        color: hsl(var(--primary-foreground));
+        padding: 12px 16px;
+        border-radius: 12px;
+        font-weight: 700;
+        letter-spacing: 0.2px;
+        cursor: pointer;
+      }
+      .btn:active {
+        transform: translateY(1px);
+      }
+
+      /* Grid dos cards */
+      .grid {
+        display: grid;
+        gap: 18px;
+        grid-template-columns: 1fr;
+      }
+      @media (min-width: 860px) {
+        .grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
+      .card {
+        background: hsl(var(--card));
+        border: 1px solid hsl(var(--border));
+        border-radius: 16px;
+        padding: 22px;
+        position: relative;
+        overflow: hidden;
+        min-height: 400px;
+      }
+      .card h3 {
+        margin: 0 0 8px;
+        font-size: 18px;
+      }
+      .hint {
+        color: hsl(var(--muted-foreground));
+        font-size: 13px;
+        margin: 0 0 14px;
+      }
+
+      .row {
+        display: grid;
+        gap: 10px;
+        grid-template-columns: 1fr 1fr;
+      }
+      .row > * {
+        min-width: 0;
+      }
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .field label {
+        font-size: 12px;
+        color: hsl(var(--muted-foreground));
+      }
+      .field input,
+      .field select,
+      .field textarea {
+        background: hsl(var(--background));
+        border: 1px solid hsl(var(--border));
+        border-radius: 10px;
+        color: hsl(var(--foreground));
+        padding: 10px 12px;
+        resize: vertical;
+        min-height: 40px;
+      }
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .chip {
+        border: 1px dashed hsl(var(--border));
+        color: hsl(var(--primary-foreground));
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+      }
+
+      /* Chat mock */
+      .chat {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 320px;
+      }
+      .chat-scroll {
+        flex: 1;
+        overflow: auto;
+        border: 1px solid hsl(var(--border));
+        border-radius: 12px;
+        padding: 12px;
+        background: hsl(var(--background));
+      }
+      .msg {
+        max-width: 80%;
+        padding: 10px 12px;
+        border-radius: 12px;
+        margin: 6px 0;
+        font-size: 14px;
+      }
+      .msg.client {
+        background: hsl(var(--wedding-purple));
+        color: hsl(var(--wedding-rose-white));
+        align-self: flex-start;
+      }
+      .msg.you {
+        background: hsl(var(--wedding-dark-purple));
+        color: hsl(var(--wedding-lavender));
+        align-self: flex-end;
+      }
+      .chat-input {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 8px;
+        margin-top: 8px;
+      }
+
+      /* Avaliações */
+      .rating {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 700;
+      }
+      .stars {
+        display: inline-flex;
+        gap: 4px;
+      }
+      .star {
+        width: 18px;
+        height: 18px;
+        display: inline-block;
+        clip-path: polygon(
+          50% 0%,
+          61% 35%,
+          98% 35%,
+          68% 57%,
+          79% 91%,
+          50% 70%,
+          21% 91%,
+          32% 57%,
+          2% 35%,
+          39% 35%
+        );
+        background: linear-gradient(
+          180deg,
+          hsl(var(--accent)),
+          hsl(var(--secondary))
+        );
+      }
+      .star.off {
+        background: hsl(var(--muted));
+      }
+
+      .bar {
+        height: 10px;
+        border-radius: 999px;
+        background: hsl(var(--muted));
+        overflow: hidden;
+      }
+      .bar > i {
+        display: block;
+        height: 100%;
+        background: hsl(var(--accent));
+      }
+
+      .dist {
+        display: grid;
+        gap: 8px;
+      }
+      .dist-row {
+        display: grid;
+        grid-template-columns: 42px 1fr 50px;
+        gap: 10px;
+        align-items: center;
+        font-size: 12px;
+        color: hsl(var(--muted-foreground));
+      }
+
+      .foot {
+        margin-top: 24px;
+        color: hsl(var(--muted-foreground));
+        font-size: 12px;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Cabeçalho -->
+      <div class="header">
+        <div>
+          <div class="title">Dev • <b>Painel</b></div>
+        </div>
+      </div>
+
+      <!-- Pesquisa de Cliente -->
+      <form class="search-bar" action="#" method="get">
+        <input class="input" type="search" name="q" />
+        <button class="btn" type="submit">Pesquisar</button>
+      </form>
+
+      <!-- 3 CARDS PRINCIPAIS -->
+      <section class="grid">
+        <!-- Card 1: Adicionar Fornecedores -->
+        <article class="card">
+          <h3>Adicionar Fornecedor</h3>
+          <p class="hint">Formulário estático para cadastro.</p>
+          <div class="row">
+            <div class="field">
+              <label>Nome do fornecedor</label>
+              <input type="text" />
+            </div>
+            <div class="field">
+              <label>Categoria</label>
+              <select>
+                <option>Buffet</option>
+                <option>Decoração</option>
+                <option>Fotografia</option>
+                <option>Música</option>
+                <option>Outros</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Telefone</label>
+              <input type="tel" />
+            </div>
+            <div class="field">
+              <label>E-mail</label>
+              <input type="email" />
+            </div>
+            <div class="field" style="grid-column: 1/-1">
+              <label>Descrição / Observações</label>
+              <textarea rows="3"></textarea>
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px; margin-top: 14px">
+            <button class="btn" type="button">Salvar fornecedor</button>
+            <button
+              class="btn"
+              type="button"
+              style="
+                background: hsl(var(--muted));
+                color: hsl(var(--muted-foreground));
+              "
+            >
+              Limpar
+            </button>
+          </div>
+        </article>
+
+        <!-- Card 2: Chat com Clientes (mock) -->
+        <article class="card">
+          <h3>Chat com Clientes</h3>
+          <p class="hint">Interface de conversa visual.</p>
+          <div class="chat">
+            <div class="chat-scroll">
+              <div class="msg client">
+                Olá! Gostei do pacote de fotografia, pode me enviar valores?
+              </div>
+              <div class="msg you">
+                Claro! Pacotes a partir de R$ 4.000, incluindo making of.
+              </div>
+            </div>
+            <div class="chat-input">
+              <input class="input" type="text" />
+              <button class="btn" type="button">Enviar</button>
+            </div>
+          </div>
+        </article>
+
+        <!-- Card 3: Análise de Avaliações dos Fornecedores -->
+        <article class="card">
+          <h3>Análise de Avaliações</h3>
+          <p class="hint">Resumo visual de reputação dos fornecedores.</p>
+          <div class="rating" style="margin-bottom: 10px">
+            <span class="stars" aria-label="4 de 5">
+              <i class="star"></i><i class="star"></i><i class="star"></i
+              ><i class="star"></i><i class="star off"></i>
+            </span>
+            <span>4.2</span>
+            <span class="muted">/ 5 geral</span>
+          </div>
+          <div class="dist">
+            <div class="dist-row">
+              <span>5★</span>
+              <div class="bar"><i style="width: 64%"></i></div>
+              <span>64%</span>
+            </div>
+            <div class="dist-row">
+              <span>4★</span>
+              <div class="bar"><i style="width: 21%"></i></div>
+              <span>21%</span>
+            </div>
+            <div class="dist-row">
+              <span>3★</span>
+              <div class="bar"><i style="width: 8%"></i></div>
+              <span>8%</span>
+            </div>
+            <div class="dist-row">
+              <span>2★</span>
+              <div class="bar"><i style="width: 4%"></i></div>
+              <span>4%</span>
+            </div>
+            <div class="dist-row">
+              <span>1★</span>
+              <div class="bar"><i style="width: 3%"></i></div>
+              <span>3%</span>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <p class="foot">
+      </p>
+    </div>
+  </body>
+</html>
