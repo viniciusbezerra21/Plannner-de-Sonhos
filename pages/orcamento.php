@@ -159,44 +159,49 @@
 
 <body>
 
-  <div class="create-event-modal" id="janela-modal-orcamentos">
-    <div class="modal-content">
-      <span class="fechar">&times;</span>
-      <div
-        class="card"
-        style="
-        background: linear-gradient(
-          135deg,
-          var(--wedding-rose-white) 0%,
-          rgba(225, 190, 231, 0.2) 50%,
-          rgba(186, 104, 200, 0.3) 100%
-        );
-      ">
-        <h2 style="margin-bottom: 1rem">Itens do Orçamento</h2>
-        <table style="width: 100%; border-collapse: collapse">
-          <thead>
-            <tr style="text-align: left; border-bottom: 1px solid hsl(var(--border));">
-              <th style="padding: 0.75rem; cursor: default">Item</th>
-              <th style="padding: 0.75rem; cursor: default">Fornecedor</th>
-              <th style="padding: 0.75rem; cursor: default">Avaliação</th>
-              <th style="padding: 0.75rem; cursor: default">Quantidade</th>
-              <th style="padding: 0.75rem; cursor: default">Valor Unitário</th>
-              <th style="padding: 0.75rem; cursor: default">Valor Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- Linhas do orçamento aqui (mesmo que você já tem) -->
-          </tbody>
-          <tfoot>
-            <tr style="border-top: 2px solid hsl(var(--border)); font-weight: bold; cursor: default;">
-              <td colspan="5" style="padding: 0.75rem; text-align: right">Total:</td>
-              <td style="padding: 0.75rem">R$ 22.000,00</td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
+<div class="create-event-modal" id="janela-modal-orcamentos">
+  <div class="modal-content">
+    <span class="fechar">&times;</span>
+    <div
+      class="card"
+      style="
+      background: linear-gradient(
+        135deg,
+        var(--wedding-rose-white) 0%,
+        rgba(225, 190, 231, 0.2) 50%,
+        rgba(186, 104, 200, 0.3) 100%
+      );
+    ">
+      <h2 style="margin-bottom: 1rem">Itens do Orçamento</h2>
+      <table style="width: 100%; border-collapse: collapse">
+        <thead>
+          <tr style="text-align: left; border-bottom: 1px solid hsl(var(--border));">
+            <th style="padding: 0.75rem; cursor: default">Item</th>
+            <th style="padding: 0.75rem; cursor: default">Fornecedor</th>
+            <th style="padding: 0.75rem; cursor: default">Avaliação</th>
+            <th style="padding: 0.75rem; cursor: default">Quantidade</th>
+            <th style="padding: 0.75rem; cursor: default">Valor Unitário</th>
+            <th style="padding: 0.75rem; cursor: default">Valor Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Linhas do orçamento aqui (mesmo que você já tem) -->
+
+          <!-- Linha de inputs -->
+          <tr>
+            <td style="padding: 0.5rem"><input type="text" placeholder="Item" style="width: 100%"></td>
+            <td style="padding: 0.5rem"><input type="text" placeholder="Fornecedor" style="width: 100%"></td>
+            <td style="padding: 0.5rem"><input type="text" placeholder="Avaliação" style="width: 100%"></td>
+            <td style="padding: 0.5rem"><input type="number" placeholder="Qtd" style="width: 100%"></td>
+            <td style="padding: 0.5rem"><input type="number" placeholder="Valor Unit." style="width: 100%"></td>
+            <td style="padding: 0.5rem"><input type="number" placeholder="Valor Total" style="width: 100%" readonly></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
+</div>
+
   <!-- Header -->
   <header class="header">
     <div class="container">

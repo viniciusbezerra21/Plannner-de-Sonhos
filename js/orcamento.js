@@ -11,4 +11,4 @@ span.onclick = () => modal.style.display = "none";
 // Fechar modal clicando fora do conteúdo
 window.onclick = (event) => {
   if (event.target == modal) modal.style.display = "none";
-};
+}
