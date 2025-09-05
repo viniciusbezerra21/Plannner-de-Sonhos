@@ -108,14 +108,12 @@
 
     .create-event-modal {
       display: none;
-      /* começa escondido */
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
       background: rgba(0, 0, 0, 0.199);
-      /* fundo escuro */
       z-index: 9999;
       justify-content: center;
       align-items: center;
@@ -131,14 +129,12 @@
 
     .calendar-day-modal {
       display: none;
-      /* começa escondido */
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
       background: rgba(0, 0, 0, 0.199);
-      /* fundo escuro */
       z-index: 9999;
       justify-content: center;
       align-items: center;
@@ -194,7 +190,6 @@
       transform: translateX(4px);
     }
 
-
     @media (max-width: 768px) {
       .user-profile {
         order: -1;
@@ -211,71 +206,57 @@
   <div class="create-event-modal" id="janela-modal">
     <form class="card-modal contact-form">
       <h1 class="text-primary">Adicionar Novo Evento</h1>
-
       <div class="form-group">
         <label for="nome">Nome do evento</label>
         <input type="text" id="nome" name="nome">
       </div>
-
       <div class="form-group">
         <label for="descricao">Descrição do evento</label>
         <input type="text" id="descricao" name="descricao">
       </div>
-
       <div class="form-group">
         <label for="data">Selecione a data</label>
         <input type="date" id="data" name="data">
       </div>
-
       <div class="form-group">
         <label for="hora">Selecione a hora</label>
         <input type="time" id="hora" name="hora">
       </div>
-
       <div class="form-group">
         <label for="local">Local</label>
         <input type="text" id="local" name="local" placeholder="Local do evento">
       </div>
-
       <div class="form-row">
         <button type="submit" id="btnSalvarModal" class="btn-primary">Criar novo evento</button>
         <button type="button" id="btnCancelar" class="btn-outline">Cancelar</button>
       </div>
     </form>
   </div>
-
   <div class="calendar-day-modal" id="janela-modal-day">
     <form class="card-modal contact-form">
       <h1 class="text-primary">Criar Novo Evento</h1>
-
       <div class="form-group">
         <label for="nome">Nome do evento</label>
         <input type="text" id="nome" name="nome">
       </div>
-
       <div class="form-group">
         <label for="hora">Selecione a hora</label>
         <input type="time" name="hora" id="hora">
       </div>
-
       <div class="form-group">
         <label for="local">Local</label>
         <input type="text" name="local" id="local" placeholder="Local do evento">
       </div>
-
       <div class="form-group">
         <label for="descricao">Descrição do evento</label>
         <input type="text" id="descricao" name="descricao">
       </div>
-
       <div class="form-row">
         <button type="submit" id="btnSalvar" class="btn-primary">Criar novo evento</button>
         <button type="button" id="btnCancelar" class="btn-outline">Cancelar</button>
       </div>
     </form>
   </div>
-
-
   <div class="view-events-modal" id="janela-modal-view">
     <div class="card card-view">
       <h1 class="text-primary">Eventos do Dia</h1>
@@ -287,15 +268,9 @@
       </div>
     </div>
   </div>
-
-
-
-
-  <!-- Header -->
   <header class="header">
     <div class="container">
       <div class="header-content">
-        <!-- Logo -->
         <a href="../index.php" class="logo">
           <div class="heart-icon">
             <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
@@ -305,12 +280,8 @@
           </div>
           <span class="logo-text">WeddingEasy</span>
         </a>
-
-        <!-- Navigation Desktop -->
         <nav class="nav">
           <a href="../index.php" class="nav-link">Início</a>
-
-          <!-- Dropdown Funcionalidades -->
           <div class="dropdown">
             <a href="funcionalidades.php" class="nav-link dropdown-toggle">Funcionalidades ▾</a>
             <div class="dropdown-menu">
@@ -320,11 +291,8 @@
               <a href="tarefas.php">Lista de Tarefas</a>
             </div>
           </div>
-
           <a href="contato.php" class="nav-link">Contato</a>
-
           <?php if (isset($_SESSION['usuario_logado'])): ?>
-            <!-- Usuário logado -->
             <div class="user-profile">
               <?php if (!empty($_SESSION['usuario_logado']['foto_perfil']) && file_exists('../uploads/perfil/' . $_SESSION['usuario_logado']['foto_perfil'])): ?>
                 <img src="../uploads/perfil/<?php echo htmlspecialchars($_SESSION['usuario_logado']['foto_perfil']); ?>"
@@ -334,7 +302,6 @@
                   <?php echo strtoupper(substr($_SESSION['usuario_logado']['nome'], 0, 1)); ?>
                 </div>
               <?php endif; ?>
-
               <div class="profile-dropdown" id="profileDropdown">
                 <div class="profile-dropdown-header">
                   <p class="profile-dropdown-name">
@@ -383,25 +350,18 @@
               </div>
             </div>
           <?php else: ?>
-            <!-- Usuário não logado -->
             <a href="../user/login.php" class="btn-primary" style="align-items: center">Login</a>
           <?php endif; ?>
         </nav>
-
-        <!-- CTA Button Desktop -->
         <button class="btn-primary" style="display: none">
           Solicitar Demonstração
         </button>
-
-        <!-- Mobile menu button -->
         <button id="hamburgerBtn" class="mobile-menu-btn" onclick="toggleMobileMenu()">
           <span class="hamburger-line"></span>
           <span class="hamburger-line"></span>
           <span class="hamburger-line"></span>
         </button>
       </div>
-
-      <!-- Mobile Menu -->
       <div id="mobileMenu" class="mobile-menu">
         <nav style="
               display: flex;
@@ -414,7 +374,6 @@
           <a href="../index.php" class="nav-link" style="padding: 0.5rem 0">Início</a>
           <a href="funcionalidades.php" class="nav-link" style="padding: 0.5rem 0">Funcionalidades</a>
           <a href="contato.php" class="nav-link" style="padding: 0.5rem 0">Contato</a>
-
           <?php if (isset($_SESSION['usuario_logado'])): ?>
             <div style="border-top: 1px solid hsl(var(--border)); margin-top: 1rem; padding-top: 1rem;">
               <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
@@ -447,7 +406,6 @@
       </div>
     </div>
   </header>
-
   <main>
     <section class="calendar-page">
       <div class="container">
@@ -469,7 +427,6 @@
             </button>
           </div>
         </div>
-
         <div class="calendar-layout">
           <div class="calendar-main">
             <div class="calendar-controls-card">
@@ -495,17 +452,12 @@
                   <button class="view-btn" data-view="day">Dia</button>
                 </div>
               </div>
-
-              <!-- VISÃO MÊS -->
               <div id="view-month" class="calendar-view active">
                 <div class="calendar-grid">
                   <div class="calendar-header-row"></div>
                   <div class="calendar-days"></div>
                 </div>
               </div>
-
-
-              <!-- VISÃO SEMANA -->
               <div id="view-week" class="calendar-view" style="display: none">
                 <div class="calendar-week-grid" style="
                       display: grid;
@@ -536,8 +488,6 @@
                   </div>
                 </div>
               </div>
-
-              <!-- VISÃO DIA -->
               <div id="view-day" class="calendar-view" style="display: none">
                 <div class="calendar-day-view" style="
                       display: flex;
@@ -585,7 +535,6 @@
                 </div>
               </div>
             </div>
-
             <div class="upcoming-events-card">
               <div class="events-header">
                 <h3>Próximos Eventos</h3>
@@ -603,7 +552,6 @@
                   </button>
                 </div>
               </div>
-
               <div class="events-list">
                 <div class="event-item high-priority">
                   <div class="event-content">
@@ -636,7 +584,6 @@
                   </div>
                   <span class="event-type meeting">Reunião</span>
                 </div>
-
                 <div class="event-item high-priority">
                   <div class="event-content">
                     <h4 class="event-title">Degustação do Buffet</h4>
@@ -668,7 +615,6 @@
                   </div>
                   <span class="event-type tasting">Degustação</span>
                 </div>
-
                 <div class="event-item medium-priority">
                   <div class="event-content">
                     <h4 class="event-title">Prova do Vestido</h4>
@@ -700,7 +646,6 @@
                   </div>
                   <span class="event-type fitting">Prova</span>
                 </div>
-
                 <div class="event-item medium-priority">
                   <div class="event-content">
                     <h4 class="event-title">Reunião com Decorador</h4>
@@ -735,7 +680,6 @@
               </div>
             </div>
           </div>
-
           <div class="calendar-sidebar">
             <div class="stats-card">
               <h3>Resumo</h3>
@@ -754,7 +698,6 @@
                 </div>
               </div>
             </div>
-
             <div class="timeline-card">
               <h3>Timeline do Casamento</h3>
               <div class="timeline">
@@ -810,7 +753,6 @@
                 </div>
               </div>
             </div>
-
             <div class="quick-actions-card">
               <h3>Ações Rápidas</h3>
               <div class="quick-actions">
@@ -846,8 +788,6 @@
       </div>
     </section>
   </main>
-
-  <!-- Footer -->
   <footer class="footer">
     <div class="container">
       <div class="footer-content">
@@ -874,7 +814,6 @@
             <span>contato@weddingeasy.com</span>
           </div>
         </div>
-
         <div class="footer-links">
           <h3>Links Rápidos</h3>
           <ul>
@@ -883,7 +822,6 @@
             <li><a href="contato.php">Contato</a></li>
           </ul>
         </div>
-
         <div class="footer-modules">
           <h3>Legal</h3>
           <ul>
@@ -897,16 +835,13 @@
           </ul>
         </div>
       </div>
-
       <div class="footer-bottom">
         <p>&copy; 2025 WeddingEasy. Todos os direitos reservados.</p>
       </div>
     </div>
   </footer>
-
   <script src="../js/calendario.js"></script>
   <script>
-    // Mobile menu toggle
     function toggleMobileMenu() {
       const mobileMenu = document.getElementById("mobileMenu");
       const hamburgerBtn = document.getElementById("hamburgerBtn");
@@ -915,23 +850,17 @@
       hamburgerBtn.classList.toggle("hamburger-active");
     }
 
-    // Profile dropdown toggle
     function toggleProfileDropdown() {
       const dropdown = document.getElementById("profileDropdown");
       dropdown.classList.toggle("active");
     }
-
-    // Fechar dropdown quando clicar fora
     document.addEventListener('click', function(event) {
       const profile = document.querySelector('.user-profile');
       const dropdown = document.getElementById("profileDropdown");
-
       if (profile && !profile.contains(event.target)) {
         dropdown?.classList.remove("active");
       }
     });
-
-    // Smooth scroll for anchor links
     document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
       anchor.addEventListener("click", function(e) {
         e.preventDefault();
@@ -941,8 +870,6 @@
             behavior: "smooth",
             block: "start",
           });
-
-          // Close mobile menu if open
           const mobileMenu = document.getElementById("mobileMenu");
           const hamburgerBtn = document.getElementById("hamburgerBtn");
           mobileMenu.classList.remove("active");

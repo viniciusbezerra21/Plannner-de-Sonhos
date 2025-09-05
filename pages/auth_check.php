@@ -1,12 +1,11 @@
 <?php
-// auth_check.php - Sistema de proteção para páginas restritas
 session_start();
-
-function verificarLogin() {
+function verificarLogin()
+{
     return isset($_SESSION['usuario_logado']) && $_SESSION['logado'] === true;
 }
-
-function redirecionarSeNaoLogado($pagina_atual = '') {
+function redirecionarSeNaoLogado($pagina_atual = '')
+{
     if (!verificarLogin()) {
         $_SESSION['mensagem_erro'] = "Você precisa fazer login para acessar esta página.";
         $_SESSION['pagina_redirecionamento'] = $pagina_atual;
@@ -14,8 +13,8 @@ function redirecionarSeNaoLogado($pagina_atual = '') {
         exit;
     }
 }
-
-function mostrarModalLogin($nomePagina = 'esta página') {
+function mostrarModalLogin($nomePagina = 'esta página')
+{
     if (!verificarLogin()) {
         return '
         <div id="modalLogin" class="modal-overlay">
@@ -172,19 +171,16 @@ function mostrarModalLogin($nomePagina = 'esta página') {
     }
     return '';
 }
-
-// Função para verificar se uma página precisa de autenticação
-function paginaRequerAutenticacao($pagina) {
+function paginaRequerAutenticacao($pagina)
+{
     $paginasRestritas = [
         'calendario.php',
-        'orcamento.php', 
+        'orcamento.php',
         'gestao-contratos.php',
         'tarefas.php',
         'dashboard.php',
         'casamento.php',
         'perfil.php'
     ];
-    
     return in_array($pagina, $paginasRestritas);
 }
-?>

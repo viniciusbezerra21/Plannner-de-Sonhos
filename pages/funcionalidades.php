@@ -1,6 +1,7 @@
 <?php session_start(); ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -109,6 +110,7 @@
       .nav {
         display: none;
       }
+
       .user-profile {
         order: -1;
       }
@@ -121,11 +123,9 @@
 </head>
 
 <body>
-  <!-- Header -->
   <header class="header">
     <div class="container">
       <div class="header-content">
-        <!-- Logo -->
         <a href="../index.php" class="logo">
           <div class="heart-icon">
             <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
@@ -135,12 +135,8 @@
           </div>
           <span class="logo-text">WeddingEasy</span>
         </a>
-
-        <!-- Navigation Desktop -->
         <nav class="nav">
           <a href="../index.php" class="nav-link">Início</a>
-
-          <!-- Dropdown Funcionalidades -->
           <?php if (isset($_SESSION['usuario_logado'])): ?>
             <div class="dropdown">
               <a href="funcionalidades.php" class="nav-link dropdown-toggle">Funcionalidades ▾</a>
@@ -154,95 +150,81 @@
           <?php else: ?>
             <a href="funcionalidades.php" class="nav-link">Funcionalidades</a>
           <?php endif; ?>
-
-
           <?php if (isset($_SESSION['usuario_logado'])): ?>
-         
             <a href="contato.php" class="nav-link">Contato</a>
-            <?php else: ?>
-              <a href="#" onclick="openLoginModal()">
-              <?php endif; ?>
-
-
-              <?php if (isset($_SESSION['usuario_logado'])): ?>
-                <!-- Usuário logado -->
-                <div class="user-profile">
-                  <?php if (!empty($_SESSION['usuario_logado']['foto_perfil']) && file_exists('../uploads/perfil/' . $_SESSION['usuario_logado']['foto_perfil'])): ?>
-                    <img src="../uploads/perfil/<?php echo htmlspecialchars($_SESSION['usuario_logado']['foto_perfil']); ?>"
-                      alt="Foto do perfil" class="user-avatar" onclick="toggleProfileDropdown()" />
-                  <?php else: ?>
-                    <div class="user-avatar-default" onclick="toggleProfileDropdown()">
-                      <?php echo strtoupper(substr($_SESSION['usuario_logado']['nome'], 0, 1)); ?>
-                    </div>
-                  <?php endif; ?>
-
-                  <div class="profile-dropdown" id="profileDropdown">
-                    <div class="profile-dropdown-header">
-                      <p class="profile-dropdown-name">
-                        <?php echo htmlspecialchars($_SESSION['usuario_logado']['nome']); ?>
-                      </p>
-                      <p class="profile-dropdown-email">
-                        <?php echo htmlspecialchars($_SESSION['usuario_logado']['email']); ?>
-                      </p>
-                    </div>
-                    <div class="profile-dropdown-menu">
-                      <a href="../user/perfil.php" class="profile-dropdown-item">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                          style="margin-right: 0.5rem; vertical-align: middle;">
-                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                          <circle cx="12" cy="7" r="4" />
-                        </svg>
-                        Meu Perfil
-                      </a>
-                      <a href="dashboard.php" class="profile-dropdown-item">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                          style="margin-right: 0.5rem; vertical-align: middle;">
-                          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                          <line x1="9" y1="9" x2="15" y2="9" />
-                          <line x1="9" y1="15" x2="15" y2="15" />
-                        </svg>
-                        Dashboard
-                      </a>
-                      <a href="casamento.php" class="profile-dropdown-item">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                          style="margin-right: 0.5rem; vertical-align: middle;">
-                          <path
-                            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                        </svg>
-                        Meu Casamento
-                      </a>
-                      <a href="../user/logout.php" class="profile-dropdown-item logout">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                          style="margin-right: 0.5rem; vertical-align: middle;">
-                          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                          <polyline points="16,17 21,12 16,7" />
-                          <line x1="21" y1="12" x2="9" y2="12" />
-                        </svg>
-                        Sair
-                      </a>
-                    </div>
+          <?php else: ?>
+            <a href="#" onclick="openLoginModal()">
+            <?php endif; ?>
+            <?php if (isset($_SESSION['usuario_logado'])): ?>
+              <div class="user-profile">
+                <?php if (!empty($_SESSION['usuario_logado']['foto_perfil']) && file_exists('../uploads/perfil/' . $_SESSION['usuario_logado']['foto_perfil'])): ?>
+                  <img src="../uploads/perfil/<?php echo htmlspecialchars($_SESSION['usuario_logado']['foto_perfil']); ?>"
+                    alt="Foto do perfil" class="user-avatar" onclick="toggleProfileDropdown()" />
+                <?php else: ?>
+                  <div class="user-avatar-default" onclick="toggleProfileDropdown()">
+                    <?php echo strtoupper(substr($_SESSION['usuario_logado']['nome'], 0, 1)); ?>
+                  </div>
+                <?php endif; ?>
+                <div class="profile-dropdown" id="profileDropdown">
+                  <div class="profile-dropdown-header">
+                    <p class="profile-dropdown-name">
+                      <?php echo htmlspecialchars($_SESSION['usuario_logado']['nome']); ?>
+                    </p>
+                    <p class="profile-dropdown-email">
+                      <?php echo htmlspecialchars($_SESSION['usuario_logado']['email']); ?>
+                    </p>
+                  </div>
+                  <div class="profile-dropdown-menu">
+                    <a href="../user/perfil.php" class="profile-dropdown-item">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        style="margin-right: 0.5rem; vertical-align: middle;">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                      </svg>
+                      Meu Perfil
+                    </a>
+                    <a href="dashboard.php" class="profile-dropdown-item">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        style="margin-right: 0.5rem; vertical-align: middle;">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                        <line x1="9" y1="9" x2="15" y2="9" />
+                        <line x1="9" y1="15" x2="15" y2="15" />
+                      </svg>
+                      Dashboard
+                    </a>
+                    <a href="casamento.php" class="profile-dropdown-item">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        style="margin-right: 0.5rem; vertical-align: middle;">
+                        <path
+                          d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                      </svg>
+                      Meu Casamento
+                    </a>
+                    <a href="../user/logout.php" class="profile-dropdown-item logout">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        style="margin-right: 0.5rem; vertical-align: middle;">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                        <polyline points="16,17 21,12 16,7" />
+                        <line x1="21" y1="12" x2="9" y2="12" />
+                      </svg>
+                      Sair
+                    </a>
                   </div>
                 </div>
-              <?php else: ?>
-                <!-- Usuário não logado -->
-                <a href="../user/login.php" class="btn-primary" style="align-items: center">Login</a>
-              <?php endif; ?>
+              </div>
+            <?php else: ?>
+              <a href="../user/login.php" class="btn-primary" style="align-items: center">Login</a>
+            <?php endif; ?>
         </nav>
-
-        <!-- CTA Button Desktop -->
         <button class="btn-primary" style="display: none">
           Solicitar Demonstração
         </button>
-
-        <!-- Mobile menu button -->
         <button id="hamburgerBtn" class="mobile-menu-btn" onclick="toggleMobileMenu()">
           <span class="hamburger-line"></span>
           <span class="hamburger-line"></span>
           <span class="hamburger-line"></span>
         </button>
       </div>
-
-      <!-- Mobile Menu -->
       <div id="mobileMenu" class="mobile-menu">
         <nav style="
               display: flex;
@@ -255,7 +237,6 @@
           <a href="../index.php" class="nav-link" style="padding: 0.5rem 0">Início</a>
           <a href="funcionalidades.php" class="nav-link" style="padding: 0.5rem 0">Funcionalidades</a>
           <a href="contato.php" class="nav-link" style="padding: 0.5rem 0">Contato</a>
-
           <?php if (isset($_SESSION['usuario_logado'])): ?>
             <div style="border-top: 1px solid hsl(var(--border)); margin-top: 1rem; padding-top: 1rem;">
               <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
@@ -288,7 +269,6 @@
       </div>
     </div>
   </header>
-
   <main>
     <section class="page-content">
       <div class="container">
@@ -308,7 +288,6 @@
           <?php else: ?>
             <a href="#" onclick="openLoginModal()">
             <?php endif; ?>
-
             <div class="features-detailed-grid">
               <div class="feature-detailed-card">
                 <div class="feature-detailed-header">
@@ -352,78 +331,27 @@
                   </li>
                 </ul>
               </div>
-          </a>
-
-          <?php if (isset($_SESSION['usuario_logado'])): ?>
-            <a href="orcamento.php">
-            <?php else: ?>
-              <a href="#" onclick="openLoginModal()">
-              <?php endif; ?>
-              <div class="feature-detailed-card">
-                <div class="feature-detailed-header">
-                  <div class="feature-icon dollar-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                      <line x1="12" y1="1" x2="12" y2="23" />
-                      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 class="feature-detailed-title">
-                      Controle Financeiro Completo
-                    </h3>
-                    <p class="feature-detailed-description">
-                      Gerencie seu orçamento de forma inteligente com relatórios
-                      detalhados e controle de gastos por categoria.
-                    </p>
-                  </div>
-                </div>
-                <ul class="feature-benefits">
-                  <li>
-                    <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
-                      <path
-                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                    </svg>
-                    Orçamento por categoria
-                  </li>
-                  <li>
-                    <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
-                      <path
-                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                    </svg>
-                    Relatórios financeiros
-                  </li>
-                  <li>
-                    <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
-                      <path
-                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                    </svg>
-                    Controle de pagamentos
-                  </li>
-                </ul>
-              </div>
             </a>
-
             <?php if (isset($_SESSION['usuario_logado'])): ?>
-              <a href="gestao-contratos.php">
+              <a href="orcamento.php">
               <?php else: ?>
                 <a href="#" onclick="openLoginModal()">
                 <?php endif; ?>
                 <div class="feature-detailed-card">
                   <div class="feature-detailed-header">
-                    <div class="feature-icon file-icon">
+                    <div class="feature-icon dollar-icon">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                        <polyline points="14,2 14,8 20,8" />
-                        <line x1="16" y1="13" x2="8" y2="13" />
-                        <line x1="16" y1="17" x2="8" y2="17" />
-                        <polyline points="10,9 9,9 8,9" />
+                        <line x1="12" y1="1" x2="12" y2="23" />
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                       </svg>
                     </div>
                     <div>
-                      <h3 class="feature-detailed-title">Gestão de Contratos</h3>
+                      <h3 class="feature-detailed-title">
+                        Controle Financeiro Completo
+                      </h3>
                       <p class="feature-detailed-description">
-                        Centralize todos os contratos e documentos importantes em um
-                        local seguro e organizado.
+                        Gerencie seu orçamento de forma inteligente com relatórios
+                        detalhados e controle de gastos por categoria.
                       </p>
                     </div>
                   </div>
@@ -433,76 +361,123 @@
                         <path
                           d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                       </svg>
-                      Armazenamento seguro
+                      Orçamento por categoria
                     </li>
                     <li>
                       <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
                         <path
                           d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                       </svg>
-                      Lembretes de vencimento
+                      Relatórios financeiros
                     </li>
                     <li>
                       <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
                         <path
                           d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                       </svg>
-                      Assinatura digital
+                      Controle de pagamentos
                     </li>
                   </ul>
                 </div>
-              </a>
-
-              <?php if (isset($_SESSION['usuario_logado'])): ?>
-                <a href="tarefas.php">
-                <?php else: ?>
-                  <a href="#" onclick="openLoginModal()">
-                  <?php endif; ?>
-                  <div class="feature-detailed-card">
-                    <div class="feature-detailed-header">
-                      <div class="feature-icon check-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                          <path d="M9 11l3 3L22 4" />
-                          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-                        </svg>
+                </a>
+                <?php if (isset($_SESSION['usuario_logado'])): ?>
+                  <a href="gestao-contratos.php">
+                  <?php else: ?>
+                    <a href="#" onclick="openLoginModal()">
+                    <?php endif; ?>
+                    <div class="feature-detailed-card">
+                      <div class="feature-detailed-header">
+                        <div class="feature-icon file-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                            <polyline points="14,2 14,8 20,8" />
+                            <line x1="16" y1="13" x2="8" y2="13" />
+                            <line x1="16" y1="17" x2="8" y2="17" />
+                            <polyline points="10,9 9,9 8,9" />
+                          </svg>
+                        </div>
+                        <div>
+                          <h3 class="feature-detailed-title">Gestão de Contratos</h3>
+                          <p class="feature-detailed-description">
+                            Centralize todos os contratos e documentos importantes em um
+                            local seguro e organizado.
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 class="feature-detailed-title">
-                          Lista de Tarefas Inteligente
-                        </h3>
-                        <p class="feature-detailed-description">
-                          Sistema completo de checklist com tarefas pré-definidas e
-                          personalizáveis para cada etapa do planejamento.
-                        </p>
-                      </div>
+                      <ul class="feature-benefits">
+                        <li>
+                          <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                            <path
+                              d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                          </svg>
+                          Armazenamento seguro
+                        </li>
+                        <li>
+                          <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                            <path
+                              d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                          </svg>
+                          Lembretes de vencimento
+                        </li>
+                        <li>
+                          <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                            <path
+                              d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                          </svg>
+                          Assinatura digital
+                        </li>
+                      </ul>
                     </div>
-                    <ul class="feature-benefits">
-                      <li>
-                        <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
-                          <path
-                            d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                        </svg>
-                        Templates prontos
-                      </li>
-                      <li>
-                        <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
-                          <path
-                            d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                        </svg>
-                        Priorização de tarefas
-                      </li>
-                      <li>
-                        <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
-                          <path
-                            d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                        </svg>
-                        Progresso visual
-                      </li>
-                    </ul>
-                  </div>
+                    </a>
+                    <?php if (isset($_SESSION['usuario_logado'])): ?>
+                      <a href="tarefas.php">
+                      <?php else: ?>
+                        <a href="#" onclick="openLoginModal()">
+                        <?php endif; ?>
+                        <div class="feature-detailed-card">
+                          <div class="feature-detailed-header">
+                            <div class="feature-icon check-icon">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M9 11l3 3L22 4" />
+                                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                              </svg>
+                            </div>
+                            <div>
+                              <h3 class="feature-detailed-title">
+                                Lista de Tarefas Inteligente
+                              </h3>
+                              <p class="feature-detailed-description">
+                                Sistema completo de checklist com tarefas pré-definidas e
+                                personalizáveis para cada etapa do planejamento.
+                              </p>
+                            </div>
+                          </div>
+                          <ul class="feature-benefits">
+                            <li>
+                              <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                                <path
+                                  d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                              </svg>
+                              Templates prontos
+                            </li>
+                            <li>
+                              <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                                <path
+                                  d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                              </svg>
+                              Priorização de tarefas
+                            </li>
+                            <li>
+                              <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                                <path
+                                  d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                              </svg>
+                              Progresso visual
+                            </li>
+                          </ul>
+                        </div>
       </div>
       </a>
-
       <div class="features-cta">
         <h2 class="cta-title">Por que escolher o WeddingEasy?</h2>
         <p class="cta-description">
@@ -540,8 +515,6 @@
       </div>
     </section>
   </main>
-
-  <!-- Footer -->
   <footer class="footer">
     <div class="container">
       <div class="footer-content">
@@ -568,13 +541,12 @@
             <span>contato@weddingeasy.com</span>
           </div>
         </div>
-
-         <div class="footer-links">
+        <div class="footer-links">
           <h3>Links Rápidos</h3>
           <ul>
             <li><a href="../index.php">Início</a></li>
             <li>
-                <a href="funcionalidades.php">Funcionalidades</a>
+              <a href="funcionalidades.php">Funcionalidades</a>
             </li>
             <li>
               <?php if (isset($_SESSION['usuario_logado'])): ?>
@@ -585,7 +557,6 @@
             </li>
           </ul>
         </div>
-
         <div class="footer-modules">
           <h3>Legal</h3>
           <ul>
@@ -595,12 +566,10 @@
           </ul>
         </div>
       </div>
-
       <div class="footer-bottom">
         <p>&copy; 2024 WeddingEasy. Todos os direitos reservados.</p>
       </div>
     </div>
-    <!-- Modal de login -->
     <div id="loginModal" class="login-modal">
       <div class="login-modal-content">
         <span class="login-modal-close" onclick="closeLoginModal()">&times;</span>
@@ -609,7 +578,6 @@
         <a href="../user/login.php" class="btn-primary">Login</a>
       </div>
     </div>
-
     <style>
       .login-modal {
         display: none;
@@ -647,37 +615,28 @@
         display: inline-block;
       }
     </style>
-
   </footer>
   <script>
-    // Mobile menu toggle
     function toggleMobileMenu() {
       const mobileMenu = document.getElementById("mobileMenu");
       const hamburgerBtn = document.getElementById("hamburgerBtn");
-
       mobileMenu.classList.toggle("active");
       hamburgerBtn.classList.toggle("hamburger-active");
     }
 
-    // Profile dropdown toggle
     function toggleProfileDropdown() {
       const dropdown = document.getElementById("profileDropdown");
       dropdown.classList.toggle("active");
     }
-
-    // Fechar dropdown quando clicar fora
-    document.addEventListener('click', function (event) {
+    document.addEventListener('click', function(event) {
       const profile = document.querySelector('.user-profile');
       const dropdown = document.getElementById("profileDropdown");
-
       if (profile && !profile.contains(event.target)) {
         dropdown?.classList.remove("active");
       }
     });
-
-    // Smooth scroll for anchor links
     document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-      anchor.addEventListener("click", function (e) {
+      anchor.addEventListener("click", function(e) {
         e.preventDefault();
         const target = document.querySelector(this.getAttribute("href"));
         if (target) {
@@ -685,8 +644,6 @@
             behavior: "smooth",
             block: "start",
           });
-
-          // Close mobile menu if open
           const mobileMenu = document.getElementById("mobileMenu");
           const hamburgerBtn = document.getElementById("hamburgerBtn");
           mobileMenu.classList.remove("active");
@@ -703,16 +660,13 @@
     function closeLoginModal() {
       document.getElementById("loginModal").style.display = "none";
     }
-
-    // Fechar modal ao clicar fora do conteúdo
-    window.onclick = function (event) {
+    window.onclick = function(event) {
       const modal = document.getElementById("loginModal");
       if (event.target === modal) {
         closeLoginModal();
       }
     };
   </script>
-
 </body>
 
 </html>

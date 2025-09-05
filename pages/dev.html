@@ -24,7 +24,6 @@
         --wedding-rose-white: hsl(345, 100%, 98%);
         --wedding-dark-purple: hsl(345, 70%, 15%);
       }
-
       * {
         box-sizing: border-box;
       }
@@ -45,14 +44,11 @@
         );
         line-height: 1.5;
       }
-
       .container {
         max-width: 1200px;
         margin: 0 auto;
         padding: 24px;
       }
-
-      /* Header */
       .header {
         display: flex;
         gap: 16px;
@@ -71,8 +67,6 @@
         color: hsl(var(--muted-foreground));
         font-weight: 500;
       }
-
-      /* Pesquisa */
       .search-bar {
         display: grid;
         gap: 12px;
@@ -106,8 +100,6 @@
       .btn:active {
         transform: translateY(1px);
       }
-
-      /* Grid dos cards */
       .grid {
         display: grid;
         gap: 18px;
@@ -118,7 +110,6 @@
           grid-template-columns: repeat(3, 1fr);
         }
       }
-
       .card {
         background: hsl(var(--card));
         border: 1px solid hsl(var(--border));
@@ -137,7 +128,6 @@
         font-size: 13px;
         margin: 0 0 14px;
       }
-
       .row {
         display: grid;
         gap: 10px;
@@ -178,8 +168,6 @@
         border-radius: 999px;
         font-size: 12px;
       }
-
-      /* Chat mock */
       .chat {
         display: flex;
         flex-direction: column;
@@ -217,8 +205,6 @@
         gap: 8px;
         margin-top: 8px;
       }
-
-      /* Avaliações */
       .rating {
         display: flex;
         align-items: center;
@@ -254,7 +240,6 @@
       .star.off {
         background: hsl(var(--muted));
       }
-
       .bar {
         height: 10px;
         border-radius: 999px;
@@ -266,7 +251,6 @@
         height: 100%;
         background: hsl(var(--accent));
       }
-
       .dist {
         display: grid;
         gap: 8px;
@@ -279,7 +263,6 @@
         font-size: 12px;
         color: hsl(var(--muted-foreground));
       }
-
       .foot {
         margin-top: 24px;
         color: hsl(var(--muted-foreground));
@@ -290,22 +273,16 @@
   </head>
   <body>
     <div class="container">
-      <!-- Cabeçalho -->
       <div class="header">
         <div>
           <div class="title">Dev • <b>Painel</b></div>
         </div>
       </div>
-
-      <!-- Pesquisa de Cliente -->
       <form class="search-bar" action="#" method="get">
         <input class="input" type="search" name="q" />
         <button class="btn" type="submit">Pesquisar</button>
       </form>
-
-      <!-- 3 CARDS PRINCIPAIS -->
       <section class="grid">
-        <!-- Card 1: Adicionar Fornecedores -->
         <article class="card">
           <h3>Adicionar Fornecedor</h3>
           <p class="hint">Formulário estático para cadastro.</p>
@@ -351,8 +328,6 @@
             </button>
           </div>
         </article>
-
-        <!-- Card 2: Chat com Clientes (mock) -->
         <article class="card">
           <h3>Chat com Clientes</h3>
           <p class="hint">Interface de conversa visual.</p>
@@ -371,8 +346,6 @@
             </div>
           </div>
         </article>
-
-        <!-- Card 3: Análise de Avaliações dos Fornecedores -->
         <article class="card">
           <h3>Análise de Avaliações</h3>
           <p class="hint">Resumo visual de reputação dos fornecedores.</p>
@@ -413,9 +386,7 @@
           </div>
         </article>
       </section>
-
-      <p class="foot">
-      </p>
+      <p class="foot"></p>
     </div>
   </body>
 </html>
