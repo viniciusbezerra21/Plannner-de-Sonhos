@@ -6,13 +6,13 @@ const tbody = document.getElementById("tabelaPrincipal");
 
 let orcamentos = [];
 
+
 // Abrir modal
 btnAbrirModal.onclick = () => modal.style.display = "block";
 btnFecharModal.onclick = () => modal.style.display = "none";
 
 // Fechar modal clicando no X
 
-// Fechar modal clicando fora do conteúdo
 window.onclick = (event) => {
   if (event.target == modal) modal.style.display = "none";
 }

@@ -119,8 +119,6 @@
       z-index: 1000;
       animation: slideIn 0.3s ease-out;
     }
-
-    /* Modal de Login */
     .login-modal {
       display: none;
       position: fixed;
@@ -225,15 +223,12 @@
 </head>
 
 <body>
-  <!-- Mensagem de sucesso -->
   <?php
   if (!empty($_SESSION['mensagem_sucesso'])) {
     echo '<div class="mensagem-sucesso" id="mensagemSucesso">' . $_SESSION['mensagem_sucesso'] . '</div>';
     unset($_SESSION['mensagem_sucesso']);
   }
   ?>
-
-  <!-- Modal de Login (movido para o topo) -->
   <div id="loginModal" class="login-modal">
     <div class="login-modal-content">
       <span class="login-modal-close" onclick="closeLoginModal()">&times;</span>
@@ -257,12 +252,10 @@
           <span class="logo-text">WeddingEasy</span>
         </a>
 
-        <!-- Navigation Desktop -->
         <nav class="nav">
           <a href="index.php" class="nav-link">Início</a>
 
           <?php if (isset($_SESSION['usuario_logado'])): ?>
-            <!-- Usuário logado - Dropdown Funcionalidades -->
             <div class="dropdown">
               <a href="pages/funcionalidades.php" class="nav-link dropdown-toggle">Funcionalidades ▾</a>
               <div class="dropdown-menu">
@@ -279,7 +272,6 @@
           <?php endif; ?>
 
           <?php if (isset($_SESSION['usuario_logado'])): ?>
-            <!-- Usuário logado -->
             <div class="user-profile">
               <?php if (!empty($_SESSION['usuario_logado']['foto_perfil']) && file_exists('uploads/perfil/' . $_SESSION['usuario_logado']['foto_perfil'])): ?>
                 <img src="uploads/perfil/<?php echo htmlspecialchars($_SESSION['usuario_logado']['foto_perfil']); ?>"
@@ -336,20 +328,15 @@
               </div>
             </div>
           <?php else: ?>
-            <!-- Usuário não logado -->
             <a href="user/login.php" class="btn-primary" style="align-items: center">Login</a>
           <?php endif; ?>
         </nav>
-
-        <!-- Mobile menu button -->
         <button id="hamburgerBtn" class="mobile-menu-btn" onclick="toggleMobileMenu()">
           <span class="hamburger-line"></span>
           <span class="hamburger-line"></span>
           <span class="hamburger-line"></span>
         </button>
       </div>
-
-      <!-- Mobile Menu -->
       <div id="mobileMenu" class="mobile-menu">
         <nav style="
               display: flex;
@@ -398,7 +385,6 @@
   </header>
 
   <main>
-    <!-- Hero Section redesenhada com layout em grid e visual aprimorado -->
     <section class="hero">
       <div class="container">
         <div class="hero-content">
@@ -459,7 +445,6 @@
             </div>
           </div>
 
-          <!-- Visual -->
           <div class="hero-visual">
             <div class="hero-visual-card">
               <!-- Main content area -->
@@ -497,7 +482,6 @@
                 </div>
               </div>
 
-              <!-- Floating hearts -->
               <svg style="
                     position: absolute;
                     top: 1.5rem;
@@ -528,7 +512,6 @@
       </div>
     </section>
 
-    <!-- Stats Section -->
     <section class="stats">
       <div class="container">
         <div class="stats-grid">
@@ -552,7 +535,6 @@
       </div>
     </section>
 
-    <!-- Features Section com cards aprimorados e hover effects -->
     <section class="features">
       <div class="container">
         <div class="section-header">
@@ -564,7 +546,6 @@
         </div>
 
         <div class="features-grid">
-          <!-- Feature 1 -->
           <div class="feature-card">
             <div class="feature-icon">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -579,7 +560,6 @@
             </p>
           </div>
 
-          <!-- Feature 2 -->
           <div class="feature-card">
             <div class="feature-icon">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -594,7 +574,6 @@
             </p>
           </div>
 
-          <!-- Feature 3 -->
           <div class="feature-card">
             <div class="feature-icon">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -610,7 +589,6 @@
             </p>
           </div>
 
-          <!-- Feature 4 -->
           <div class="feature-card">
             <div class="feature-icon">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -628,7 +606,6 @@
           </div>
         </div>
 
-        <!-- Decorative elements -->
         <div style="position: relative; margin-top: 4rem; text-align: center">
           <div style="
                 display: inline-flex;
@@ -665,7 +642,6 @@
       </div>
     </section>
 
-    <!-- CTA Section -->
     <section class="cta">
       <div class="container">
         <div class="cta-content">
@@ -694,7 +670,6 @@
     </section>
   </main>
 
-  <!-- Footer -->
   <footer class="footer">
     <div class="container">
       <div class="footer-content">
@@ -774,9 +749,7 @@
     </div>
   </footer>
   
-  <!-- JavaScript para funcionalidade do menu mobile -->
   <script>
-    // Mobile menu toggle
     function toggleMobileMenu() {
       const mobileMenu = document.getElementById("mobileMenu");
       const hamburgerBtn = document.getElementById("hamburgerBtn");
@@ -785,13 +758,11 @@
       hamburgerBtn.classList.toggle("hamburger-active");
     }
 
-    // Profile dropdown toggle
     function toggleProfileDropdown() {
       const dropdown = document.getElementById("profileDropdown");
       dropdown.classList.toggle("active");
     }
 
-    // Modal functions
     function openLoginModal() {
       document.getElementById("loginModal").style.display = "block";
     }
@@ -800,7 +771,6 @@
       document.getElementById("loginModal").style.display = "none";
     }
 
-    // Fechar dropdown quando clicar fora
     document.addEventListener('click', function (event) {
       const profile = document.querySelector('.user-profile');
       const dropdown = document.getElementById("profileDropdown");
@@ -810,7 +780,6 @@
       }
     });
 
-    // Fecha modal ao clicar fora
     window.onclick = function (event) {
       const modal = document.getElementById("loginModal");
       if (event.target === modal) {
@@ -818,7 +787,6 @@
       }
     };
 
-    // Smooth scroll for anchor links
     document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
       anchor.addEventListener("click", function (e) {
         e.preventDefault();
@@ -829,7 +797,6 @@
             block: "start",
           });
 
-          // Close mobile menu if open
           const mobileMenu = document.getElementById("mobileMenu");
           const hamburgerBtn = document.getElementById("hamburgerBtn");
           mobileMenu.classList.remove("active");
@@ -838,7 +805,6 @@
       });
     });
 
-    // Auto-hide success message after 5 seconds
     const successMessage = document.getElementById('mensagemSucesso');
     if (successMessage) {
       setTimeout(() => {

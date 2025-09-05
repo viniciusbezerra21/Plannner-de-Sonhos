@@ -68,7 +68,6 @@
 </head>
 
 <body>
-  <!-- Header -->
   <header class="header">
     <div class="container">
       <div class="header-content">
@@ -107,8 +106,6 @@
       </div>
     </div>
   </header>
-
-  <!-- Conteúdo -->
   <main>
     <section class="page-content" style="padding-top: 6rem">
       <div class="container" style="max-width: 400px; margin: auto">

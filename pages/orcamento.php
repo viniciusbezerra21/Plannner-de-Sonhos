@@ -13,7 +13,6 @@
   <style>
     .create-event-modal {
       display: none;
-      /* Oculta inicialmente */
       position: fixed;
       z-index: 1000;
       left: 0;
@@ -24,7 +23,6 @@
       background-color: rgba(0, 0, 0, 0.5);
     }
 
-    /* Conteúdo da modal */
     .modal-content {
       background-color: #fff;
       margin: 5% auto;
@@ -35,7 +33,6 @@
       position: relative;
     }
 
-    /* Botão de fechar */
     .fechar {
       color: #aaa;
       position: absolute;
@@ -173,81 +170,48 @@
 
 <body>
 
-  <div class="create-event-modal" id="janela-modal-orcamentos">
-    <div class="modal-content">
-      <div class="card" style="
+<div class="create-event-modal" id="janela-modal-orcamentos">
+  <div class="modal-content">
+    <span class="fechar">&times;</span>
+    <div
+      class="card"
+      style="
       background: linear-gradient(
         135deg,
         var(--wedding-rose-white) 0%,
         rgba(225, 190, 231, 0.2) 50%,
         rgba(186, 104, 200, 0.3) 100%
-        );
-        ">
+      );
+    ">
+      <h2 style="margin-bottom: 1rem">Itens do Orçamento</h2>
+      <table style="width: 100%; border-collapse: collapse">
+        <thead>
+          <tr style="text-align: left; border-bottom: 1px solid hsl(var(--border));">
+            <th style="padding: 0.75rem; cursor: default">Item</th>
+            <th style="padding: 0.75rem; cursor: default">Fornecedor</th>
+            <th style="padding: 0.75rem; cursor: default">Avaliação</th>
+            <th style="padding: 0.75rem; cursor: default">Quantidade</th>
+            <th style="padding: 0.75rem; cursor: default">Valor Unitário</th>
+            <th style="padding: 0.75rem; cursor: default">Valor Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Linhas do orçamento aqui (mesmo que você já tem) -->
 
-        <h2 style="margin-bottom: 1rem">Itens do Orçamento</h2>
-        <table style="width: 100%; border-collapse: collapse">
-          <thead>
-            <tr style="text-align: left; border-bottom: 1px solid hsl(var(--border));">
-              <th style="padding: 0.75rem; cursor: default">Item</th>
-              <th style="padding: 0.75rem; cursor: default">Fornecedor</th>
-              <th style="padding: 0.75rem; cursor: default">Avaliação</th>
-              <th style="padding: 0.75rem; cursor: default">Quantidade</th>
-              <th style="padding: 0.75rem; cursor: default">Valor Unitário</th>
-              <th style="padding: 0.75rem; cursor: default">Valor Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- Linhas do orçamento aqui (mesmo que você já tem) -->
-
-            <!-- Linha de inputs -->
-            <tr>
-              <td style="padding: 0.5rem"><input type="text" placeholder="Item" style="width: 100%" id="item"></td>
-              <td style="padding: 0.5rem"><input type="text" placeholder="Fornecedor" style="width: 100%"
-                  id="fornecedor"></td>
-              <td style="padding: 0.5rem">
-                <div class="rating-container"
-                  style="display: flex; justify-content: center; align-items: center; cursor: pointer; padding: 1.5rem 0.5rem 0.5rem 0.5rem;">
-                  <svg class="star-icon" viewBox="0 0 24 24" data-value="1">
-                    <path
-                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  <svg class="star-icon" viewBox="0 0 24 24" data-value="2">
-                    <path
-                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  <svg class="star-icon" viewBox="0 0 24 24" data-value="3">
-                    <path
-                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  <svg class="star-icon" viewBox="0 0 24 24" data-value="4">
-                    <path
-                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  <svg class="star-icon" viewBox="0 0 24 24" data-value="5">
-                    <path
-                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                </div>
-
-                <input type="hidden" id="rating-value" name="rating-value" value="0">
-              </td>
-              <td style="padding: 0.5rem"><input type="number" placeholder="Qtd" style="width: 100%" id="quantidade">
-              </td>
-              <td style="padding: 0.5rem"><input type="number" placeholder="Valor Unit." style="width: 100%"
-                  id="valorUnit"></td>
-              <td style="padding: 0.5rem"><label for="valorTotal" id="valorTotal"></label></td>
-            </tr>
-            <tr>
-              <td colspan="6" style="text-align: right; padding: 0.5rem">
-                <button class="btn-primary" id="adicionarItem" style="margin-right: 1rem">Adicionar Item</button>
-                <button class="btn-primary" id="sair">Sair</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+          <!-- Linha de inputs -->
+          <tr>
+            <td style="padding: 0.5rem"><input type="text" placeholder="Item" style="width: 100%"></td>
+            <td style="padding: 0.5rem"><input type="text" placeholder="Fornecedor" style="width: 100%"></td>
+            <td style="padding: 0.5rem"><input type="text" placeholder="Avaliação" style="width: 100%"></td>
+            <td style="padding: 0.5rem"><input type="number" placeholder="Qtd" style="width: 100%"></td>
+            <td style="padding: 0.5rem"><input type="number" placeholder="Valor Unit." style="width: 100%"></td>
+            <td style="padding: 0.5rem"><input type="number" placeholder="Valor Total" style="width: 100%" readonly></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
+</div>
 
   <!-- Header -->
   <header class="header">
@@ -262,12 +226,8 @@
           </div>
           <span class="logo-text">WeddingEasy</span>
         </a>
-
-        <!-- Navigation Desktop -->
         <nav class="nav">
           <a href="../index.php" class="nav-link">Início</a>
-
-          <!-- Dropdown Funcionalidades -->
           <div class="dropdown">
             <a href="funcionalidades.php" class="nav-link dropdown-toggle">Funcionalidades ▾</a>
             <div class="dropdown-menu">
@@ -277,11 +237,8 @@
               <a href="tarefas.php">Lista de Tarefas</a>
             </div>
           </div>
-
           <a href="contato.php" class="nav-link">Contato</a>
-
           <?php if (isset($_SESSION['usuario_logado'])): ?>
-            <!-- Usuário logado -->
             <div class="user-profile">
               <?php if (!empty($_SESSION['usuario_logado']['foto_perfil']) && file_exists('../uploads/perfil/' . $_SESSION['usuario_logado']['foto_perfil'])): ?>
                 <img src="../uploads/perfil/<?php echo htmlspecialchars($_SESSION['usuario_logado']['foto_perfil']); ?>"
@@ -291,7 +248,6 @@
                   <?php echo strtoupper(substr($_SESSION['usuario_logado']['nome'], 0, 1)); ?>
                 </div>
               <?php endif; ?>
-
               <div class="profile-dropdown" id="profileDropdown">
                 <div class="profile-dropdown-header">
                   <p class="profile-dropdown-name"><?php echo htmlspecialchars($_SESSION['usuario_logado']['nome']); ?>
@@ -339,21 +295,25 @@
             </div>
           <?php else: ?>
             <!-- Usuário não logado -->
-            <a href="../user/login.php" class="btn-primary" style="align-items: center">Login</a>
+            <a
+              href="../user/login.php"
+              class="btn-primary"
+              style="align-items: center">Login</a>
           <?php endif; ?>
         </nav>
-
         <button class="btn-primary" style="display: none">
           Solicitar Demonstração
         </button>
 
-        <button id="hamburgerBtn" class="mobile-menu-btn" onclick="toggleMobileMenu()">
+        <button
+          id="hamburgerBtn"
+          class="mobile-menu-btn"
+          onclick="toggleMobileMenu()">
           <span class="hamburger-line"></span>
           <span class="hamburger-line"></span>
           <span class="hamburger-line"></span>
         </button>
       </div>
-
       <div id="mobileMenu" class="mobile-menu">
         <nav style="
               display: flex;
@@ -366,7 +326,6 @@
           <a href="../index.php" class="nav-link" style="padding: 0.5rem 0">Início</a>
           <a href="funcionalidades.php" class="nav-link" style="padding: 0.5rem 0">Funcionalidades</a>
           <a href="contato.php" class="nav-link" style="padding: 0.5rem 0">Contato</a>
-
           <?php if (isset($_SESSION['usuario_logado'])): ?>
             <div style="border-top: 1px solid hsl(var(--border)); margin-top: 1rem; padding-top: 1rem;">
               <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
@@ -399,8 +358,6 @@
       </div>
     </div>
   </header>
-
-
   <main>
     <section class="page-content">
       <div class="container">
@@ -413,7 +370,9 @@
           </p>
         </div>
 
-        <div class="card" style="
+        <div
+          class="card"
+          style="
               background: linear-gradient(
                 135deg,
                 var(--wedding-rose-white) 0%,
@@ -496,7 +455,6 @@
       </div>
     </section>
   </main>
-
   <footer class="footer">
     <div class="container">
       <div class="footer-content">
@@ -523,7 +481,6 @@
             <span>contato@weddingeasy.com</span>
           </div>
         </div>
-
         <div class="footer-links">
           <h3>Links Rápidos</h3>
           <ul>
@@ -539,34 +496,27 @@
       </div>
     </div>
   </footer>
-
   <script>
-    // Mobile menu toggle
     function toggleMobileMenu() {
       const mobileMenu = document.getElementById("mobileMenu");
       const hamburgerBtn = document.getElementById("hamburgerBtn");
-
       mobileMenu.classList.toggle("active");
       hamburgerBtn.classList.toggle("hamburger-active");
     }
 
-    // Profile dropdown toggle
     function toggleProfileDropdown() {
       const dropdown = document.getElementById("profileDropdown");
       dropdown.classList.toggle("active");
     }
 
     // Fechar dropdown quando clicar fora
-    document.addEventListener('click', function (event) {
+    document.addEventListener('click', function(event) {
       const profile = document.querySelector('.user-profile');
       const dropdown = document.getElementById("profileDropdown");
-
       if (profile && !profile.contains(event.target)) {
         dropdown?.classList.remove("active");
       }
     });
-
-    // Smooth scroll for anchor links
     document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
       anchor.addEventListener("click", function (e) {
         e.preventDefault();
@@ -576,8 +526,6 @@
             behavior: "smooth",
             block: "start",
           });
-
-          // Close mobile menu if open
           const mobileMenu = document.getElementById("mobileMenu");
           const hamburgerBtn = document.getElementById("hamburgerBtn");
           mobileMenu.classList.remove("active");
