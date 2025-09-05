@@ -155,52 +155,99 @@
       }
     }
   </style>
+  <style>
+  /* Estilo base para os ícones de estrela */
+  .star-icon {
+    width: 24px; /* Tamanho da estrela */
+    height: 24px;
+    fill: #ccc; /* Cor da estrela "inativa" (cinza) */
+    transition: fill 0.2s ease-in-out; /* Transição suave de cor */
+  }
+
+  /* Estilo para estrelas que estão selecionadas ou com mouse sobre */
+  .star-icon.selected {
+    fill: #ffc107; /* Cor da estrela "ativa" (amarelo) */
+  }
+</style>
 </head>
 
 <body>
 
-<div class="create-event-modal" id="janela-modal-orcamentos">
-  <div class="modal-content">
-    <span class="fechar">&times;</span>
-    <div
-      class="card"
-      style="
+  <div class="create-event-modal" id="janela-modal-orcamentos">
+    <div class="modal-content">
+      <div class="card" style="
       background: linear-gradient(
         135deg,
         var(--wedding-rose-white) 0%,
         rgba(225, 190, 231, 0.2) 50%,
         rgba(186, 104, 200, 0.3) 100%
-      );
-    ">
-      <h2 style="margin-bottom: 1rem">Itens do Orçamento</h2>
-      <table style="width: 100%; border-collapse: collapse">
-        <thead>
-          <tr style="text-align: left; border-bottom: 1px solid hsl(var(--border));">
-            <th style="padding: 0.75rem; cursor: default">Item</th>
-            <th style="padding: 0.75rem; cursor: default">Fornecedor</th>
-            <th style="padding: 0.75rem; cursor: default">Avaliação</th>
-            <th style="padding: 0.75rem; cursor: default">Quantidade</th>
-            <th style="padding: 0.75rem; cursor: default">Valor Unitário</th>
-            <th style="padding: 0.75rem; cursor: default">Valor Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Linhas do orçamento aqui (mesmo que você já tem) -->
+        );
+        ">
 
-          <!-- Linha de inputs -->
-          <tr>
-            <td style="padding: 0.5rem"><input type="text" placeholder="Item" style="width: 100%"></td>
-            <td style="padding: 0.5rem"><input type="text" placeholder="Fornecedor" style="width: 100%"></td>
-            <td style="padding: 0.5rem"><input type="text" placeholder="Avaliação" style="width: 100%"></td>
-            <td style="padding: 0.5rem"><input type="number" placeholder="Qtd" style="width: 100%"></td>
-            <td style="padding: 0.5rem"><input type="number" placeholder="Valor Unit." style="width: 100%"></td>
-            <td style="padding: 0.5rem"><input type="number" placeholder="Valor Total" style="width: 100%" readonly></td>
-          </tr>
-        </tbody>
-      </table>
+        <h2 style="margin-bottom: 1rem">Itens do Orçamento</h2>
+        <table style="width: 100%; border-collapse: collapse">
+          <thead>
+            <tr style="text-align: left; border-bottom: 1px solid hsl(var(--border));">
+              <th style="padding: 0.75rem; cursor: default">Item</th>
+              <th style="padding: 0.75rem; cursor: default">Fornecedor</th>
+              <th style="padding: 0.75rem; cursor: default">Avaliação</th>
+              <th style="padding: 0.75rem; cursor: default">Quantidade</th>
+              <th style="padding: 0.75rem; cursor: default">Valor Unitário</th>
+              <th style="padding: 0.75rem; cursor: default">Valor Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Linhas do orçamento aqui (mesmo que você já tem) -->
+
+            <!-- Linha de inputs -->
+            <tr>
+              <td style="padding: 0.5rem"><input type="text" placeholder="Item" style="width: 100%" id="item"></td>
+              <td style="padding: 0.5rem"><input type="text" placeholder="Fornecedor" style="width: 100%"
+                  id="fornecedor"></td>
+              <td style="padding: 0.5rem">
+                <div class="rating-container"
+                  style="display: flex; justify-content: center; align-items: center; cursor: pointer; padding: 1.5rem 0.5rem 0.5rem 0.5rem;">
+                  <svg class="star-icon" viewBox="0 0 24 24" data-value="1">
+                    <path
+                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  <svg class="star-icon" viewBox="0 0 24 24" data-value="2">
+                    <path
+                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  <svg class="star-icon" viewBox="0 0 24 24" data-value="3">
+                    <path
+                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  <svg class="star-icon" viewBox="0 0 24 24" data-value="4">
+                    <path
+                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  <svg class="star-icon" viewBox="0 0 24 24" data-value="5">
+                    <path
+                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                </div>
+
+                <input type="hidden" id="rating-value" name="rating-value" value="0">
+              </td>
+              <td style="padding: 0.5rem"><input type="number" placeholder="Qtd" style="width: 100%" id="quantidade">
+              </td>
+              <td style="padding: 0.5rem"><input type="number" placeholder="Valor Unit." style="width: 100%"
+                  id="valorUnit"></td>
+              <td style="padding: 0.5rem"><label for="valorTotal" id="valorTotal"></label></td>
+            </tr>
+            <tr>
+              <td colspan="6" style="text-align: right; padding: 0.5rem">
+                <button class="btn-primary" id="adicionarItem" style="margin-right: 1rem">Adicionar Item</button>
+                <button class="btn-primary" id="sair">Sair</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
-</div>
 
   <!-- Header -->
   <header class="header">
@@ -208,11 +255,7 @@
       <div class="header-content">
         <a href="../index.php" class="logo">
           <div class="heart-icon">
-            <svg
-              width="16"
-              height="16"
-              fill="currentColor"
-              viewBox="0 0 24 24">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
               <path
                 d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
             </svg>
@@ -241,11 +284,8 @@
             <!-- Usuário logado -->
             <div class="user-profile">
               <?php if (!empty($_SESSION['usuario_logado']['foto_perfil']) && file_exists('../uploads/perfil/' . $_SESSION['usuario_logado']['foto_perfil'])): ?>
-                <img
-                  src="../uploads/perfil/<?php echo htmlspecialchars($_SESSION['usuario_logado']['foto_perfil']); ?>"
-                  alt="Foto do perfil"
-                  class="user-avatar"
-                  onclick="toggleProfileDropdown()" />
+                <img src="../uploads/perfil/<?php echo htmlspecialchars($_SESSION['usuario_logado']['foto_perfil']); ?>"
+                  alt="Foto do perfil" class="user-avatar" onclick="toggleProfileDropdown()" />
               <?php else: ?>
                 <div class="user-avatar-default" onclick="toggleProfileDropdown()">
                   <?php echo strtoupper(substr($_SESSION['usuario_logado']['nome'], 0, 1)); ?>
@@ -254,19 +294,23 @@
 
               <div class="profile-dropdown" id="profileDropdown">
                 <div class="profile-dropdown-header">
-                  <p class="profile-dropdown-name"><?php echo htmlspecialchars($_SESSION['usuario_logado']['nome']); ?></p>
-                  <p class="profile-dropdown-email"><?php echo htmlspecialchars($_SESSION['usuario_logado']['email']); ?></p>
+                  <p class="profile-dropdown-name"><?php echo htmlspecialchars($_SESSION['usuario_logado']['nome']); ?>
+                  </p>
+                  <p class="profile-dropdown-email"><?php echo htmlspecialchars($_SESSION['usuario_logado']['email']); ?>
+                  </p>
                 </div>
                 <div class="profile-dropdown-menu">
                   <a href="../user/perfil.php" class="profile-dropdown-item">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem; vertical-align: middle;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      style="margin-right: 0.5rem; vertical-align: middle;">
                       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                       <circle cx="12" cy="7" r="4" />
                     </svg>
                     Meu Perfil
                   </a>
                   <a href="dashboard.php" class="profile-dropdown-item">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem; vertical-align: middle;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      style="margin-right: 0.5rem; vertical-align: middle;">
                       <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
                       <line x1="9" y1="9" x2="15" y2="9" />
                       <line x1="9" y1="15" x2="15" y2="15" />
@@ -274,13 +318,16 @@
                     Dashboard
                   </a>
                   <a href="casamento.php" class="profile-dropdown-item">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem; vertical-align: middle;">
-                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      style="margin-right: 0.5rem; vertical-align: middle;">
+                      <path
+                        d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
                     </svg>
                     Meu Casamento
                   </a>
                   <a href="../user/logout.php" class="profile-dropdown-item logout">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem; vertical-align: middle;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      style="margin-right: 0.5rem; vertical-align: middle;">
                       <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                       <polyline points="16,17 21,12 16,7" />
                       <line x1="21" y1="12" x2="9" y2="12" />
@@ -292,10 +339,7 @@
             </div>
           <?php else: ?>
             <!-- Usuário não logado -->
-            <a
-              href="../user/login.php"
-              class="btn-primary"
-              style="align-items: center">Login</a>
+            <a href="../user/login.php" class="btn-primary" style="align-items: center">Login</a>
           <?php endif; ?>
         </nav>
 
@@ -303,10 +347,7 @@
           Solicitar Demonstração
         </button>
 
-        <button
-          id="hamburgerBtn"
-          class="mobile-menu-btn"
-          onclick="toggleMobileMenu()">
+        <button id="hamburgerBtn" class="mobile-menu-btn" onclick="toggleMobileMenu()">
           <span class="hamburger-line"></span>
           <span class="hamburger-line"></span>
           <span class="hamburger-line"></span>
@@ -314,8 +355,7 @@
       </div>
 
       <div id="mobileMenu" class="mobile-menu">
-        <nav
-          style="
+        <nav style="
               display: flex;
               flex-direction: column;
               gap: 1rem;
@@ -324,29 +364,27 @@
               margin-top: 0.5rem;
             ">
           <a href="../index.php" class="nav-link" style="padding: 0.5rem 0">Início</a>
-          <a
-            href="funcionalidades.php"
-            class="nav-link"
-            style="padding: 0.5rem 0">Funcionalidades</a>
+          <a href="funcionalidades.php" class="nav-link" style="padding: 0.5rem 0">Funcionalidades</a>
           <a href="contato.php" class="nav-link" style="padding: 0.5rem 0">Contato</a>
 
           <?php if (isset($_SESSION['usuario_logado'])): ?>
             <div style="border-top: 1px solid hsl(var(--border)); margin-top: 1rem; padding-top: 1rem;">
               <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
                 <?php if (!empty($_SESSION['usuario_logado']['foto_perfil']) && file_exists('../uploads/perfil/' . $_SESSION['usuario_logado']['foto_perfil'])): ?>
-                  <img
-                    src="../uploads/perfil/<?php echo htmlspecialchars($_SESSION['usuario_logado']['foto_perfil']); ?>"
-                    alt="Foto do perfil"
-                    class="user-avatar"
-                    style="width: 32px; height: 32px;" />
+                  <img src="../uploads/perfil/<?php echo htmlspecialchars($_SESSION['usuario_logado']['foto_perfil']); ?>"
+                    alt="Foto do perfil" class="user-avatar" style="width: 32px; height: 32px;" />
                 <?php else: ?>
                   <div class="user-avatar-default" style="width: 32px; height: 32px; font-size: 0.8rem;">
                     <?php echo strtoupper(substr($_SESSION['usuario_logado']['nome'], 0, 1)); ?>
                   </div>
                 <?php endif; ?>
                 <div>
-                  <div style="font-weight: 600; font-size: 0.9rem;"><?php echo htmlspecialchars($_SESSION['usuario_logado']['nome']); ?></div>
-                  <div style="font-size: 0.8rem; color: hsl(var(--muted-foreground));"><?php echo htmlspecialchars($_SESSION['usuario_logado']['email']); ?></div>
+                  <div style="font-weight: 600; font-size: 0.9rem;">
+                    <?php echo htmlspecialchars($_SESSION['usuario_logado']['nome']); ?>
+                  </div>
+                  <div style="font-size: 0.8rem; color: hsl(var(--muted-foreground));">
+                    <?php echo htmlspecialchars($_SESSION['usuario_logado']['email']); ?>
+                  </div>
                 </div>
               </div>
               <a href="../user/perfil.php" class="nav-link" style="padding: 0.5rem 0">Meu Perfil</a>
@@ -355,10 +393,7 @@
               <a href="../user/logout.php" class="nav-link" style="padding: 0.5rem 0; color: #ef4444;">Sair</a>
             </div>
           <?php else: ?>
-            <a
-              href="../user/login.php"
-              class="btn-primary"
-              style="align-items: center">Login</a>
+            <a href="../user/login.php" class="btn-primary" style="align-items: center">Login</a>
           <?php endif; ?>
         </nav>
       </div>
@@ -378,9 +413,7 @@
           </p>
         </div>
 
-        <div
-          class="card"
-          style="
+        <div class="card" style="
               background: linear-gradient(
                 135deg,
                 var(--wedding-rose-white) 0%,
@@ -391,8 +424,7 @@
           <h2 style="margin-bottom: 1rem">Itens do Orçamento</h2>
           <table style="width: 100%; border-collapse: collapse">
             <thead>
-              <tr
-                style="
+              <tr style="
                     text-align: left;
                     border-bottom: 1px solid hsl(var(--border));
                   ">
@@ -406,7 +438,7 @@
                 <th style="padding: 0.75rem; cursor: default">Valor Total</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody id="tabelaPrincipal">
               <tr>
                 <td style="padding: 0.75rem; cursor: default">Decoração</td>
                 <td style="padding: 0.75rem; cursor: default">Flor & Arte</td>
@@ -436,101 +468,10 @@
                 <td style="padding: 0.75rem; cursor: default">R$ 3.500,00</td>
                 <td style="padding: 0.75rem; cursor: default">R$ 3.500,00</td>
               </tr>
-              <tr>
-                <td style="padding: 0.75rem; cursor: default">Buffet</td>
-                <td style="padding: 0.75rem; cursor: default">
-                  Sabor & Festa
-                </td>
-                <td style="padding: 0.75rem; cursor: default">
-                  <svg class="star-icon" viewBox="0 0 24 24">
-                    <path
-                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  <svg class="star-icon" viewBox="0 0 24 24">
-                    <path
-                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  <svg class="star-icon" viewBox="0 0 24 24">
-                    <path
-                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  <svg class="star-icon" viewBox="0 0 24 24">
-                    <path
-                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  <svg class="star-icon-disabled" viewBox="0 0 24 24">
-                    <path
-                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                </td>
-                <td style="padding: 0.75rem; cursor: default">100</td>
-                <td style="padding: 0.75rem; cursor: default">R$ 120,00</td>
-                <td style="padding: 0.75rem; cursor: default">
-                  R$ 12.000,00
-                </td>
-              </tr>
-              <tr>
-                <td style="padding: 0.75rem; cursor: default">Fotografia</td>
-                <td style="padding: 0.75rem; cursor: default">FotoLux</td>
-                <td style="padding: 0.75rem; cursor: default">
-                  <svg class="star-icon" viewBox="0 0 24 24">
-                    <path
-                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  <svg class="star-icon" viewBox="0 0 24 24">
-                    <path
-                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  <svg class="star-icon" viewBox="0 0 24 24">
-                    <path
-                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  <svg class="star-icon" viewBox="0 0 24 24">
-                    <path
-                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  <svg class="star-icon" viewBox="0 0 24 24">
-                    <path
-                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                </td>
-                <td style="padding: 0.75rem; cursor: default">1</td>
-                <td style="padding: 0.75rem; cursor: default">R$ 4.000,00</td>
-                <td style="padding: 0.75rem; cursor: default">R$ 4.000,00</td>
-              </tr>
-              <tr>
-                <td style="padding: 0.75rem; cursor: default">Música</td>
-                <td style="padding: 0.75rem; cursor: default">Som & Luz</td>
-                <td style="padding: 0.75rem; cursor: default">
-                  <svg class="star-icon" viewBox="0 0 24 24">
-                    <path
-                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  <svg class="star-icon" viewBox="0 0 24 24">
-                    <path
-                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  <svg class="star-icon" viewBox="0 0 24 24">
-                    <path
-                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  <svg class="star-icon" viewBox="0 0 24 24">
-                    <path
-                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  <svg class="star-icon-disabled" viewBox="0 0 24 24">
-                    <path
-                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                </td>
-                <td style="padding: 0.75rem">1</td>
-                <td style="padding: 0.75rem">R$ 2.500,00</td>
-                <td style="padding: 0.75rem">R$ 2.500,00</td>
-              </tr>
+
             </tbody>
             <tfoot>
-              <tr
-                style="
+              <tr style="
                     border-top: 2px solid hsl(var(--border));
                     font-weight: bold;
                     cursor: default;
@@ -538,11 +479,11 @@
                 <td colspan="5" style="padding: 0.75rem; text-align: right">
                   Total:
                 </td>
-                <td style="padding: 0.75rem">R$ 22.000,00</td>
+                <td style="padding: 0.75rem">R$ </td>
               </tr>
             </tfoot>
           </table>
-          <button class="btn-primary" id="abrirModal">Ver Orçamento</button>
+          <button class="btn-primary" id="abrirModal">Adiconar Item</button>
         </div>
 
         <div class="card" style="margin-top: 2rem">
@@ -562,11 +503,7 @@
         <div class="footer-brand">
           <a href="../index.php" class="logo">
             <div class="heart-icon">
-              <svg
-                width="16"
-                height="16"
-                fill="currentColor"
-                viewBox="0 0 24 24">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
                 <path
                   d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>
@@ -579,13 +516,8 @@
             clientes.
           </p>
           <div class="footer-contact">
-            <svg
-              style="width: 1rem; height: 1rem"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24">
-              <path
-                d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+            <svg style="width: 1rem; height: 1rem" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
               <polyline points="22,6 12,13 2,6" />
             </svg>
             <span>contato@weddingeasy.com</span>
@@ -625,7 +557,7 @@
     }
 
     // Fechar dropdown quando clicar fora
-    document.addEventListener('click', function(event) {
+    document.addEventListener('click', function (event) {
       const profile = document.querySelector('.user-profile');
       const dropdown = document.getElementById("profileDropdown");
 
@@ -636,7 +568,7 @@
 
     // Smooth scroll for anchor links
     document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-      anchor.addEventListener("click", function(e) {
+      anchor.addEventListener("click", function (e) {
         e.preventDefault();
         const target = document.querySelector(this.getAttribute("href"));
         if (target) {
