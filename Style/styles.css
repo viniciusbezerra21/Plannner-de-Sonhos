@@ -3464,3 +3464,42 @@ a {
   max-width: 400px;
   width: 90%;
 }
+
+#estrelas-container{
+  display:flex;
+  gap:0.5rem;
+  align-items:center;
+  justify-content:flex-start;
+  padding:0.25rem 0;
+}
+
+.star-icon{
+  width:20px;
+  height:20px;
+  cursor:pointer;
+  color: #ffb400;
+  transition:transform .12s ease, color .12s ease;
+  display:inline-block;
+}
+
+.star-icon:hover{
+  transform:scale(1.15);
+  color:#ffb400;
+}
+
+.star-icon path{
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1;
+}
+
+.star-icon.selected path{
+  fill:currentColor;
+  stroke:currentColor;
+}
+
+td {
+  display: table-cell;
+  vertical-align: none;
+  unicode-bidi: isolate;
+}

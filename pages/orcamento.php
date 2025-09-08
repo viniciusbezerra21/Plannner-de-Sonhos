@@ -154,29 +154,29 @@
     }
   </style>
   <style>
-  /* Estilo base para os ícones de estrela */
-  .star-icon {
-    width: 24px; /* Tamanho da estrela */
-    height: 24px;
-    fill: #ccc; /* Cor da estrela "inativa" (cinza) */
-    transition: fill 0.2s ease-in-out; /* Transição suave de cor */
-  }
+    /* Estilo base para os ícones de estrela */
+    .star-icon {
+      width: 24px;
+      /* Tamanho da estrela */
+      height: 24px;
+      fill: #ccc;
+      /* Cor da estrela "inativa" (cinza) */
+      transition: fill 0.2s ease-in-out;
+      /* Transição suave de cor */
+    }
 
-  /* Estilo para estrelas que estão selecionadas ou com mouse sobre */
-  .star-icon.selected {
-    fill: #ffc107; /* Cor da estrela "ativa" (amarelo) */
-  }
-</style>
+    /* Estilo para estrelas que estão selecionadas ou com mouse sobre */
+    .star-icon.selected {
+      fill: #ffc107;
+      /* Cor da estrela "ativa" (amarelo) */
+    }
+  </style>
 </head>
 
 <body>
-
-<div class="create-event-modal" id="janela-modal-orcamentos">
-  <div class="modal-content">
-    <span class="fechar">&times;</span>
-    <div
-      class="card"
-      style="
+  <div class="create-event-modal" id="janela-modal-orcamentos">
+    <div class="modal-content">
+      <div class="card" style="
       background: linear-gradient(
         135deg,
         var(--wedding-rose-white) 0%,
@@ -184,35 +184,33 @@
         rgba(186, 104, 200, 0.3) 100%
       );
     ">
-      <h2 style="margin-bottom: 1rem">Itens do Orçamento</h2>
-      <table style="width: 100%; border-collapse: collapse">
-        <thead>
-          <tr style="text-align: left; border-bottom: 1px solid hsl(var(--border));">
-            <th style="padding: 0.75rem; cursor: default">Item</th>
-            <th style="padding: 0.75rem; cursor: default">Fornecedor</th>
-            <th style="padding: 0.75rem; cursor: default">Avaliação</th>
-            <th style="padding: 0.75rem; cursor: default">Quantidade</th>
-            <th style="padding: 0.75rem; cursor: default">Valor Unitário</th>
-            <th style="padding: 0.75rem; cursor: default">Valor Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Linhas do orçamento aqui (mesmo que você já tem) -->
+        <h2 style="margin-bottom: 1rem">Itens do Orçamento</h2>
+        <table style="width: 100%; border-collapse: collapse">
+          <tbody>
+            <!-- Linhas do orçamento aqui (mesmo que você já tem) -->
 
-          <!-- Linha de inputs -->
-          <tr>
-            <td style="padding: 0.5rem"><input type="text" placeholder="Item" style="width: 100%"></td>
-            <td style="padding: 0.5rem"><input type="text" placeholder="Fornecedor" style="width: 100%"></td>
-            <td style="padding: 0.5rem"><input type="text" placeholder="Avaliação" style="width: 100%"></td>
-            <td style="padding: 0.5rem"><input type="number" placeholder="Qtd" style="width: 100%"></td>
-            <td style="padding: 0.5rem"><input type="number" placeholder="Valor Unit." style="width: 100%"></td>
-            <td style="padding: 0.5rem"><input type="number" placeholder="Valor Total" style="width: 100%" readonly></td>
-          </tr>
-        </tbody>
-      </table>
+            <!-- Linha de inputs -->
+            <tr>
+              <td style="padding: 0.5rem">
+                <div class="form-group"><input type="text" placeholder="Item" style="width: 100%"></div>
+              </td>
+              <td style="padding: 0.5rem">
+                <div class="form-group"><input type="text" placeholder="Fornecedor" style="width: 100%"></div>
+              </td>
+              <td style="padding: 0.5rem">
+                <div class="form-group"><input type="number" placeholder="Qtd" style="width: 100%"></div>
+              </td>
+              <td style="padding: 0.5rem">
+                <div class="form-group"><input type="number" placeholder="Valor Unit." style="width: 100%"></div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <button id="sair" class="btn-primary">Sair</button>
+        <button id="adicionarItem" class="btn-primary" style="margin-right: 1rem; margin-top: 1rem;">Adicionar</button>
+      </div>
     </div>
   </div>
-</div>
 
   <!-- Header -->
   <header class="header">
@@ -296,20 +294,14 @@
             </div>
           <?php else: ?>
             <!-- Usuário não logado -->
-            <a
-              href="../user/login.php"
-              class="btn-primary"
-              style="align-items: center">Login</a>
+            <a href="../user/login.php" class="btn-primary" style="align-items: center">Login</a>
           <?php endif; ?>
         </nav>
         <button class="btn-primary" style="display: none">
           Solicitar Demonstração
         </button>
 
-        <button
-          id="hamburgerBtn"
-          class="mobile-menu-btn"
-          onclick="toggleMobileMenu()">
+        <button id="hamburgerBtn" class="mobile-menu-btn" onclick="toggleMobileMenu()">
           <span class="hamburger-line"></span>
           <span class="hamburger-line"></span>
           <span class="hamburger-line"></span>
@@ -371,9 +363,7 @@
           </p>
         </div>
 
-        <div
-          class="card"
-          style="
+        <div class="card" style="
               background: linear-gradient(
                 135deg,
                 var(--wedding-rose-white) 0%,
@@ -382,78 +372,63 @@
               );
             ">
           <h2 style="margin-bottom: 1rem">Itens do Orçamento</h2>
-          <table style="width: 100%; border-collapse: collapse">
-            <thead>
-              <tr style="
+
+          <div class="tabela-wraper" style="max-height: none; overflow-y: visible;">
+            <input type="text" id="pesquisarItem" placeholder="Pesquisar item..."
+              style="display: none; margin-bottom: 0.5rem; padding: 0.5rem; width: 100%;">
+
+            <table style="width: 100%; border-collapse: collapse">
+              <thead>
+                <tr style="
                     text-align: left;
                     border-bottom: 1px solid hsl(var(--border));
                   ">
-                <th style="padding: 0.75rem; cursor: default">Item</th>
-                <th style="padding: 0.75rem; cursor: default">Fornecedor</th>
-                <th style="padding: 0.75rem; cursor: default">Avaliação</th>
-                <th style="padding: 0.75rem; cursor: default">Quantidade</th>
-                <th style="padding: 0.75rem; cursor: default">
-                  Valor Unitário
-                </th>
-                <th style="padding: 0.75rem; cursor: default">Valor Total</th>
-              </tr>
-            </thead>
-            <tbody id="tabelaPrincipal">
-              <tr>
-                <td style="padding: 0.75rem; cursor: default">Decoração</td>
-                <td style="padding: 0.75rem; cursor: default">Flor & Arte</td>
-                <td style="padding: 0.75rem; cursor: default">
-                  <svg class="star-icon" viewBox="0 0 24 24">
-                    <path
-                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  <svg class="star-icon" viewBox="0 0 24 24">
-                    <path
-                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  <svg class="star-icon" viewBox="0 0 24 24">
-                    <path
-                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  <svg class="star-icon-disabled" viewBox="0 0 24 24">
-                    <path
-                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  <svg class="star-icon-disabled" viewBox="0 0 24 24">
-                    <path
-                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                </td>
-                <td style="padding: 0.75rem; cursor: default">1</td>
-                <td style="padding: 0.75rem; cursor: default">R$ 3.500,00</td>
-                <td style="padding: 0.75rem; cursor: default">R$ 3.500,00</td>
-              </tr>
+                  <th style="padding: 0.75rem; cursor: default">Item</th>
+                  <th style="padding: 0.75rem; cursor: default">Fornecedor</th>
+                  <th style="padding: 0.75rem; cursor: default">Avaliação</th>
+                  <th style="padding: 0.75rem; cursor: default">Quantidade</th>
+                  <th style="padding: 0.75rem; cursor: default">
+                    Valor Unitário
+                  </th>
+                  <th style="padding: 0.75rem; cursor: default">Valor Total</th>
+                </tr>
+              </thead>
+              <tbody id="tabelaPrincipal">
+                <tr>
+                  <td style="padding: 0.75rem; cursor: default" id="item"></td>
+                  <td style="padding: 0.75rem; cursor: default" id="fornecedor"></td>
+                  <td style="padding: 0.75rem; cursor: default">
+                  </td>
+                  <td style="padding: 0.75rem; cursor: default" id="quantidade"></td>
+                  <td style="padding: 0.75rem; cursor: default" id="valorUnitario"></td>
+                  <td style="padding: 0.75rem; cursor: default" id="valorTotal"></td>
+                </tr>
 
-            </tbody>
-            <tfoot>
-              <tr style="
+              </tbody>
+              <tfoot>
+                <tr style="
                     border-top: 2px solid hsl(var(--border));
                     font-weight: bold;
                     cursor: default;
                   ">
-                <td colspan="5" style="padding: 0.75rem; text-align: right">
-                  Total:
-                </td>
-                <td style="padding: 0.75rem">R$ </td>
-              </tr>
-            </tfoot>
-          </table>
-          <button class="btn-primary" id="abrirModal">Adiconar Item</button>
-        </div>
+                  <td colspan="5" style="padding: 0.75rem; text-align: right">
+                    Total:
+                  </td>
+                  <td style="padding: 0.75rem" id="total"></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+            <button class="btn-primary" id="abrirModal">Adiconar Item</button>
 
-        <div class="card" style="margin-top: 2rem">
-          <h2 style="margin-bottom: 1rem">Observações</h2>
-          <p style="color: hsl(var(--muted-foreground))">
-            Os valores apresentados são estimativas e podem sofrer alterações
-            conforme negociações com fornecedores.
-          </p>
+          <div class="card" style="margin-top: 2rem">
+            <h2 style="margin-bottom: 1rem">Observações</h2>
+            <p style="color: hsl(var(--muted-foreground))">
+              Os valores apresentados são estimativas e podem sofrer alterações
+              conforme negociações com fornecedores.
+            </p>
+          </div>
         </div>
-      </div>
     </section>
   </main>
   <footer class="footer">
@@ -511,7 +486,7 @@
     }
 
     // Fechar dropdown quando clicar fora
-    document.addEventListener('click', function(event) {
+    document.addEventListener('click', function (event) {
       const profile = document.querySelector('.user-profile');
       const dropdown = document.getElementById("profileDropdown");
       if (profile && !profile.contains(event.target)) {
