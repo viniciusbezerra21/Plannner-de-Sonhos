@@ -400,8 +400,8 @@ $iniciais = strtoupper(substr($nome, 0, 1));
       <div id="mobileMenu" class="mobile-menu">
         <a href="../index.php" class="nav-link">Início</a>
         <a href="perfil.php" class="nav-link">Perfil</a>
-        <a href="../pages/calendar.php" class="nav-link">Agenda</a>
-        <a href="../pages/financeiro.php" class="nav-link">Financeiro</a>
+        <a href="../pages/calendario.php" class="nav-link">Calendario</a>
+        <a href="../pages/orcamento.php" class="nav-link">Orçamento</a>
       </div>
     </div>
   </header>
@@ -588,8 +588,8 @@ $iniciais = strtoupper(substr($nome, 0, 1));
         <ul>
           <li><a href="../index.php">Início</a></li>
           <li><a href="perfil.php">Perfil</a></li>
-          <li><a href="../pages/calendar.php">Agenda</a></li>
-          <li><a href="../pages/financeiro.php">Financeiro</a></li>
+          <li><a href="calendar.php">Agenda</a></li>
+          <li><a href="financeiro.php">Financeiro</a></li>
         </ul>
       </div>
       <div class="footer-modules">
