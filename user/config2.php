@@ -38,7 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     'id' => $usuario['id'],
                     'nome' => $nome_descriptografado,
                     'email' => $email_descriptografado,
-                    'foto_perfil' => $usuario['foto_perfil'] ?? 'uploads/default.png'
+                    'foto_perfil' => $usuario['foto_perfil']
                 ];
                 $_SESSION['mensagem_sucesso'] = "";
                 header("Location: ../index.php");

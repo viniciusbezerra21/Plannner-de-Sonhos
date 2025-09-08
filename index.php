@@ -274,8 +274,8 @@
 
           <?php if (isset($_SESSION['usuario_logado'])): ?>
             <div class="user-profile">
-              <?php if (!empty($_SESSION['usuario_logado']['foto_perfil']) && file_exists('uploads/perfil/' . $_SESSION['usuario_logado']['foto_perfil'])): ?>
-                <img src="uploads/perfil/<?php echo htmlspecialchars($_SESSION['usuario_logado']['foto_perfil']); ?>"
+              <?php if (!empty($_SESSION['usuario_logado']['foto_perfil'])): ?>
+                <img src="user/uploads/perfil/<?php echo htmlspecialchars($_SESSION['usuario_logado']['foto_perfil']); ?>"
                   alt="Foto do perfil" class="user-avatar" onclick="toggleProfileDropdown()" />
               <?php else: ?>
                 <div class="user-avatar-default" onclick="toggleProfileDropdown()">
@@ -339,14 +339,7 @@
         </button>
       </div>
       <div id="mobileMenu" class="mobile-menu">
-        <nav style="
-              display: flex;
-              flex-direction: column;
-              gap: 1rem;
-              padding: 1rem 0;
-              border-top: 1px solid hsl(var(--border));
-              margin-top: 0.5rem;
-            ">
+        <nav style="display: flex; flex-direction: column; gap: 1rem; padding: 1rem 0; border-top: 1px solid hsl(var(--border)); margin-top: 0.5rem;">
           <a href="index.php" class="nav-link" style="padding: 0.5rem 0">Início</a>
           <a href="pages/funcionalidades.php" class="nav-link" style="padding: 0.5rem 0">Funcionalidades</a>
 
@@ -355,8 +348,8 @@
 
             <div style="border-top: 1px solid hsl(var(--border)); margin-top: 1rem; padding-top: 1rem;">
               <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
-                <?php if (!empty($_SESSION['usuario_logado']['foto_perfil']) && file_exists('uploads/' . $_SESSION['usuario_logado']['foto_perfil'])): ?>
-                  <img src="perfil/<?php echo htmlspecialchars($_SESSION['usuario_logado']['foto_perfil']); ?>"
+                <?php if (!empty($_SESSION['usuario_logado']['foto_perfil'])): ?>
+                  <img src="uploads/perfil/<?php echo htmlspecialchars($_SESSION['usuario_logado']['foto_perfil']); ?>"
                     alt="Foto do perfil" class="user-avatar" style="width: 32px; height: 32px;" />
                 <?php else: ?>
                   <div class="user-avatar-default" style="width: 32px; height: 32px; font-size: 0.8rem;">
@@ -396,17 +389,8 @@
                 Organize o casamento
                 <span class="text-primary">
                   perfeito
-                  <svg style="
-                        width: 1.5rem;
-                        height: 1.5rem;
-                        color: hsl(var(--secondary));
-                        position: absolute;
-                        top: -0.5rem;
-                        right: -2rem;
-                        animation: pulse 3s infinite;
-                      " fill="currentColor" viewBox="0 0 24 24">
-                    <path
-                      d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09z" />
+                  <svg style="width: 1.5rem; height: 1.5rem; color: hsl(var(--secondary)); position: absolute; top: -0.5rem; right: -2rem; animation: pulse 3s infinite;" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09z" />
                   </svg>
                 </span>
                 . Sem estresse, sem falhas.
@@ -429,8 +413,7 @@
             <div class="trust-indicators">
               <div class="trust-indicator">
                 <svg fill="currentColor" viewBox="0 0 24 24">
-                  <path
-                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
                 </svg>
                 <span style="cursor: default">500+ casamentos organizados</span>
               </div>
@@ -452,11 +435,7 @@
               <div class="hero-visual-content">
                 <div class="hero-visual-header">
                   <h3 class="hero-visual-title">Próximos Eventos</h3>
-                  <svg style="
-                        width: 1.25rem;
-                        height: 1.25rem;
-                        color: hsl(var(--primary));
-                      " fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg style="width: 1.25rem; height: 1.25rem; color: hsl(var(--primary));" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                     <line x1="16" y1="2" x2="16" y2="6"></line>
                     <line x1="8" y1="2" x2="8" y2="6"></line>
@@ -483,29 +462,11 @@
                 </div>
               </div>
 
-              <svg style="
-                    position: absolute;
-                    top: 1.5rem;
-                    left: 1.5rem;
-                    width: 1rem;
-                    height: 1rem;
-                    color: hsla(var(--primary), 0.6);
-                    animation: pulse 3s infinite;
-                  " fill="currentColor" viewBox="0 0 24 24">
-                <path
-                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              <svg style="position: absolute; top: 1.5rem; left: 1.5rem; width: 1rem; height: 1rem; color: hsla(var(--primary), 0.6); animation: pulse 3s infinite;" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>
-              <svg style="
-                    position: absolute;
-                    bottom: 4rem;
-                    right: 2rem;
-                    width: 0.75rem;
-                    height: 0.75rem;
-                    color: hsla(var(--secondary), 0.6);
-                    animation: pulse 4s infinite;
-                  " fill="currentColor" viewBox="0 0 24 24">
-                <path
-                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              <svg style="position: absolute; bottom: 4rem; right: 2rem; width: 0.75rem; height: 0.75rem; color: hsla(var(--secondary), 0.6); animation: pulse 4s infinite;" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>
             </div>
           </div>
@@ -608,36 +569,12 @@
         </div>
 
         <div style="position: relative; margin-top: 4rem; text-align: center">
-          <div style="
-                display: inline-flex;
-                align-items: center;
-                gap: 0.5rem;
-                padding: 0.75rem 1.5rem;
-                background: rgba(225, 190, 231, 0.1);
-                border-radius: 9999px;
-              ">
-            <span style="
-                  width: 0.5rem;
-                  height: 0.5rem;
-                  background: hsl(var(--primary));
-                  border-radius: 50%;
-                  animation: pulse 2s infinite;
-                "></span>
-            <span style="
-                  font-family: 'Roboto', sans-serif;
-                  font-size: 0.875rem;
-                  color: hsl(var(--muted-foreground));
-                  cursor: default;
-                ">
+          <div style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background: rgba(225, 190, 231, 0.1); border-radius: 9999px;">
+            <span style="width: 0.5rem; height: 0.5rem; background: hsl(var(--primary)); border-radius: 50%; animation: pulse 2s infinite;"></span>
+            <span style="font-family: 'Roboto', sans-serif; font-size: 0.875rem; color: hsl(var(--muted-foreground)); cursor: default;">
               Mais de 100 funcionalidades para facilitar seu trabalho
             </span>
-            <span style="
-                  width: 0.5rem;
-                  height: 0.5rem;
-                  background: hsl(var(--secondary));
-                  border-radius: 50%;
-                  animation: pulse 3s infinite;
-                "></span>
+            <span style="width: 0.5rem; height: 0.5rem; background: hsl(var(--secondary)); border-radius: 50%; animation: pulse 3s infinite;"></span>
           </div>
         </div>
       </div>
@@ -678,8 +615,7 @@
           <a href="index.php" class="logo">
             <div class="heart-icon">
               <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-                <path
-                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>
             </div>
             <span class="logo-text">WeddingEasy</span>
@@ -702,7 +638,7 @@
           <ul>
             <li><a href="index.php">Início</a></li>
             <li>
-                <a href="pages/funcionalidades.php">Funcionalidades</a>
+              <a href="pages/funcionalidades.php">Funcionalidades</a>
             </li>
             <li>
               <?php if (isset($_SESSION['usuario_logado'])): ?>
@@ -727,22 +663,10 @@
 
       <div class="footer-bottom">
         <p>&copy; 2024 WeddingEasy. Todos os direitos reservados.</p>
-        <div style="
-              display: flex;
-              align-items: center;
-              gap: 0.25rem;
-              font-size: 0.875rem;
-              color: hsl(var(--muted-foreground));
-            ">
+        <div style="display: flex; align-items: center; gap: 0.25rem; font-size: 0.875rem; color: hsl(var(--muted-foreground));">
           <span>Feito com</span>
-          <svg style="
-                width: 1rem;
-                height: 1rem;
-                color: hsl(var(--primary));
-                margin: 0 0.25rem;
-              " fill="currentColor" viewBox="0 0 24 24">
-            <path
-              d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+          <svg style="width: 1rem; height: 1rem; color: hsl(var(--primary)); margin: 0 0.25rem;" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
           </svg>
           <span>para cerimonialistas</span>
         </div>
