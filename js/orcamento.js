@@ -1,7 +1,6 @@
 const modal = document.getElementById("janela-modal-orcamentos");
 const btnAbrirModal = document.getElementById("abrirModal");
 const btnFecharModal = document.getElementById("sair");
-const btnAdicionar = document.getElementById("adicionarItem");
 const tbody = document.getElementById("tabelaPrincipal");
 
 let orcamentos = [];
@@ -17,72 +16,99 @@ window.onclick = (event) => {
   if (event.target == modal) modal.style.display = "none";
 }
 
-// interacao com avaliacao
+//campo avaliação
 
-const stars = document.querySelectorAll('.star-icon');
-const ratingContainer = document.getElementById('avaliacao');
-const ratingValue = document.getElementById('rating-value');
 
-let currentRating = 0;
 
-function updateStars(rating) {
-  stars.forEach((star, index) => {
-    if (index < rating) {
-      star.classList.add('filled');
-    } else {
-      star.classList.remove('filled');
+const tabelaPrincipal = document.getElementById("tabelaPrincipal");
+const totalGeral = document.getElementById("total");
+const btnAdicionar = document.getElementById("adicionarItem");
+
+btnAdicionar.addEventListener("click", (e) => {
+  e.preventDefault();
+
+  // Pega os inputs do modal
+  const inputs = document.querySelectorAll("#janela-modal-orcamentos input");
+  const item = inputs[0].value.trim();
+  const fornecedor = inputs[1].value.trim();
+  const quantidade = parseFloat(inputs[2].value) || 0;
+  const valorUnitario = parseFloat(inputs[3].value) || 0;
+
+  if (!item || !fornecedor || quantidade <= 0 || valorUnitario <= 0) {
+    alert("Preencha todos os campos corretamente!");
+    return;
+  }
+
+  const valorTotal = quantidade * valorUnitario;
+
+  // Cria nova linha
+  const tr = document.createElement("tr");
+
+  tr.innerHTML = `
+    <td style="padding: 0.75rem">${item}</td>
+    <td style="padding: 0.75rem">${fornecedor}</td>
+    <td style="padding: 0.75rem"><div class="estrelas"></div></td>
+    <td style="padding: 0.75rem">${quantidade}</td>
+    <td style="padding: 0.75rem">R$ ${valorUnitario.toFixed(2)}</td>
+    <td style="padding: 0.75rem">R$ ${valorTotal.toFixed(2)}</td>
+  `;
+
+  tabelaPrincipal.appendChild(tr);
+
+  // Adiciona as 5 estrelas dinâmicas
+  const estrelasContainer = tr.querySelector(".estrelas");
+  const svgPath = "M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z";
+
+  for (let i = 0; i < 5; i++) {
+    const estrela = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    estrela.setAttribute("class", "star-icon");
+    estrela.setAttribute("viewBox", "0 0 24 24");
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("d", svgPath);
+    estrela.appendChild(path);
+    estrelasContainer.appendChild(estrela);
+  }
+
+  // Ativa a lógica de clique nas estrelas só dessa linha
+  const estrelas = estrelasContainer.querySelectorAll(".star-icon");
+  let nota = 0;
+  estrelas.forEach((estrela, index) => {
+    estrela.addEventListener("click", () => {
+      if (nota === index + 1) {
+        nota = 0;
+        estrelas.forEach(s => s.classList.remove("selected"));
+      } else {
+        nota = index + 1;
+        estrelas.forEach((s, i) => {
+          if (i < nota) s.classList.add("selected");
+          else s.classList.remove("selected");
+        });
+      }
+    });
+  });
+
+  // Atualiza o total geral
+  let soma = 0;
+  tabelaPrincipal.querySelectorAll("tr").forEach(row => {
+    const td = row.querySelector("td:last-child");
+    if (td) {
+      const valor = parseFloat(td.textContent.replace("R$", "").replace(",", "."));
+      soma += isNaN(valor) ? 0 : valor;
     }
   });
-  ratingValue.value = rating;
-}
-stars.forEach(star => {
-  star.addEventListener('click', function() {
-    // Obtém o valor da estrela clicada a partir do atributo data-value
-    currentRating = this.dataset.value;
-    ratingValueInput.value = currentRating; // Atualiza o valor no input oculto
-    updateStars(currentRating); // Atualiza a aparência para refletir o clique
-    console.log("Avaliação selecionada:", currentRating);
-  });
+  totalGeral.textContent = "R$ " + soma.toFixed(2);
 
-  // Evento para quando o mouse passa por cima da estrela (efeito hover)
-  star.addEventListener('mouseover', function() {
-    // Ilumina as estrelas até a que o mouse está sobre
-    updateStars(this.dataset.value);
-  });
-});
-
-// Evento para quando o mouse sai do contêiner de estrelas
-ratingContainer.addEventListener('mouseleave', function() {
-  // Restaura a aparência para a última avaliação clicada (currentRating)
-  updateStars(currentRating);
+  // Limpa inputs
+  inputs.forEach(input => input.value = "");
 });
 
 
 
 
 
-btnAdicionar.onclick = () => {
-  const item = document.getElementById("item").value;
-  const forcedor = document.getElementById("fornecedor").value;
-  const avaliacao = document.getElementById("avaliacao").value;
-  const quantidade = document.getElementById("quantidade").value;
-  const valorUnitario = document.getElementById("valorUnit").value;
-  const valorTotal = document.getElementById("valorTotal").value;
 
-  if (item && forcedor && avaliacao && quantidade && valorUnitario) {
-    tbody.innerHTML += `
-      <tr>
-        <td>${item}</td>
-        <td>${forcedor}</td>
-        <td>${avaliacao}</td>
-        <td>${quantidade}</td>
-        <td>${valorUnitario}</td>
-        <td>${valorTotal}</td>
-      </tr>
-    `;
-  } else {
-    alert("Por favor, preencha todos os campos.");
-  }
-  
-}
+
+
+
+
 
