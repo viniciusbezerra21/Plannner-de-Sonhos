@@ -523,7 +523,7 @@ $iniciais = strtoupper(substr($nome, 0, 1));
       <span class="close" onclick="closeEditModal()">&times;</span>
       <h2 style="text-align: center; margin-bottom: 0.5rem;">Editar Perfil</h2>
 
-      <div class="modal-profile-photo" style="text-align: center; margin-bottom: 2rem;">
+      <div class="modal-profile-photo" style="text-align: center; margin-bottom: 0.5rem;">
         <?php if (!empty($fotoPerfil)): ?>
           <img id="modalFotoPreview" src="uploads/perfil/<?php echo htmlspecialchars($fotoPerfil); ?>" alt="Foto de perfil">
         <?php else: ?>
