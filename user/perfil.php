@@ -109,8 +109,8 @@ $iniciais = strtoupper(substr($user['nome'], 0, 1));
       <div id="mobileMenu" class="mobile-menu">
         <a href="../index.php" class="nav-link">Início</a>
         <a href="perfil.php" class="nav-link">Perfil</a>
-        <a href="calendar.php" class="nav-link">Agenda</a>
-        <a href="financeiro.php" class="nav-link">Financeiro</a>
+        <a href="../pages/calendario.php" class="nav-link">Calendario</a>
+        <a href="../pages/orcamento.php" class="nav-link">Orçamento</a>
       </div>
     </div>
   </header>
@@ -198,7 +198,7 @@ $iniciais = strtoupper(substr($user['nome'], 0, 1));
         <ul>
           <li><a href="../index.php">Início</a></li>
           <li><a href="perfil.php">Perfil</a></li>
-          <li><a href="../pages/calendario.php">calendario</a></li>
+          <li><a href="../pages/calendario.php">Calendario</a></li>
           <li><a href="../pages/financeiro.php">Orçamentos</a></li>
         </ul>
       </div>
