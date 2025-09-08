@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>WeddingEasy - Desenvolvedor</title>
+    <title>WeddingEasy - Administrador</title>
     <link rel="stylesheet" href="Style/styles.css" />
     <link
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto:wght@300;400;500&display=swap"
@@ -124,6 +124,29 @@
   </head>
 
   <body>
+    <!-- Adicionando verificação de autenticação via JavaScript -->
+    <script>
+      // Verificar se já está logado e redirecionar baseado no cargo
+      window.onload = function() {
+        fetch('user/check_auth.php')
+          .then(response => response.json())
+          .then(data => {
+            if (data.logado) {
+              if (data.cargo === 'dev') {
+                window.location.href = 'pages/dev.php';
+              } else {
+                // Se é cliente tentando acessar admin, volta para página anterior ou index
+                const paginaAnterior = document.referrer || 'index.php';
+                window.location.href = paginaAnterior;
+              }
+            }
+          })
+          .catch(error => {
+            console.log('Usuário não logado, pode continuar');
+          });
+      };
+    </script>
+
     <header class="header">
       <div class="container">
         <div class="header-content">
@@ -154,7 +177,8 @@
               Insira seus dados para acessar o painel de gestão.
             </p>
           </div>
-          <form action="config2.php" method="POST">
+          <!-- Formulário agora aponta para user/config2.php -->
+          <form action="user/config2.php" method="POST">
             <input type="hidden" name="acao" value="login" />
 
             <div class="card form-section" style="margin-bottom: 1rem">
@@ -221,7 +245,7 @@
             >
               Não tem uma conta?
               <a
-                href="cadastro.php"
+                href="user/cadastro.php"
                 style="color: hsl(var(--primary)); text-decoration: underline"
                 >Cadastre-se aqui</a
               >.
