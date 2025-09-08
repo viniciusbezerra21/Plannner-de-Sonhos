@@ -49,11 +49,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Contato - WeddingEasy</title>
+  <title>WeddingEasy</title>
   <link rel="stylesheet" href="../Style/styles.css" />
   <link
     href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto:wght@300;400;500&display=swap"
     rel="stylesheet" />
+    <link rel="shortcut icon" href="../Style/assets/icon.png" type="image/x-icon">
   <style>
     .user-profile {
       display: flex;

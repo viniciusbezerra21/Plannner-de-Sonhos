@@ -1,301 +1,349 @@
 <?php
 session_start();
-require_once __DIR__ . '/crypto.php';
-require_once __DIR__ . '/session_helper.php';
-if (!isset($_SESSION['usuario_id'])) {
-    header("Location: index.php");
-    exit;
-}
-$hostname = "127.0.0.1";
-$user = "root";
-$password = "root";
-$database = "weddingeasy";
-$conn = new mysqli($hostname, $user, $password, $database);
-if ($conn->connect_error) {
-    die("Erro de conexão: " . $conn->connect_error);
-}
-$id = $_SESSION['usuario_id'];
-$mensagem = "";
+
+// Exemplo de dados do usuário (substituir pelo banco de dados)
+$user = [
+    "nome" => "Kauê Feltrin",
+    "email" => "kaue@email.com",
+    "telefone" => "(11) 99999-9999",
+    "cidade" => "São Paulo - SP",
+    "foto" => "" // vazio = sem foto
+];
+
+// Pega a primeira letra do nome para placeholder
+$iniciais = strtoupper(substr($user['nome'], 0, 1));
+
+// Se o formulário for enviado
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $nome = trim($_POST['nome']);
-    $telefone = trim($_POST['telefone']);
-    $senha = $_POST['senha'];
-    if (empty($nome)) {
-        $mensagem = "O nome não pode ficar vazio.";
-    } else {
-        $nomeCript = criptografar($nome);
-        $foto_perfil_path = null;
-        if (!empty($_FILES['foto_perfil']['name'])) {
-            if ($_FILES['foto_perfil']['error'] === UPLOAD_ERR_OK) {
-                $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
-                if (in_array($_FILES['foto_perfil']['type'], $allowed_types)) {
-                    $upload_dir = "uploads/perfil/";
-                    if (!is_dir($upload_dir)) {
-                        mkdir($upload_dir, 0777, true);
-                    }
-                    $ext = pathinfo($_FILES['foto_perfil']['name'], PATHINFO_EXTENSION);
-                    $foto_perfil_path = $upload_dir . uniqid() . "." . $ext;
-                    if (!move_uploaded_file($_FILES['foto_perfil']['tmp_name'], $foto_perfil_path)) {
-                        $mensagem = "Falha ao salvar a foto.";
-                    }
-                } else {
-                    $mensagem = "Tipo de arquivo não permitido. Use JPG, PNG ou GIF.";
-                }
-            } else {
-                $mensagem = "Erro no upload da foto. Código: " . $_FILES['foto_perfil']['error'];
-            }
+    $nome = $_POST['nome'];
+    $email = $_POST['email'];
+    $telefone = $_POST['telefone'];
+    $cidade = $_POST['cidade'];
+
+    // Se foi enviada uma nova foto
+    if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+        $ext = pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION);
+        $novoNome = "perfil_" . time() . "." . $ext;
+        $destino = "uploads/" . $novoNome;
+
+        if (!is_dir("uploads")) {
+            mkdir("uploads", 0777, true);
         }
-        if ($mensagem === "") {
-            $telefone_field = 'num_telefone';
-            $check_query = "SHOW COLUMNS FROM usuario LIKE '%telefone%'";
-            $check_result = $conn->query($check_query);
-            if ($check_result && $check_result->num_rows > 0) {
-                $telefone_row = $check_result->fetch_assoc();
-                $telefone_field = $telefone_row['Field'];
-            }
-            $telefone_cript = criptografar($telefone);
-            $query = "UPDATE usuario SET nome = ?, $telefone_field = ?";
-            $params = [$nomeCript, $telefone_cript];
-            $types = "ss";
-            if (!empty($senha)) {
-                $senha_hash = password_hash($senha, PASSWORD_DEFAULT);
-                $query .= ", senha_hash = ?";
-                $params[] = $senha_hash;
-                $types .= "s";
-            }
-            if ($foto_perfil_path) {
-                $query .= ", foto_perfil = ?";
-                $params[] = $foto_perfil_path;
-                $types .= "s";
-            }
-            $query .= " WHERE id = ?";
-            $params[] = $id;
-            $types .= "i";
-            $stmt = $conn->prepare($query);
-            if (!$stmt) {
-                die("Erro no prepare(): " . $conn->error . "<br>Query: " . $query);
-            }
-            $stmt->bind_param($types, ...$params);
-            if (!$stmt->execute()) {
-                die("Erro na execução: " . $stmt->error);
-            }
-            $stmt->close();
-            atualizarSessaoUsuario($id, $conn);
-            header("Location: ../index.php");
-            exit;
-        }
+
+        move_uploaded_file($_FILES['foto']['tmp_name'], $destino);
+        $user['foto'] = $destino;
     }
-}
-$telefone_field = 'num_telefone';
-$check_query = "SHOW COLUMNS FROM usuario LIKE '%telefone%'";
-$check_result = $conn->query($check_query);
-if ($check_result && $check_result->num_rows > 0) {
-    $telefone_row = $check_result->fetch_assoc();
-    $telefone_field = $telefone_row['Field'];
-}
-$sql = "SELECT nome, $telefone_field as telefone_valor, foto_perfil, created_at FROM usuario WHERE id = ?";
-$stmt = $conn->prepare($sql);
-if (!$stmt) {
-    die("Erro no prepare SELECT: " . $conn->error . "<br>SQL: " . $sql);
-}
-$stmt->bind_param("i", $id);
-if (!$stmt->execute()) {
-    die("Erro na execução SELECT: " . $stmt->error);
-}
-$result = $stmt->get_result();
-if ($result->num_rows > 0) {
-    $row = $result->fetch_assoc();
-    $nomeCript = $row['nome'];
-    $telefone = $row['telefone_valor'] ?? '';
-    $foto_perfil = $row['foto_perfil'];
-    $data_cadastro = $row['created_at'] ?? null;
-} else {
-    die("Usuário não encontrado");
-}
-$stmt->close();
-$conn->close();
-$nome = descriptografar($nomeCript);
-$telefone = !empty($telefone) ? descriptografar($telefone) : '';
-$foto_final = !empty($foto_perfil) ? htmlspecialchars($foto_perfil) : 'uploads/default.png';
-$data_cadastro_formatada = '';
-if ($data_cadastro) {
-    $data_obj = new DateTime($data_cadastro);
-    $data_cadastro_formatada = $data_obj->format('d/m/Y H:i');
+
+    $_SESSION['user'] = [
+        "nome" => $nome,
+        "email" => $email,
+        "telefone" => $telefone,
+        "cidade" => $cidade,
+        "foto" => $user['foto']
+    ];
+
+    header("Location: perfil.php?atualizado=1");
+    exit;
 }
 ?>
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 
 <head>
-    <meta charset="UTF-8" />
-    <title>Editar Perfil</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeddingEasy</title>
+    <link rel="stylesheet" href="../Style/styles.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #111;
-            color: white;
+        .edit-profile-card {
+            max-width: 600px;
+            margin: 6rem auto 3rem auto;
+            padding: 2.5rem;
+            background: white;
+            border: 1px solid hsl(var(--border));
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            animation: slideInFromBottom 0.8s ease-out;
             text-align: center;
-            padding-top: 40px;
         }
 
-        .profile-pic {
-            width: 150px;
-            height: 150px;
+        .edit-profile-card h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: hsl(var(--foreground));
+        }
+
+        .profile-photo {
+            margin-bottom: 1.5rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .profile-photo img,
+        .profile-placeholder {
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
             object-fit: cover;
-            border: 3px solid white;
-            margin-bottom: 10px;
-            cursor: pointer;
-        }
-
-        form {
-            display: inline-block;
-            text-align: left;
-            background-color: #222;
-            padding: 20px;
-            border-radius: 10px;
-        }
-
-        label {
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
             display: block;
-            margin-top: 10px;
+            margin: 0 auto;
         }
 
-        input[type="text"],
-        input[type="tel"],
-        input[type="password"],
-        input[type="file"] {
-            width: 250px;
-            padding: 8px;
-            border-radius: 5px;
-            border: none;
-            margin-top: 5px;
-            background-color: #333;
-            color: white;
+        .profile-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: hsl(var(--primary));
+            color: hsl(var(--primary-foreground));
+            font-size: 3rem;
+            font-weight: bold;
+            user-select: none;
         }
 
-        input[type="submit"] {
-            margin-top: 20px;
-            width: 100%;
-            padding: 10px;
-            background-color: #444;
-            border: none;
-            border-radius: 5px;
-            color: white;
-            cursor: pointer;
+        /* Botão customizado */
+        .custom-file {
+            margin-top: 1rem;
         }
 
-        input[type="submit"]:hover {
-            background-color: #666;
-        }
-
-        input[type="file"] {
+        .custom-file input[type="file"] {
             display: none;
         }
 
-        .edit-icon {
-            display: inline-block;
-            background-color: #444;
-            padding: 5px 10px;
-            border-radius: 5px;
+        .custom-file label {
+            background: hsl(var(--primary));
+            color: hsl(var(--primary-foreground));
+            padding: 0.6rem 1.2rem;
+            border-radius: 0.5rem;
             cursor: pointer;
-            margin-bottom: 10px;
+            font-weight: 600;
+            display: inline-block;
+            transition: all 0.3s;
         }
 
-        .message {
-            margin-bottom: 15px;
-            font-weight: bold;
-            padding: 10px;
-            border-radius: 5px;
+        .custom-file label:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
         }
 
-        .message.success {
-            color: #0f0;
-            background-color: #003300;
-            border: 1px solid #0f0;
+        .custom-file label:hover {
+            animation: glow 0.5s ease-in-out;
         }
 
-        .message.error {
-            color: #f44;
-            background-color: #330000;
-            border: 1px solid #f44;
+        .form-group {
+            margin-bottom: 1rem;
+            text-align: left;
         }
 
-        .back-btn {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background-color: #444;
-            color: white;
-            padding: 10px 15px;
-            text-decoration: none;
-            border-radius: 5px;
-            font-size: 14px;
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: block;
+            color: hsl(var(--foreground));
         }
 
-        .back-btn:hover {
-            background-color: #666;
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: hsl(var(--primary));
+            box-shadow: 0 0 0 3px hsl(var(--primary) / 0.2);
+        }
+
+        .btn-submit {
+            display: block;
+            width: 100%;
+            margin-top: 1.5rem;
+            padding: 0.75rem;
+            background-color: hsl(var(--primary));
+            color: hsl(var(--primary-foreground));
+            font-weight: 600;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            animation: glow 0.5s ease-in-out;
         }
     </style>
 </head>
 
 <body>
-
-    <a href="../index.php" class="back-btn">← Voltar ao Início</a>
-
-    <h1>Editar Perfil</h1>
-
-    <?php if ($mensagem): ?>
-        <div class="message <?= strpos(strtolower($mensagem), 'sucesso') !== false ? 'success' : 'error' ?>">
-            <?= htmlspecialchars($mensagem) ?>
+    <!-- Header -->
+    <header class="header">
+        <div class="container header-content">
+            <a href="index.php" class="logo">
+                <div class="heart-icon">❤</div>
+                <span class="logo-text">WeddingEasy</span>
+            </a>
+            <nav class="nav">
+                <a href="perfil.php" class="nav-link">Voltar</a>
+            </nav>
+            <button class="mobile-menu-btn"
+                onclick="document.querySelector('.mobile-menu').classList.toggle('active');this.classList.toggle('hamburger-active')">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
         </div>
-    <?php endif; ?>
+        <div class="mobile-menu">
+            <a href="perfil.php" class="nav-link">Voltar</a>
+        </div>
+    </header>
 
-    <label for="fotoInput" class="edit-icon">Alterar foto ✏️</label><br>
-    <img src="<?= $foto_final ?>" alt="Foto de perfil" id="profilePic" class="profile-pic" title="Clique para alterar foto">
-
-    <form action="" method="post" enctype="multipart/form-data" id="formPerfil">
-        <input type="file" id="fotoInput" name="foto_perfil" accept="image/*">
-
-        <label for="nome">Nome: ✏️</label>
-        <input type="text" id="nome" name="nome" value="<?= htmlspecialchars($nome) ?>" required>
-
-        <label for="telefone">Telefone: ✏️</label>
-        <input type="tel" id="telefone" name="telefone" value="<?= htmlspecialchars($telefone) ?>">
-
-        <label for="senha">Senha (deixe vazio para não alterar): ✏️</label>
-        <input type="password" id="senha" name="senha" placeholder="Nova senha">
-
-        <?php if ($data_cadastro_formatada): ?>
-            <div style="margin-top: 15px; padding: 10px; background-color: #333; border-radius: 5px; color: #ccc;">
-                <strong>Data de Cadastro:</strong> <?= $data_cadastro_formatada ?>
+    <!-- Formulário -->
+    <main class="container">
+        <div class="edit-profile-card">
+            <h2>Editar Perfil</h2>
+            <div class="profile-photo">
+                <?php if (!empty($user['foto'])): ?>
+                    <img id="fotoPreview" src="<?php echo $user['foto']; ?>" alt="Foto de perfil">
+                <?php else: ?>
+                    <div id="fotoPlaceholder" class="profile-placeholder"><?php echo $iniciais; ?></div>
+                <?php endif; ?>
+                <div class="custom-file">
+                    <input type="file" id="foto" name="foto" accept="image/*" onchange="previewFoto(event)">
+                    <label for="foto">Trocar Foto de Perfil</label>
+                </div>
             </div>
-        <?php endif; ?>
+            <form method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="nome">Nome Completo</label>
+                    <input type="text" id="nome" name="nome" value="<?php echo $user['nome']; ?>" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" name="email" value="<?php echo $user['email']; ?>" required>
+                </div>
+                <div class="form-group">
+                    <label for="telefone">Telefone</label>
+                    <input type="text" id="telefone" name="telefone" value="<?php echo $user['telefone']; ?>" required>
+                </div>
+                <div class="form-group">
+                    <label for="cidade">Cidade</label>
+                    <input type="text" id="cidade" name="cidade" value="<?php echo $user['cidade']; ?>" required>
+                </div>
+                <button type="submit" class="btn-submit">Salvar Alterações</button>
+            </form>
+        </div>
+    </main>
 
-        <input type="submit" value="Salvar Alterações">
-    </form>
+    <!-- Footer -->
+    <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <a href="index.php" class="logo">
+            <div class="heart-icon">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                <path
+                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              </svg>
+            </div>
+            <span class="logo-text">WeddingEasy</span>
+          </a>
+          <p class="footer-description">
+            A plataforma mais completa para cerimonialistas organizarem
+            casamentos perfeitos. Simplifique sua gestão e encante seus
+            clientes.
+          </p>
+          <div class="footer-contact">
+            <svg style="width: 1rem; height: 1rem" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+              <polyline points="22,6 12,13 2,6" />
+            </svg>
+            <span>contato@weddingeasy.com</span>
+          </div>
+        </div>
+        <div class="footer-links">
+          <h3>Navegação</h3>
+          <ul>
+            <li><a href="index.php">Início</a></li>
+            <li>
+                <a href="pages/funcionalidades.php">Funcionalidades</a>
+            </li>
+            <li>
+              <?php if (isset($_SESSION['usuario_logado'])): ?>
+                <a href="pages/contato.php">Contato</a>
+              <?php else: ?>
+                <a href="#" onclick="openLoginModal()"></a>
+              <?php endif; ?>
+            </li>
+          </ul>
+        </div>
+        <div class="footer-modules">
+          <h3>Legal</h3>
+          <ul>
+            <li><a href="legal-pages/about.html">Sobre</a></li>
+            <li>
+              <a href="legal-pages/privacity-politics.html">Política de Privacidade</a>
+            </li>
+            <li><a href="legal-pages/uses-terms.html">Termos de Uso</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2024 WeddingEasy. Todos os direitos reservados.</p>
+        <div style="
+              display: flex;
+              align-items: center;
+              gap: 0.25rem;
+              font-size: 0.875rem;
+              color: hsl(var(--muted-foreground));
+            ">
+          <span>Feito com</span>
+          <svg style="
+                width: 1rem;
+                height: 1rem;
+                color: hsl(var(--primary));
+                margin: 0 0.25rem;
+              " fill="currentColor" viewBox="0 0 24 24">
+            <path
+              d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+          </svg>
+          <span>para cerimonialistas</span>
+        </div>
+      </div>
+    </div>
+  </footer>
 
     <script>
-        const fotoInput = document.getElementById('fotoInput');
-        const profilePic = document.getElementById('profilePic');
-        const labelFoto = document.querySelector('.edit-icon');
-
-        labelFoto.addEventListener('click', () => {
-            fotoInput.click();
-        });
-
-        fotoInput.addEventListener('change', () => {
-            const file = fotoInput.files[0];
+        function previewFoto(event) {
+            const file = event.target.files[0];
             if (file) {
-                profilePic.src = URL.createObjectURL(file);
+                const foto = document.getElementById('fotoPreview');
+                const placeholder = document.getElementById('fotoPlaceholder');
+                if (placeholder) placeholder.style.display = 'none';
+
+                if (foto) {
+                    foto.src = URL.createObjectURL(file);
+                } else {
+                    const img = document.createElement('img');
+                    img.id = 'fotoPreview';
+                    img.src = URL.createObjectURL(file);
+                    img.style.width = "120px";
+                    img.style.height = "120px";
+                    img.style.borderRadius = "50%";
+                    img.style.objectFit = "cover";
+                    img.style.boxShadow = "0 6px 15px rgba(0,0,0,0.15)";
+                    document.querySelector('.profile-photo').prepend(img);
+                }
             }
-        });
-
-        profilePic.addEventListener('click', () => {
-            fotoInput.click();
-        });
+        }
     </script>
-
 </body>
 
 </html>
