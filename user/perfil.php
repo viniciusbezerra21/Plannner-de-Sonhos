@@ -198,8 +198,8 @@ $iniciais = strtoupper(substr($user['nome'], 0, 1));
         <ul>
           <li><a href="../index.php">Início</a></li>
           <li><a href="perfil.php">Perfil</a></li>
-          <li><a href="calendar.php">Agenda</a></li>
-          <li><a href="financeiro.php">Financeiro</a></li>
+          <li><a href="../pages/calendario.php">calendario</a></li>
+          <li><a href="../pages/financeiro.php">Orçamentos</a></li>
         </ul>
       </div>
       <div class="footer-modules">
