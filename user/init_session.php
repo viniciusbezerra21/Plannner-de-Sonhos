@@ -22,12 +22,12 @@ if (isset($_SESSION['usuario_id']) && !isset($_SESSION['usuario_logado'])) {
             $user_data = $result->fetch_assoc();
 
             $nome = descriptografar($user_data['nome']);
-            $email = descriptografar($user_data['email']);
+            $email = $user_data['email'];
 
             $_SESSION['usuario_logado'] = [
                 'id' => $usuario_id,
                 'nome' => $nome,
-                'email' => $email,
+                'email' => $email, // Email em texto plano
                 'foto_perfil' => $user_data['foto_perfil'] ?? 'uploads/default.png'
             ];
 
@@ -39,3 +39,4 @@ if (isset($_SESSION['usuario_id']) && !isset($_SESSION['usuario_logado'])) {
         $conn->close();
     }
 }
+?>
