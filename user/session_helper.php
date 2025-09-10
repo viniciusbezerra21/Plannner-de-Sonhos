@@ -3,7 +3,6 @@ function atualizarSessaoUsuario($usuario_id, $conn)
 {
     require_once 'crypto.php';
 
-
     $sql = "SELECT nome, email, foto_perfil FROM usuario WHERE id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $usuario_id);
@@ -14,7 +13,7 @@ function atualizarSessaoUsuario($usuario_id, $conn)
         $user_data = $result->fetch_assoc();
 
         $nome = descriptografar($user_data['nome']);
-        $email = descriptografar($user_data['email']);
+        $email = $user_data['email'];
 
         $_SESSION['nome'] = $nome;
         $_SESSION['email'] = $email;
@@ -22,10 +21,11 @@ function atualizarSessaoUsuario($usuario_id, $conn)
         $_SESSION['usuario_logado'] = [
             'id' => $usuario_id,
             'nome' => $nome,
-            'email' => $email,
+            'email' => $email, // Email em texto plano
             'foto_perfil' => $user_data['foto_perfil'] ?? 'uploads/default.png'
         ];
     }
 
     $stmt->close();
 }
+?>

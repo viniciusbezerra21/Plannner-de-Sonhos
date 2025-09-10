@@ -58,22 +58,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
   if (!isset($_SESSION['mensagem_erro'])) {
     $nomeCripto      = criptografar($novoNome);
     $nomeConjCripto  = criptografar($novoNomeConj);
-    $emailCripto     = criptografar($novoEmail);
+    $emailLimpo      = strtolower(trim($novoEmail)); // Email em texto plano
     $telefoneCripto  = criptografar($novoTelefone);
 
     if (!empty($novaSenha)) {
       $senhaHash = password_hash($novaSenha, PASSWORD_DEFAULT);
       $stmt = $conn->prepare("UPDATE usuario SET nome=?, nome_conj=?, email=?, num_telefone=?, foto_perfil=?, senha_hash=? WHERE id=?");
-      $stmt->bind_param("ssssssi", $nomeCripto, $nomeConjCripto, $emailCripto, $telefoneCripto, $novaFotoPerfil, $senhaHash, $usuario_id);
+      $stmt->bind_param("ssssssi", $nomeCripto, $nomeConjCripto, $emailLimpo, $telefoneCripto, $novaFotoPerfil, $senhaHash, $usuario_id);
     } else {
       $stmt = $conn->prepare("UPDATE usuario SET nome=?, nome_conj=?, email=?, num_telefone=?, foto_perfil=? WHERE id=?");
-      $stmt->bind_param("sssssi", $nomeCripto, $nomeConjCripto, $emailCripto, $telefoneCripto, $novaFotoPerfil, $usuario_id);
+      $stmt->bind_param("sssssi", $nomeCripto, $nomeConjCripto, $emailLimpo, $telefoneCripto, $novaFotoPerfil, $usuario_id);
     }
 
     if ($stmt->execute()) {
       $_SESSION['usuario_logado']['nome'] = $novoNome;
       $_SESSION['usuario_logado']['nome_conj'] = $novoNomeConj;
-      $_SESSION['usuario_logado']['email'] = $novoEmail;
+      $_SESSION['usuario_logado']['email'] = $emailLimpo; // Email em texto plano na sessão
       $_SESSION['usuario_logado']['num_telefone'] = $novoTelefone;
       $_SESSION['usuario_logado']['foto_perfil'] = $novaFotoPerfil;
 
@@ -97,10 +97,9 @@ $stmt->execute();
 $result = $stmt->get_result();
 $usuario = $result->fetch_assoc();
 
-// Descriptografa os campos
 $nome        = descriptografar($usuario['nome']);
 $nomeConj    = descriptografar($usuario['nome_conj']);
-$email       = descriptografar($usuario['email']);
+$email       = $usuario['email']; // Email já em texto plano
 $numTelefone = descriptografar($usuario['num_telefone']);
 $fotoPerfil  = $usuario['foto_perfil'];
 
@@ -466,7 +465,7 @@ $iniciais = strtoupper(substr($nome, 0, 1));
           <li>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <circle cx="12" cy="12" r="9" />
-              <path d="M3 12h18M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10" />
+              <path d="M3 12h.01M3 12h.01M3 18h.01" />
             </svg>
             Tema: Padrão
           </li>
@@ -524,7 +523,7 @@ $iniciais = strtoupper(substr($nome, 0, 1));
       <span class="close" onclick="closeEditModal()">&times;</span>
       <h2 style="text-align: center; margin-bottom: 0.5rem;">Editar Perfil</h2>
 
-      <div class="modal-profile-photo" style="text-align: center; margin-bottom: 2rem;">
+      <div class="modal-profile-photo" style="text-align: center; margin-bottom: 0.5rem;">
         <?php if (!empty($fotoPerfil)): ?>
           <img id="modalFotoPreview" src="uploads/perfil/<?php echo htmlspecialchars($fotoPerfil); ?>" alt="Foto de perfil">
         <?php else: ?>

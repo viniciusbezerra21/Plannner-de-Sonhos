@@ -19,29 +19,37 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             header("Location: login.php");
             exit;
         }
-        $valor_criptografado = criptografar($email_ou_nome);
+        
+        $nome_criptografado = criptografar($email_ou_nome);
         $sql = "SELECT * FROM usuario WHERE nome = ? OR email = ?";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ss", $valor_criptografado, $valor_criptografado);
+        $stmt->bind_param("ss", $nome_criptografado, $email_ou_nome);
         $stmt->execute();
         $resultado = $stmt->get_result();
+        
         if ($resultado->num_rows === 1) {
             $usuario = $resultado->fetch_assoc();
             if (password_verify($senha, $usuario['senha_hash'])) {
                 $_SESSION['logado'] = true;
                 $_SESSION['usuario_id'] = $usuario['id'];
                 $nome_descriptografado = descriptografar($usuario['nome']);
-                $email_descriptografado = descriptografar($usuario['email']);
+                $email_usuario = $usuario['email'];
                 $_SESSION['nome'] = $nome_descriptografado;
-                $_SESSION['email'] = $email_descriptografado;
+                $_SESSION['email'] = $email_usuario;
                 $_SESSION['usuario_logado'] = [
                     'id' => $usuario['id'],
                     'nome' => $nome_descriptografado,
-                    'email' => $email_descriptografado,
+                    'email' => $email_usuario, // Email em texto plano
                     'foto_perfil' => $usuario['foto_perfil']
                 ];
                 $_SESSION['mensagem_sucesso'] = "";
-                header("Location: ../index.php");
+                
+                $cargo = $usuario['cargo'] ?? 'cliente';
+                if ($cargo === 'dev') {
+                    header("Location: ../pages/dev.php");
+                } else {
+                    header("Location: ../index.php");
+                }
                 exit;
             } else {
                 $_SESSION['mensagem_erro'] = "Senha incorreta!";
@@ -59,3 +67,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     exit;
 }
 $conn->close();
+?>
