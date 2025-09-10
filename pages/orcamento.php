@@ -1,4 +1,62 @@
-<?php session_start(); ?>
+<?php session_start(); 
+
+// Configuração do banco de dados - ajuste conforme sua configuração
+$host = 'localhost';
+$dbname = 'weddingeasy';
+$username = 'root';
+$password = 'root';
+
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch(PDOException $e) {
+    die("Erro na conexão: " . $e->getMessage());
+}
+
+// Função para salvar item no banco
+if ($_POST['action'] ?? '' === 'salvar_item') {
+    header('Content-Type: application/json');
+    
+    $item = $_POST['item'] ?? '';
+    $fornecedor = $_POST['fornecedor'] ?? '';
+    $quantidade = (int)($_POST['quantidade'] ?? 0);
+    $valor_uni = (float)($_POST['valor_uni'] ?? 0);
+    
+    if (empty($item) || empty($fornecedor) || $quantidade <= 0 || $valor_uni <= 0) {
+        echo json_encode(['success' => false, 'message' => 'Dados inválidos']);
+        exit;
+    }
+    
+    try {
+        $stmt = $pdo->prepare("INSERT INTO orcamentos (item, fornecedor, quantidade, valor_uni) VALUES (?, ?, ?, ?)");
+        $stmt->execute([$item, $fornecedor, $quantidade, $valor_uni]);
+        
+        echo json_encode([
+            'success' => true, 
+            'id' => $pdo->lastInsertId(),
+            'message' => 'Item salvo com sucesso'
+        ]);
+    } catch(PDOException $e) {
+        echo json_encode(['success' => false, 'message' => 'Erro ao salvar: ' . $e->getMessage()]);
+    }
+    exit;
+}
+
+// Função para carregar itens do banco
+if ($_GET['action'] ?? '' === 'carregar_itens') {
+    header('Content-Type: application/json');
+    
+    try {
+        $stmt = $pdo->query("SELECT * FROM orcamentos ORDER BY id DESC");
+        $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        echo json_encode(['success' => true, 'itens' => $itens]);
+    } catch(PDOException $e) {
+        echo json_encode(['success' => false, 'message' => 'Erro ao carregar: ' . $e->getMessage()]);
+    }
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -192,16 +250,16 @@
             <!-- Linha de inputs -->
             <tr>
               <td style="padding: 0.5rem">
-                <div class="form-group"><input type="text" placeholder="Item" style="width: 100%"></div>
+                <div class="form-group"><input type="text" id="itemInput" placeholder="Item" style="width: 100%"></div>
               </td>
               <td style="padding: 0.5rem">
-                <div class="form-group"><input type="text" placeholder="Fornecedor" style="width: 100%"></div>
+                <div class="form-group"><input type="text" id="fornecedorInput" placeholder="Fornecedor" style="width: 100%"></div>
               </td>
               <td style="padding: 0.5rem">
-                <div class="form-group"><input type="number" placeholder="Qtd" style="width: 100%"></div>
+                <div class="form-group"><input type="number" id="quantidadeInput" placeholder="Qtd" style="width: 100%"></div>
               </td>
               <td style="padding: 0.5rem">
-                <div class="form-group"><input type="number" placeholder="Valor Unit." style="width: 100%"></div>
+                <div class="form-group"><input type="number" id="valorUnitarioInput" placeholder="Valor Unit." style="width: 100%"></div>
               </td>
             </tr>
           </tbody>
@@ -363,14 +421,7 @@
           </p>
         </div>
 
-        <div class="card" style="
-              background: linear-gradient(
-                135deg,
-                var(--wedding-rose-white) 0%,
-                rgba(225, 190, 231, 0.2) 50%,
-                rgba(186, 104, 200, 0.3) 100%
-              );
-            ">
+        <div class="card" style="background: linear-gradient(135deg, var(--wedding-rose-white) 0%, rgba(225, 190, 231, 0.2) 50%, rgba(186, 104, 200, 0.3) 100%);">
           <h2 style="margin-bottom: 1rem">Itens do Orçamento</h2>
 
           <div class="tabela-wraper" style="max-height: none; overflow-y: visible;">
@@ -379,47 +430,27 @@
 
             <table style="width: 100%; border-collapse: collapse">
               <thead>
-                <tr style="
-                    text-align: left;
-                    border-bottom: 1px solid hsl(var(--border));
-                  ">
+                <tr style="text-align: left; border-bottom: 1px solid hsl(var(--border));">
                   <th style="padding: 0.75rem; cursor: default">Item</th>
                   <th style="padding: 0.75rem; cursor: default">Fornecedor</th>
                   <th style="padding: 0.75rem; cursor: default">Avaliação</th>
                   <th style="padding: 0.75rem; cursor: default">Quantidade</th>
-                  <th style="padding: 0.75rem; cursor: default">
-                    Valor Unitário
-                  </th>
+                  <th style="padding: 0.75rem; cursor: default">Valor Unitário</th>
                   <th style="padding: 0.75rem; cursor: default">Valor Total</th>
                 </tr>
               </thead>
               <tbody id="tabelaPrincipal">
-                <tr>
-                  <td style="padding: 0.75rem; cursor: default" id="item"></td>
-                  <td style="padding: 0.75rem; cursor: default" id="fornecedor"></td>
-                  <td style="padding: 0.75rem; cursor: default">
-                  </td>
-                  <td style="padding: 0.75rem; cursor: default" id="quantidade"></td>
-                  <td style="padding: 0.75rem; cursor: default" id="valorUnitario"></td>
-                  <td style="padding: 0.75rem; cursor: default" id="valorTotal"></td>
-                </tr>
-
+                <!-- Itens do orçamento serão carregados aqui -->
               </tbody>
               <tfoot>
-                <tr style="
-                    border-top: 2px solid hsl(var(--border));
-                    font-weight: bold;
-                    cursor: default;
-                  ">
-                  <td colspan="5" style="padding: 0.75rem; text-align: right">
-                    Total:
-                  </td>
+                <tr style="border-top: 2px solid hsl(var(--border)); font-weight: bold; cursor: default;">
+                  <td colspan="5" style="padding: 0.75rem; text-align: right">Total:</td>
                   <td style="padding: 0.75rem" id="total"></td>
                 </tr>
               </tfoot>
             </table>
           </div>
-            <button class="btn-primary" id="abrirModal">Adiconar Item</button>
+          <button class="btn-primary" id="abrirModal">Adicionar Item</button>
 
           <div class="card" style="margin-top: 2rem">
             <h2 style="margin-bottom: 1rem">Observações</h2>
@@ -429,6 +460,7 @@
             </p>
           </div>
         </div>
+      </div>
     </section>
   </main>
   <footer class="footer">
@@ -472,43 +504,6 @@
       </div>
     </div>
   </footer>
-  <script>
-    function toggleMobileMenu() {
-      const mobileMenu = document.getElementById("mobileMenu");
-      const hamburgerBtn = document.getElementById("hamburgerBtn");
-      mobileMenu.classList.toggle("active");
-      hamburgerBtn.classList.toggle("hamburger-active");
-    }
-
-    function toggleProfileDropdown() {
-      const dropdown = document.getElementById("profileDropdown");
-      dropdown.classList.toggle("active");
-    }
-
-    // Fechar dropdown quando clicar fora
-    document.addEventListener('click', function (event) {
-      const profile = document.querySelector('.user-profile');
-      const dropdown = document.getElementById("profileDropdown");
-      if (profile && !profile.contains(event.target)) {
-        dropdown?.classList.remove("active");
-      }
-    });
-    document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-      anchor.addEventListener("click", function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute("href"));
-        if (target) {
-          target.scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-          });
-          const mobileMenu = document.getElementById("mobileMenu");
-          const hamburgerBtn = document.getElementById("hamburgerBtn");
-          mobileMenu.classList.remove("active");
-          hamburgerBtn.classList.remove("hamburger-active");
-        }
-      });
-    });
-  </script>
-  <script src="../js/orcamento.js"></script>
+  <script src="js/orcamento.js"></script>
 </body>
+</html>

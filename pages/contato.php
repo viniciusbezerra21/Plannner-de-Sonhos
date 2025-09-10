@@ -2,7 +2,7 @@
 session_start();
 
 $host = 'localhost';
-$dbname = 'casamento';
+$dbname = 'weddingeasy';
 $username = 'root';
 $password = 'root';
 $mensagem_sucesso = '';
