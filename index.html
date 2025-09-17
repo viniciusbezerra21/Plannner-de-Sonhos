@@ -15,111 +15,6 @@
       type="image/x-icon"
     />
     <style>
-      .user-avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 2px solid hsl(var(--primary));
-        cursor: pointer;
-      }
-
-      .user-avatar-default {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: linear-gradient(
-          135deg,
-          hsl(var(--primary)),
-          hsl(var(--primary)) 80%
-        );
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: 600;
-        font-size: 0.9rem;
-        cursor: pointer;
-        border: 2px solid hsl(var(--primary));
-      }
-
-      .profile-dropdown {
-        position: absolute;
-        top: 100%;
-        right: 0;
-        background: hsl(var(--card));
-        border: 1px solid hsl(var(--border));
-        border-radius: 0.75rem;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        min-width: 200px;
-        display: none;
-        z-index: 1000;
-        margin-top: 0.5rem;
-      }
-
-      .profile-dropdown.active {
-        display: block;
-      }
-
-      .profile-dropdown-header {
-        padding: 1rem;
-        border-bottom: 1px solid hsl(var(--border));
-      }
-
-      .profile-dropdown-name {
-        font-weight: 600;
-        color: hsl(var(--foreground));
-        margin: 0;
-        font-size: 0.9rem;
-      }
-
-      .profile-dropdown-email {
-        color: hsl(var(--muted-foreground));
-        margin: 0;
-        font-size: 0.8rem;
-        margin-top: 0.25rem;
-      }
-
-      .profile-dropdown-menu {
-        padding: 0.5rem 0;
-      }
-
-      .profile-dropdown-item {
-        display: block;
-        padding: 0.75rem 1rem;
-        color: hsl(var(--foreground));
-        text-decoration: none;
-        transition: background-color 0.2s;
-        font-size: 0.9rem;
-      }
-
-      .profile-dropdown-item:hover {
-        background-color: hsl(var(--accent));
-      }
-
-      .profile-dropdown-item.logout {
-        color: #ef4444;
-        border-top: 1px solid hsl(var(--border));
-        margin-top: 0.5rem;
-      }
-
-      .profile-dropdown-item.logout:hover {
-        background-color: #fef2f2;
-      }
-
-      .mensagem-sucesso {
-        position: fixed;
-        top: 1rem;
-        right: 1rem;
-        background-color: #e8f5e8;
-        border: 1px solid #4caf50;
-        color: #4caf50;
-        padding: 1rem 1.5rem;
-        border-radius: 0.75rem;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        z-index: 1000;
-        animation: slideIn 0.3s ease-out;
-      }
       .login-modal {
         display: none;
         position: fixed;
@@ -200,15 +95,6 @@
       }
 
       @media (max-width: 768px) {
-        .profile-dropdown {
-          right: -1rem;
-        }
-
-        .mensagem-sucesso {
-          top: 0.5rem;
-          right: 0.5rem;
-          left: 0.5rem;
-        }
 
         .login-modal-content {
           margin: 50% auto;

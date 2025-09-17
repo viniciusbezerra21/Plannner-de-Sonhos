@@ -1,223 +1,490 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>WeddingEasy - Painel Desenvolvedor</title>
-    <link rel="stylesheet" href="../Style/styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
-    <link rel="shortcut icon" href="../Style/assets/devicon.png" type="image/x-icon">
+    <link rel="stylesheet" href="../Style/styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="shortcut icon"
+      href="../Style/assets/devicon.png"
+      type="image/x-icon"
+    />
     <style>
-        :root {
-            --primary: 345 91% 58%;
-            --primary-foreground: 345 100% 96%;
-            --secondary: 345 60% 45%;
-            --secondary-foreground: 345 100% 96%;
-            --background: 0 0% 12%;
-            --foreground: 345 30% 95%;
-            --muted: 345 20% 25%;
-            --muted-foreground: 345 20% 70%;
-            --card: 345 20% 18%;
-            --card-foreground: 345 30% 95%;
-            --border: 345 20% 30%;
-            --accent: 345 91% 58%;
-            --accent-foreground: 345 100% 96%;
-        }
+      :root {
+        --primary: 345 91% 58%;
+        --primary-foreground: 345 100% 96%;
+        --secondary: 345 60% 45%;
+        --secondary-foreground: 345 100% 96%;
+        --background: 0 0% 12%;
+        --foreground: 345 30% 95%;
+        --muted: 345 20% 25%;
+        --muted-foreground: 345 20% 70%;
+        --card: 345 20% 18%;
+        --card-foreground: 345 30% 95%;
+        --border: 345 20% 30%;
+        --accent: 345 91% 58%;
+        --accent-foreground: 345 100% 96%;
+      }
+      #pageContent.blurred {
+        filter: blur(6px);
+        transition: filter 0.3s;
+      }
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      }
 
-        body {
-            background: linear-gradient(135deg, rgb(194, 43, 81) 0%, rgb(0, 0, 0) 50%, rgb(100, 4, 20) 100%);
-            color: white;
-            font-family: "Roboto", sans-serif;
-            line-height: 1.6;
-            min-height: 100vh;
-        }
+      .modal {
+        background: rgba(20, 20, 20, 0.95);
+        border-radius: 1rem;
+        padding: 2rem;
+        width: 90%;
+        max-width: 1000px;
+        max-height: 90%;
+        overflow-y: auto;
+        position: relative;
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+        border: 1px solid hsl(var(--secondary));
+      }
+      .modal h2 {
+        color: hsl(var(--primary));
+        margin-bottom: 1rem;
+      }
 
-        .dev-header {
-            background: rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 1rem 0;
-        }
+      .close-modal {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: white;
+        cursor: pointer;
+      }
 
-        .dev-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 1rem;
-        }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+      }
 
-        .dev-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin: 2rem 0;
-        }
+      th,
+      td {
+        padding: 0.75rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        text-align: left;
+      }
 
-        .stat-card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 1rem;
-            padding: 1.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
+      th {
+        color: hsl(var(--primary));
+      }
 
-        .stat-number {
-            font-size: 2rem;
-            font-weight: bold;
-            color: hsl(var(--primary));
-            margin-bottom: 0.5rem;
-        }
+      body {
+        background: linear-gradient(
+          135deg,
+          rgb(194, 43, 81) 0%,
+          rgb(0, 0, 0) 50%,
+          rgb(100, 4, 20) 100%
+        );
+        color: white;
+        font-family: "Roboto", sans-serif;
+        line-height: 1.6;
+        min-height: 100vh;
+      }
 
-        .stat-label {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 0.9rem;
-        }
+      .dev-header {
+        background: rgba(0, 0, 0, 0.3);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 1rem 0;
+      }
 
-        .dev-actions {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin: 2rem 0;
-        }
+      .dev-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1rem;
+      }
 
-        .action-card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 1rem;
-            padding: 2rem;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            text-align: center;
-        }
+      .dev-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+      }
 
-        .action-icon {
-            width: 48px;
-            height: 48px;
-            margin: 0 auto 1rem;
-            color: hsl(var(--primary));
-        }
+      .stat-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
 
-        .btn-dev {
-            background: hsl(var(--primary));
-            color: hsl(var(--primary-foreground));
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            text-decoration: none;
-            font-weight: 600;
-            display: inline-block;
-            transition: all 0.3s;
-            border: none;
-            cursor: pointer;
-            margin: 1rem;
-        }
+      .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+        color: hsl(var(--primary));
+        margin-bottom: 0.5rem;
+      }
 
-        .btn-dev:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-        }
+      .stat-label {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.9rem;
+      }
 
-        .logo-text {
-            font-family: "Poppins", sans-serif;
-            font-weight: 600;
-            font-size: 1.25rem;
-            color: white;
-        }
+      .dev-actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+      }
+
+      .action-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 1rem;
+        padding: 2rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        text-align: center;
+      }
+
+      .action-icon {
+        width: 48px;
+        height: 48px;
+        margin: 0 auto 1rem;
+        color: hsl(var(--primary));
+      }
+
+      .btn-dev {
+        background: hsl(var(--primary));
+        color: hsl(var(--primary-foreground));
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-block;
+        transition: all 0.3s;
+        border: none;
+        cursor: pointer;
+        margin: 1rem;
+      }
+
+      .btn-dev:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      }
+
+      .logo-text {
+        font-family: "Poppins", sans-serif;
+        font-weight: 600;
+        font-size: 1.25rem;
+        color: white;
+      }
     </style>
-</head>
-<body>
-    <header class="dev-header">
+  </head>
+  <body>
+    <div id="pageContent">
+      <header class="dev-header">
         <div class="dev-container">
-            <div class="header-content">
-                <a href="../index.html" class="logo">
-                    <div class="heart-icon">
-                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                        </svg>
-                    </div>
-                    <span class="logo-text">WeddingEasy - DEV</span>
-                </a>
-                <nav style="display: flex; gap: 1rem; align-items: center;">
-                    <span style="color: rgba(255,255,255,0.8);">Bem-vindo,</span>
-                    <a href="../user/logout.html" class="btn-dev">Logout</a>
-                </nav>
-            </div>
+          <div class="header-content">
+            <a href="../index.html" class="logo">
+              <div class="heart-icon">
+                <svg
+                  width="16"
+                  height="16"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                  />
+                </svg>
+              </div>
+              <span class="logo-text">WeddingEasy - DEV</span>
+            </a>
+            <nav style="display: flex; gap: 1rem; align-items: center">
+              <span style="color: rgba(255, 255, 255, 0.8)">Bem-vindo,</span>
+              <a href="../user/logout.html" class="btn-dev">Logout</a>
+            </nav>
+          </div>
         </div>
-    </header>
+      </header>
 
-    <main class="dev-container">
-        <div class="page-header" style="text-align: center; margin: 3rem 0;">
-            <h1 style="font-size: 3rem; margin-bottom: 1rem; color: hsl(var(--primary));">Painel Desenvolvedor</h1>
-            <p style="font-size: 1.2rem; color: rgba(255,255,255,0.8);">Gerencie o sistema WeddingEasy</p>
+      <main class="dev-container">
+        <div class="page-header" style="text-align: center; margin: 2rem 0">
+          <h1
+            style="
+              font-size: 3rem;
+              margin-bottom: 1rem;
+              color: hsl(var(--primary));
+            "
+          >
+            Painel Desenvolvedor
+          </h1>
+          <p style="font-size: 1.2rem; color: rgba(255, 255, 255, 0.8)">
+            Gerencie o sistema WeddingEasy
+          </p>
         </div>
 
         <div class="dev-stats">
-            <div class="stat-card">
-                <div class="stat-number">
-                </div>
-                <div class="stat-label">Usuários Clientes</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">
-                </div>
-                <div class="stat-label">Eventos Criados</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">
-                </div>
-                <div class="stat-label">Mensagens de Contato</div>
-            </div>
+          <div class="stat-card">
+            <div class="stat-number"></div>
+            <div class="stat-label">Usuários Clientes</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number"></div>
+            <div class="stat-label">Eventos Criados</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number"></div>
+            <div class="stat-label">Mensagens de Contato</div>
+          </div>
         </div>
 
         <div class="dev-actions">
-            <div class="action-card">
-                <div class="action-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                        <circle cx="8.5" cy="7" r="4"/>
-                        <path d="M20 8v6M23 11h-6"/>
-                    </svg>
-                </div>
-                <h3>Gerenciar Usuários</h3>
-                <p>Visualizar, editar e gerenciar contas de usuários do sistema.</p>
-                <button class="btn-dev" onclick="alert('Funcionalidade em desenvolvimento')">Acessar</button>
+          <div class="action-card">
+            <div class="action-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="8.5" cy="7" r="4" />
+                <path d="M20 8v6M23 11h-6" />
+              </svg>
             </div>
+            <h3>Gerenciar Usuários</h3>
+            <p>Visualizar, editar e gerenciar contas de usuários do sistema.</p>
+            <button class="btn-dev" onclick="openModal()">Acessar</button>
+          </div>
 
-            <div class="action-card">
-                <div class="action-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                        <line x1="16" y1="2" x2="16" y2="6"/>
-                        <line x1="8" y1="2" x2="8" y2="6"/>
-                        <line x1="3" y1="10" x2="21" y2="10"/>
-                    </svg>
-                </div>
-                <h3>Eventos do Sistema</h3>
-                <p>Monitorar e gerenciar todos os eventos criados pelos usuários.</p>
-                <button class="btn-dev" onclick="alert('Funcionalidade em desenvolvimento')">Acessar</button>
+          <div class="action-card">
+            <div class="action-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
             </div>
+            <h3>Eventos do Sistema</h3>
+            <p>
+              Monitorar e gerenciar todos os eventos criados pelos usuários.
+            </p>
+            <button class="btn-dev" onclick="openEventsModal()">Acessar</button>
+          </div>
 
-            <div class="action-card">
-                <div class="action-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                    </svg>
-                </div>
-                <h3>Mensagens de Contato</h3>
-                <p>Visualizar e responder mensagens enviadas pelos usuários.</p>
-                <button class="btn-dev" onclick="alert('Funcionalidade em desenvolvimento')">Acessar</button>
+          <div class="action-card">
+            <div class="action-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path
+                  d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+                />
+              </svg>
             </div>
+            <h3>Mensagens de Contato</h3>
+            <p>Visualizar e responder mensagens enviadas pelos usuários.</p>
+            <button
+              class="btn-dev"
+              onclick="openMessagesModal()"
+            >
+              Acessar
+            </button>
+          </div>
 
-            <div class="action-card">
-                <div class="action-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path d="M12 20h9"/>
-                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-                    </svg>
-                </div>
-                <h3>Configurações</h3>
-                <p>Configurar parâmetros do sistema e manutenção.</p>
-                <button class="btn-dev" onclick="alert('Funcionalidade em desenvolvimento')">Acessar</button>
+          <div class="action-card">
+            <div class="action-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M12 20h9" />
+                <path
+                  d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"
+                />
+              </svg>
+            </div>
+            <h3>Configurações</h3>
+            <p>Configurar parâmetros do sistema e manutenção.</p>
+            <button
+              class="btn-dev"
+              onclick="openSettingsModal()"
+            >
+              Acessar
+            </button>
+          </div>
+        </div>
+      </main>
+    </div>
+    <div class="modal-overlay" id="eventsModal" onclick="overlayClick(event)">
+      <div class="modal">
+        <button class="close-modal" onclick="closeEventsModal()">
+          &times;
+        </button>
+        <h2>Eventos do Sistema</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nome do Evento</th>
+              <th>Data</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>Casamento Ana & João</td>
+              <td>20/09/2025</td>
+              <td>Ativo</td>
+              <td><button class="btn-dev">Editar</button></td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>Festa Corporativa</td>
+              <td>25/09/2025</td>
+              <td>Pendente</td>
+              <td><button class="btn-dev">Editar</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-overlay" id="userModal" onclick="overlayClick(event)">
+      <div class="modal">
+        <button class="close-modal" onclick="closeModal()">&times;</button>
+        <h2>Gerenciar Usuários</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nome</th>
+              <th>Email</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>Ana</td>
+              <td>ana@email.com</td>
+              <td><button class="btn-dev">Editar</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-overlay" id="messagesModal" onclick="overlayMessagesClick(event)">
+        <div class="modal" style="border: 2px solid hsl(var(--primary));">
+            <button class="close-modal" onclick="closeMessagesModal()">&times;</button>
+            <h2>Mensagens de Contato</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Email</th>
+                        <th>Mensagem</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Ana</td>
+                        <td>ana@email.com</td>
+                        <td>Gostaria de mais informações sobre o pacote premium.</td>
+                        <td><button class="btn-dev">Responder</button></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>João</td>
+                        <td>joao@email.com</td>
+                        <td>Quero agendar uma reunião.</td>
+                        <td><button class="btn-dev">Responder</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="modal-overlay" id="settingsModal" onclick="overlaySettingsClick(event)">
+        <div class="modal" style="border: 2px solid hsl(var(--primary));">
+            <button class="close-modal" onclick="closeSettingsModal()">&times;</button>
+            <h2>Configurações do Sistema</h2>
+            <div style="margin-top: 1rem;">
+                <p>Aqui você pode ajustar parâmetros do sistema e realizar manutenção.</p>
+                <button class="btn-dev">Salvar Configurações</button>
             </div>
         </div>
-    </main>
-</body>
+    </div>
+
+    <script>
+      function openModal() {
+        document.getElementById("userModal").style.display = "flex";
+        document.getElementById("pageContent").classList.add("blurred");
+      }
+
+      function closeModal() {
+        document.getElementById("userModal").style.display = "none";
+        document.getElementById("pageContent").classList.remove("blurred");
+      }
+      function openEventsModal() {
+    document.getElementById('eventsModal').style.display = 'flex';
+    document.getElementById('pageContent').classList.add('blurred'); // blur só no conteúdo
+}
+
+function closeEventsModal() {
+    document.getElementById('eventsModal').style.display = 'none';
+    document.getElementById('pageContent').classList.remove('blurred');
+}
+
+// Fecha quando clica fora da modal
+function overlayClick(event) {
+    if(event.target.classList.contains('modal-overlay')) {
+        closeEventsModal();
+        closeModal()
+    }
+}
+function openMessagesModal() {
+    document.getElementById('messagesModal').style.display = 'flex';
+    document.getElementById('pageContent').classList.add('blurred');
+}
+
+function closeMessagesModal() {
+    document.getElementById('messagesModal').style.display = 'none';
+    document.getElementById('pageContent').classList.remove('blurred');
+}
+
+// Fecha quando clica fora da modal
+function overlayMessagesClick(event) {
+    if(event.target.classList.contains('modal-overlay')) {
+        closeMessagesModal();
+    }
+}
+function openSettingsModal() {
+    document.getElementById('settingsModal').style.display = 'flex';
+    document.getElementById('pageContent').classList.add('blurred');
+}
+
+function closeSettingsModal() {
+    document.getElementById('settingsModal').style.display = 'none';
+    document.getElementById('pageContent').classList.remove('blurred');
+}
+
+// Fecha quando clica fora da modal
+function overlaySettingsClick(event) {
+    if(event.target.classList.contains('modal-overlay')) {
+        closeSettingsModal();
+    }
+}
+</script>
+  </body>
 </html>
