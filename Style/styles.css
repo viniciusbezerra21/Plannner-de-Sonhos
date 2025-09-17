@@ -1034,9 +1034,10 @@ p {
 }
 
 .benefit-item svg {
+  cursor: default;
   width: 3rem;
   height: 3rem;
-  color: white;
+  color: hsl(var(--foreground));
   margin: 0 auto 1rem;
 }
 
@@ -3480,11 +3481,6 @@ a {
   color: #ffb400;
   transition:transform .12s ease, color .12s ease;
   display:inline-block;
-}
-
-.star-icon:hover{
-  transform:scale(1.15);
-  color:#ffb400;
 }
 
 .star-icon path{
