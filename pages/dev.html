@@ -1,7 +1,4 @@
-<?php
-require_once '../user/auth_middleware.php';
-verificarAcessoAdmin();
-?>
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -110,6 +107,7 @@ verificarAcessoAdmin();
             transition: all 0.3s;
             border: none;
             cursor: pointer;
+            margin: 1rem;
         }
 
         .btn-dev:hover {
@@ -129,7 +127,7 @@ verificarAcessoAdmin();
     <header class="dev-header">
         <div class="dev-container">
             <div class="header-content">
-                <a href="../index.php" class="logo">
+                <a href="../index.html" class="logo">
                     <div class="heart-icon">
                         <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
                             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
@@ -138,8 +136,8 @@ verificarAcessoAdmin();
                     <span class="logo-text">WeddingEasy - DEV</span>
                 </a>
                 <nav style="display: flex; gap: 1rem; align-items: center;">
-                    <span style="color: rgba(255,255,255,0.8);">Bem-vindo, <?php echo htmlspecialchars($_SESSION['nome']); ?></span>
-                    <a href="../user/logout.php" class="btn-dev">Logout</a>
+                    <span style="color: rgba(255,255,255,0.8);">Bem-vindo,</span>
+                    <a href="../user/logout.html" class="btn-dev">Logout</a>
                 </nav>
             </div>
         </div>
@@ -154,34 +152,16 @@ verificarAcessoAdmin();
         <div class="dev-stats">
             <div class="stat-card">
                 <div class="stat-number">
-                    <?php
-                    $sql = "SELECT COUNT(*) as total FROM usuario WHERE cargo = 'cliente'";
-                    $result = $conn->query($sql);
-                    $row = $result->fetch_assoc();
-                    echo $row['total'];
-                    ?>
                 </div>
                 <div class="stat-label">Usuários Clientes</div>
             </div>
             <div class="stat-card">
                 <div class="stat-number">
-                    <?php
-                    $sql = "SELECT COUNT(*) as total FROM eventos";
-                    $result = $conn->query($sql);
-                    $row = $result->fetch_assoc();
-                    echo $row['total'];
-                    ?>
                 </div>
                 <div class="stat-label">Eventos Criados</div>
             </div>
             <div class="stat-card">
                 <div class="stat-number">
-                    <?php
-                    $sql = "SELECT COUNT(*) as total FROM mensagens_contato";
-                    $result = $conn->query($sql);
-                    $row = $result->fetch_assoc();
-                    echo $row['total'];
-                    ?>
                 </div>
                 <div class="stat-label">Mensagens de Contato</div>
             </div>

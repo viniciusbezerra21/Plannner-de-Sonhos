@@ -1,124 +1,3 @@
-<?php
-session_start();
-require_once 'crypto.php';
-
-if (!isset($_SESSION['usuario_id'])) {
-    header("Location: index.php");
-    exit;
-}
-$hostname = "127.0.0.1";
-$user = "root";
-$password = "root";
-$database = "weddingeasy";
-$conn = new mysqli($hostname, $user, $password, $database);
-if ($conn->connect_error) {
-    die("Erro de conexão: " . $conn->connect_error);
-}
-$id = $_SESSION['usuario_id'];
-$mensagem = "";
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $nome = trim($_POST['nome']);
-    $telefone = trim($_POST['telefone']);
-    $senha = $_POST['senha'];
-    if (empty($nome)) {
-        $mensagem = "O nome não pode ficar vazio.";
-    } else {
-        try {
-            $nomeCript = criptografar($nome);
-            $foto_perfil_path = null;
-            if (!empty($_FILES['foto_perfil']['name'])) {
-                if ($_FILES['foto_perfil']['error'] === UPLOAD_ERR_OK) {
-                    $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
-                    if (in_array($_FILES['foto_perfil']['type'], $allowed_types)) {
-                        $upload_dir = "uploads/";
-                        if (!is_dir($upload_dir)) {
-                            mkdir($upload_dir, 0777, true);
-                        }
-                        $ext = pathinfo($_FILES['foto_perfil']['name'], PATHINFO_EXTENSION);
-                        $foto_perfil_path = $upload_dir . uniqid() . "." . $ext;
-                        if (!move_uploaded_file($_FILES['foto_perfil']['tmp_name'], $foto_perfil_path)) {
-                            $mensagem = "Falha ao salvar a foto.";
-                        }
-                    } else {
-                        $mensagem = "Tipo de arquivo não permitido. Use JPG, PNG ou GIF.";
-                    }
-                } else {
-                    $mensagem = "Erro no upload da foto. Código: " . $_FILES['foto_perfil']['error'];
-                }
-            }
-            if ($mensagem === "") {
-                $sql = "UPDATE usuario SET nome = ?, num_telefone = ? WHERE id = ?";
-                $stmt = $conn->prepare($sql);
-                if (!$stmt) {
-                    throw new Exception("Erro no prepare: " . $conn->error);
-                }
-                $stmt->bind_param("ssi", $nomeCript, $telefone, $id);
-                if (!$stmt->execute()) {
-                    throw new Exception("Erro na execução: " . $stmt->error);
-                }
-                $stmt->close();
-                if (!empty($senha)) {
-                    $senha_hash = password_hash($senha, PASSWORD_DEFAULT);
-                    $sql2 = "UPDATE usuario SET senha_hash = ? WHERE id = ?";
-                    $stmt2 = $conn->prepare($sql2);
-                    if (!$stmt2) {
-                        throw new Exception("Erro no prepare senha: " . $conn->error);
-                    }
-                    $stmt2->bind_param("si", $senha_hash, $id);
-                    $stmt2->execute();
-                    $stmt2->close();
-                }
-                if ($foto_perfil_path) {
-                    $sql3 = "UPDATE usuario SET foto_perfil = ? WHERE id = ?";
-                    $stmt3 = $conn->prepare($sql3);
-                    if (!$stmt3) {
-                        throw new Exception("Erro no prepare foto: " . $conn->error);
-                    }
-                    $stmt3->bind_param("si", $foto_perfil_path, $id);
-                    $stmt3->execute();
-                    $stmt3->close();
-                }
-                header("Location: perfil.php");
-                exit;
-            }
-        } catch (Exception $e) {
-            $mensagem = "Erro: " . $e->getMessage();
-        }
-    }
-}
-try {
-    $sql = "SELECT nome, num_telefone, foto_perfil, created_at FROM usuario WHERE id = ?";
-    $stmt = $conn->prepare($sql);
-    if (!$stmt) {
-        throw new Exception("Erro no prepare SELECT: " . $conn->error);
-    }
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($result->num_rows > 0) {
-        $row = $result->fetch_assoc();
-        $nomeCript = $row['nome'];
-        $telefone = $row['num_telefone'] ?? '';
-        $foto_perfil = $row['foto_perfil'];
-        $data_cadastro = $row['created_at'] ?? null;
-    } else {
-        throw new Exception("Usuário não encontrado");
-    }
-
-    $stmt->close();
-} catch (Exception $e) {
-    die("Erro ao buscar dados: " . $e->getMessage());
-}
-$conn->close();
-$nome = descriptografar($nomeCript);
-$telefone = !empty($telefone) ? descriptografar($telefone) : '';
-$foto_final = (!empty($foto_perfil)) ? htmlspecialchars($foto_perfil) : 'uploads/default.png';
-$data_cadastro_formatada = '';
-if ($data_cadastro) {
-    $data_obj = new DateTime($data_cadastro);
-    $data_cadastro_formatada = $data_obj->format('d/m/Y H:i');
-}
-?>
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -291,16 +170,11 @@ if ($data_cadastro) {
 
 <body>
     <h1>Meu Perfil</h1>
-    <?php if ($mensagem): ?>
-        <div class="message <?= strpos(strtolower($mensagem), 'sucesso') !== false ? 'success' : 'error' ?>">
-            <?= htmlspecialchars($mensagem) ?>
-            <?php if (strpos(strtolower($mensagem), 'sucesso') !== false): ?>
+        <div class="message ">
                 <div class="redirect-message">🔄 Redirecionando para o perfil em 2 segundos...</div>
-            <?php endif; ?>
         </div>
-    <?php endif; ?>
     <div class="profile-container" id="profileContainer">
-        <img src="<?php echo $foto_final; ?>" alt="Foto de perfil" id="profilePic" class="profile-pic">
+        <img src="" alt="Foto de perfil" id="profilePic" class="profile-pic">
         <label for="fotoInput" class="edit-icon" title="Alterar foto">✏️</label>
     </div>
     <br>
@@ -311,14 +185,14 @@ if ($data_cadastro) {
             <div class="field-group">
                 <div>
                     <label for="nome">Nome:</label>
-                    <input type="text" id="nome" name="nome" value="<?php echo htmlspecialchars($nome); ?>" required>
+                    <input type="text" id="nome" name="nome" value="" required>
                 </div>
                 <span class="edit-field-icon" title="Editar nome">✏️</span>
             </div>
             <div class="field-group">
                 <div>
                     <label for="telefone">Telefone:</label>
-                    <input type="tel" id="telefone" name="telefone" value="<?php echo htmlspecialchars($telefone); ?>">
+                    <input type="tel" id="telefone" name="telefone" value="">
                 </div>
                 <span class="edit-field-icon" title="Editar telefone">✏️</span>
             </div>
@@ -329,11 +203,9 @@ if ($data_cadastro) {
                 </div>
                 <span class="edit-field-icon" title="Editar senha">✏️</span>
             </div>
-            <?php if ($data_cadastro_formatada): ?>
                 <div style="margin-top: 15px; padding: 15px; background-color: #333; border-radius: 8px; color: #ccc; border-left: 4px solid #666;">
-                    <strong>📅 Data de Cadastro:</strong> <?= $data_cadastro_formatada ?>
+                    <strong>📅 Data de Cadastro:</strong> 
                 </div>
-            <?php endif; ?>
             <input type="submit" value="Salvar Alterações">
         </form>
     </div>

@@ -1,4 +1,3 @@
-<?php session_start(); ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -127,7 +126,8 @@
   <header class="header">
     <div class="container">
       <div class="header-content">
-        <a href="../index.php" class="logo">
+        <!-- Logo -->
+        <a href="../index.html" class="logo">
           <div class="heart-icon">
             <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
               <path
@@ -136,90 +136,22 @@
           </div>
           <span class="logo-text">WeddingEasy</span>
         </a>
+
         <nav class="nav">
-          <a href="../index.php" class="nav-link">Início</a>
-          <?php if (isset($_SESSION['usuario_logado'])): ?>
+          <a href="../index.html" class="nav-link">Início</a>
             <div class="dropdown">
-              <a href="funcionalidades.php" class="nav-link dropdown-toggle">Funcionalidades ▾</a>
+              <a href="funcionalidades.html" class="nav-link dropdown-toggle">Funcionalidades ▾</a>
               <div class="dropdown-menu">
-                <a href="calendario.php">Calendário</a>
-                <a href="orcamento.php">Orçamento</a>
-                <a href="gestao-contratos.php">Gestão de Contratos</a>
-                <a href="tarefas.php">Lista de Tarefas</a>
+                <a href="calendario.html">Calendário</a>
+                <a href="orcamento.html">Orçamento</a>
+                <a href="gestao-contratos.html">Gestão de Contratos</a>
+                <a href="tarefas.html">Lista de Tarefas</a>
               </div>
             </div>
-          <?php else: ?>
-            <a href="funcionalidades.php" class="nav-link">Funcionalidades</a>
-          <?php endif; ?>
-          <?php if (isset($_SESSION['usuario_logado'])): ?>
-            <a href="contato.php" class="nav-link">Contato</a>
-          <?php else: ?>
-            <a href="#" onclick="openLoginModal()">
-            <?php endif; ?>
-            <?php if (isset($_SESSION['usuario_logado'])): ?>
-              <div class="user-profile">
-                <?php if (!empty($_SESSION['usuario_logado']['foto_perfil']) && file_exists('../uploads/perfil/' . $_SESSION['usuario_logado']['foto_perfil'])): ?>
-                  <img src="../uploads/perfil/<?php echo htmlspecialchars($_SESSION['usuario_logado']['foto_perfil']); ?>"
-                    alt="Foto do perfil" class="user-avatar" onclick="toggleProfileDropdown()" />
-                <?php else: ?>
-                  <div class="user-avatar-default" onclick="toggleProfileDropdown()">
-                    <?php echo strtoupper(substr($_SESSION['usuario_logado']['nome'], 0, 1)); ?>
-                  </div>
-                <?php endif; ?>
-                <div class="profile-dropdown" id="profileDropdown">
-                  <div class="profile-dropdown-header">
-                    <p class="profile-dropdown-name">
-                      <?php echo htmlspecialchars($_SESSION['usuario_logado']['nome']); ?>
-                    </p>
-                    <p class="profile-dropdown-email">
-                      <?php echo htmlspecialchars($_SESSION['usuario_logado']['email']); ?>
-                    </p>
-                  </div>
-                  <div class="profile-dropdown-menu">
-                    <a href="../user/perfil.php" class="profile-dropdown-item">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        style="margin-right: 0.5rem; vertical-align: middle;">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                        <circle cx="12" cy="7" r="4" />
-                      </svg>
-                      Meu Perfil
-                    </a>
-                    <a href="dashboard.php" class="profile-dropdown-item">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        style="margin-right: 0.5rem; vertical-align: middle;">
-                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                        <line x1="9" y1="9" x2="15" y2="9" />
-                        <line x1="9" y1="15" x2="15" y2="15" />
-                      </svg>
-                      Dashboard
-                    </a>
-                    <a href="casamento.php" class="profile-dropdown-item">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        style="margin-right: 0.5rem; vertical-align: middle;">
-                        <path
-                          d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                      </svg>
-                      Meu Casamento
-                    </a>
-                    <a href="../user/logout.php" class="profile-dropdown-item logout">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        style="margin-right: 0.5rem; vertical-align: middle;">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                        <polyline points="16,17 21,12 16,7" />
-                        <line x1="21" y1="12" x2="9" y2="12" />
-                      </svg>
-                      Sair
-                    </a>
-                  </div>
-                </div>
-              </div>
-            <?php else: ?>
-              <a href="../user/login.php" class="btn-primary" style="align-items: center">Login</a>
-            <?php endif; ?>
-        </nav>
-        <button class="btn-primary" style="display: none">
-          Solicitar Demonstração
-        </button>
+
+            <a href="contato.html" class="nav-link">Contato</a> 
+            <a href="../user/login.html" class="btn-primary" style="align-items: center">Login</a>
+           </nav>
         <button id="hamburgerBtn" class="mobile-menu-btn" onclick="toggleMobileMenu()">
           <span class="hamburger-line"></span>
           <span class="hamburger-line"></span>
@@ -227,45 +159,14 @@
         </button>
       </div>
       <div id="mobileMenu" class="mobile-menu">
-        <nav style="
-              display: flex;
-              flex-direction: column;
-              gap: 1rem;
-              padding: 1rem 0;
-              border-top: 1px solid hsl(var(--border));
-              margin-top: 0.5rem;
-            ">
-          <a href="../index.php" class="nav-link" style="padding: 0.5rem 0">Início</a>
-          <a href="funcionalidades.php" class="nav-link" style="padding: 0.5rem 0">Funcionalidades</a>
-          <a href="contato.php" class="nav-link" style="padding: 0.5rem 0">Contato</a>
-          <?php if (isset($_SESSION['usuario_logado'])): ?>
-            <div style="border-top: 1px solid hsl(var(--border)); margin-top: 1rem; padding-top: 1rem;">
-              <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
-                <?php if (!empty($_SESSION['usuario_logado']['foto_perfil']) && file_exists('../uploads/perfil/' . $_SESSION['usuario_logado']['foto_perfil'])): ?>
-                  <img src="../uploads/perfil/<?php echo htmlspecialchars($_SESSION['usuario_logado']['foto_perfil']); ?>"
-                    alt="Foto do perfil" class="user-avatar" style="width: 32px; height: 32px;" />
-                <?php else: ?>
-                  <div class="user-avatar-default" style="width: 32px; height: 32px; font-size: 0.8rem;">
-                    <?php echo strtoupper(substr($_SESSION['usuario_logado']['nome'], 0, 1)); ?>
-                  </div>
-                <?php endif; ?>
-                <div>
-                  <div style="font-weight: 600; font-size: 0.9rem;">
-                    <?php echo htmlspecialchars($_SESSION['usuario_logado']['nome']); ?>
-                  </div>
-                  <div style="font-size: 0.8rem; color: hsl(var(--muted-foreground));">
-                    <?php echo htmlspecialchars($_SESSION['usuario_logado']['email']); ?>
-                  </div>
-                </div>
-              </div>
-              <a href="../user/perfil.php" class="nav-link" style="padding: 0.5rem 0">Meu Perfil</a>
-              <a href="dashboard.php" class="nav-link" style="padding: 0.5rem 0">Dashboard</a>
-              <a href="casamento.php" class="nav-link" style="padding: 0.5rem 0">Meu Casamento</a>
-              <a href="../user/logout.php" class="nav-link" style="padding: 0.5rem 0; color: #ef4444;">Sair</a>
-            </div>
-          <?php else: ?>
-            <a href="../user/login.php" class="btn-primary" style="align-items: center">Login</a>
-          <?php endif; ?>
+        <nav style="display: flex; flex-direction: column; gap: 1rem; padding: 1rem 0; border-top: 1px solid hsl(var(--border)); margin-top: 0.5rem;">
+          <a href="../index.html" class="nav-link" style="padding: 0.5rem 0">Início</a>
+          <a href="funcionalidades.html" class="nav-link" style="padding: 0.5rem 0">Funcionalidades</a>
+ 
+            <a href="contato.html" class="nav-link" style="padding: 0.5rem 0">Contato</a>
+
+            
+            <a href="login.html" class="btn-primary" style="align-items: center">Login</a>
         </nav>
       </div>
     </div>
@@ -284,11 +185,6 @@
             estresse.
           </p>
         </div>
-        <?php if (isset($_SESSION['usuario_logado'])): ?>
-          <a href="calendario.php">
-          <?php else: ?>
-            <a href="#" onclick="openLoginModal()">
-            <?php endif; ?>
             <div class="features-detailed-grid">
               <div class="feature-detailed-card">
                 <div class="feature-detailed-header">
@@ -333,11 +229,6 @@
                 </ul>
               </div>
             </a>
-            <?php if (isset($_SESSION['usuario_logado'])): ?>
-              <a href="orcamento.php">
-              <?php else: ?>
-                <a href="#" onclick="openLoginModal()">
-                <?php endif; ?>
                 <div class="feature-detailed-card">
                   <div class="feature-detailed-header">
                     <div class="feature-icon dollar-icon">
@@ -381,11 +272,6 @@
                   </ul>
                 </div>
                 </a>
-                <?php if (isset($_SESSION['usuario_logado'])): ?>
-                  <a href="gestao-contratos.php">
-                  <?php else: ?>
-                    <a href="#" onclick="openLoginModal()">
-                    <?php endif; ?>
                     <div class="feature-detailed-card">
                       <div class="feature-detailed-header">
                         <div class="feature-icon file-icon">
@@ -430,11 +316,6 @@
                       </ul>
                     </div>
                     </a>
-                    <?php if (isset($_SESSION['usuario_logado'])): ?>
-                      <a href="tarefas.php">
-                      <?php else: ?>
-                        <a href="#" onclick="openLoginModal()">
-                        <?php endif; ?>
                         <div class="feature-detailed-card">
                           <div class="feature-detailed-header">
                             <div class="feature-icon check-icon">
@@ -520,7 +401,7 @@
     <div class="container">
       <div class="footer-content">
         <div class="footer-brand">
-          <a href="../index.php" class="logo">
+          <a href="../index.html" class="logo">
             <div class="heart-icon">
               <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
                 <path
@@ -545,16 +426,13 @@
         <div class="footer-links">
           <h3>Links Rápidos</h3>
           <ul>
-            <li><a href="../index.php">Início</a></li>
+            <li><a href="../index.html">Início</a></li>
             <li>
-              <a href="funcionalidades.php">Funcionalidades</a>
+              <a href="funcionalidades.html">Funcionalidades</a>
             </li>
             <li>
-              <?php if (isset($_SESSION['usuario_logado'])): ?>
-                <a href="contato.php">Contato</a>
-              <?php else: ?>
+                <a href="contato.html">Contato</a>
                 <a href="#" onclick="openLoginModal()"></a>
-              <?php endif; ?>
             </li>
           </ul>
         </div>
@@ -576,7 +454,7 @@
         <span class="login-modal-close" onclick="closeLoginModal()">&times;</span>
         <h2>Você precisa estar logado</h2>
         <p>Faça login para acessar esta funcionalidade.</p>
-        <a href="../user/login.php" class="btn-primary">Login</a>
+        <a href="../user/login.html" class="btn-primary">Login</a>
       </div>
     </div>
     <style>

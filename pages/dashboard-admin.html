@@ -1,46 +1,3 @@
-<?php
-session_start();
-require_once '../user/auth_middleware.php';
-
-// Verificar se é admin/dev
-verificarPermissao(['dev']);
-
-$hostname = "127.0.0.1";
-$user = "root";
-$password = "root";
-$database = "weddingeasy";
-$conn = new mysqli($hostname, $user, $password, $database);
-
-// Estatísticas do sistema
-$stats = [];
-
-// Total de usuários
-$result = $conn->query("SELECT COUNT(*) as total FROM usuario");
-$stats['total_usuarios'] = $result->fetch_assoc()['total'];
-
-// Usuários por cargo
-$result = $conn->query("SELECT cargo, COUNT(*) as total FROM usuario GROUP BY cargo");
-while($row = $result->fetch_assoc()) {
-    $stats['usuarios_' . $row['cargo']] = $row['total'];
-}
-
-// Usuários cadastrados hoje
-$result = $conn->query("SELECT COUNT(*) as total FROM usuario WHERE DATE(data_cadastro) = CURDATE()");
-$stats['usuarios_hoje'] = $result->fetch_assoc()['total'];
-
-// Últimos usuários cadastrados
-$result = $conn->query("SELECT nome, email, data_cadastro FROM usuario ORDER BY data_cadastro DESC LIMIT 10");
-$ultimos_usuarios = [];
-while($row = $result->fetch_assoc()) {
-    $ultimos_usuarios[] = [
-        'nome' => descriptografar($row['nome']),
-        'email' => $row['email'], // Email já em texto plano
-        'data_cadastro' => $row['data_cadastro']
-    ];
-}
-
-$conn->close();
-?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -142,22 +99,22 @@ $conn->close();
         
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-number"><?php echo $stats['total_usuarios']; ?></div>
+                <div class="stat-number"></div>
                 <div class="stat-label">Total de Usuários</div>
             </div>
             
             <div class="stat-card">
-                <div class="stat-number"><?php echo $stats['usuarios_cliente'] ?? 0; ?></div>
+                <div class="stat-number"></div>
                 <div class="stat-label">Clientes</div>
             </div>
             
             <div class="stat-card">
-                <div class="stat-number"><?php echo $stats['usuarios_dev'] ?? 0; ?></div>
+                <div class="stat-number"></div>
                 <div class="stat-label">Desenvolvedores</div>
             </div>
             
             <div class="stat-card">
-                <div class="stat-number"><?php echo $stats['usuarios_hoje']; ?></div>
+                <div class="stat-number"></div>
                 <div class="stat-label">Cadastros Hoje</div>
             </div>
         </div>
@@ -174,13 +131,8 @@ $conn->close();
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach($ultimos_usuarios as $usuario): ?>
-                        <tr>
-                            <td><?php echo htmlspecialchars($usuario['nome']); ?></td>
-                            <td><?php echo htmlspecialchars($usuario['email']); ?></td>
-                            <td><?php echo date('d/m/Y H:i', strtotime($usuario['data_cadastro'])); ?></td>
-                        </tr>
-                        <?php endforeach; ?>
+                        
+                        
                     </tbody>
                 </table>
             </div>

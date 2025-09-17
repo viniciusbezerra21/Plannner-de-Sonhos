@@ -1,111 +1,3 @@
-<?php
-session_start();
-require_once "/conexao.php";
-require_once "../user/crypto.php";
-
-// Verifica login
-if (!isset($_SESSION['usuario_id'])) {
-  header("Location: login.php");
-  exit;
-}
-
-$usuario_id = $_SESSION['usuario_id'];
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'editar_perfil') {
-  $novoNome      = $_POST['nome'];
-  $novoNomeConj  = $_POST['nome_conj'];
-  $novoEmail     = $_POST['email'];
-  $novoTelefone  = $_POST['telefone'];
-  $novaSenha     = $_POST['senha'];
-
-  // Busca foto atual
-  $sql = "SELECT foto_perfil FROM usuario WHERE id = ?";
-  $stmt = $conn->prepare($sql);
-  $stmt->bind_param("i", $usuario_id);
-  $stmt->execute();
-  $result = $stmt->get_result();
-  $usuario_atual = $result->fetch_assoc();
-  $fotoPerfil = $usuario_atual['foto_perfil'];
-
-  $novaFotoPerfil = $fotoPerfil;
-
-  if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
-    $tiposPermitidos = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
-    $tipoArquivo = $_FILES['foto']['type'];
-
-    if (in_array($tipoArquivo, $tiposPermitidos)) {
-      if (!is_dir("uploads/perfil")) {
-        mkdir("uploads/perfil", 0777, true);
-      }
-
-      $ext = pathinfo($_FILES['foto']['name'], PATHINFO_EXTENSION);
-      $novoNomeFoto = "perfil_" . $usuario_id . "_" . time() . "." . $ext;
-      $destino = "uploads/perfil/" . $novoNomeFoto;
-
-      if (move_uploaded_file($_FILES['foto']['tmp_name'], $destino)) {
-        if (!empty($fotoPerfil) && file_exists("uploads/perfil/" . $fotoPerfil)) {
-          unlink("uploads/perfil/" . $fotoPerfil);
-        }
-        $novaFotoPerfil = $novoNomeFoto;
-      } else {
-        $_SESSION['mensagem_erro'] = 'Erro ao fazer upload da foto.';
-      }
-    } else {
-      $_SESSION['mensagem_erro'] = 'Tipo de arquivo não permitido. Use apenas JPG, PNG ou GIF.';
-    }
-  }
-
-  if (!isset($_SESSION['mensagem_erro'])) {
-    $nomeCripto      = criptografar($novoNome);
-    $nomeConjCripto  = criptografar($novoNomeConj);
-    $emailLimpo      = strtolower(trim($novoEmail)); // Email em texto plano
-    $telefoneCripto  = criptografar($novoTelefone);
-
-    if (!empty($novaSenha)) {
-      $senhaHash = password_hash($novaSenha, PASSWORD_DEFAULT);
-      $stmt = $conn->prepare("UPDATE usuario SET nome=?, nome_conj=?, email=?, num_telefone=?, foto_perfil=?, senha_hash=? WHERE id=?");
-      $stmt->bind_param("ssssssi", $nomeCripto, $nomeConjCripto, $emailLimpo, $telefoneCripto, $novaFotoPerfil, $senhaHash, $usuario_id);
-    } else {
-      $stmt = $conn->prepare("UPDATE usuario SET nome=?, nome_conj=?, email=?, num_telefone=?, foto_perfil=? WHERE id=?");
-      $stmt->bind_param("sssssi", $nomeCripto, $nomeConjCripto, $emailLimpo, $telefoneCripto, $novaFotoPerfil, $usuario_id);
-    }
-
-    if ($stmt->execute()) {
-      $_SESSION['usuario_logado']['nome'] = $novoNome;
-      $_SESSION['usuario_logado']['nome_conj'] = $novoNomeConj;
-      $_SESSION['usuario_logado']['email'] = $emailLimpo; // Email em texto plano na sessão
-      $_SESSION['usuario_logado']['num_telefone'] = $novoTelefone;
-      $_SESSION['usuario_logado']['foto_perfil'] = $novaFotoPerfil;
-
-      $_SESSION['mensagem_sucesso'] = 'Perfil atualizado com sucesso!';
-    } else {
-      $_SESSION['mensagem_erro'] = 'Erro ao atualizar perfil.';
-    }
-  }
-
-  header("Location: perfil.php");
-  exit;
-}
-
-// Puxa os dados do banco
-$sql = "SELECT nome, nome_conj, email, num_telefone, foto_perfil 
-        FROM usuario 
-        WHERE id = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $usuario_id);
-$stmt->execute();
-$result = $stmt->get_result();
-$usuario = $result->fetch_assoc();
-
-$nome        = descriptografar($usuario['nome']);
-$nomeConj    = descriptografar($usuario['nome_conj']);
-$email       = $usuario['email']; // Email já em texto plano
-$numTelefone = descriptografar($usuario['num_telefone']);
-$fotoPerfil  = $usuario['foto_perfil'];
-
-// Se não tiver foto, usa iniciais
-$iniciais = strtoupper(substr($nome, 0, 1));
-?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -376,7 +268,7 @@ $iniciais = strtoupper(substr($nome, 0, 1));
   <header class="header">
     <div class="container">
       <div class="header-content">
-        <a href="../index.php" class="logo">
+        <a href="../index.html" class="logo">
           <div class="heart-icon">
             <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
@@ -385,10 +277,10 @@ $iniciais = strtoupper(substr($nome, 0, 1));
           <span class="logo-text">WeddingEasy</span>
         </a>
         <nav class="nav">
-          <a href="../index.php" class="nav-link">Início</a>
-          <a href="perfil.php" class="nav-link">Perfil</a>
-          <a href="../pages/calendario.php" class="nav-link">Calendario</a>
-          <a href="../pages/orcamento.php" class="nav-link">Orçamento</a>
+          <a href="../index.html" class="nav-link">Início</a>
+          <a href="perfil.html" class="nav-link">Perfil</a>
+          <a href="../pages/calendario.html" class="nav-link">Calendario</a>
+          <a href="../pages/orcamento.html" class="nav-link">Orçamento</a>
         </nav>
         <button id="hamburgerBtn" class="mobile-menu-btn" onclick="toggleMobileMenu()">
           <span class="hamburger-line"></span>
@@ -397,10 +289,10 @@ $iniciais = strtoupper(substr($nome, 0, 1));
         </button>
       </div>
       <div id="mobileMenu" class="mobile-menu">
-        <a href="../index.php" class="nav-link">Início</a>
-        <a href="perfil.php" class="nav-link">Perfil</a>
-        <a href="../pages/calendario.php" class="nav-link">Calendario</a>
-        <a href="../pages/orcamento.php" class="nav-link">Orçamento</a>
+        <a href="../index.html" class="nav-link">Início</a>
+        <a href="perfil.html" class="nav-link">Perfil</a>
+        <a href="../pages/calendario.html" class="nav-link">Calendario</a>
+        <a href="../pages/orcamento.html" class="nav-link">Orçamento</a>
       </div>
     </div>
   </header>
@@ -413,34 +305,15 @@ $iniciais = strtoupper(substr($nome, 0, 1));
     </div>
 
     <!-- Adicionando alertas de sucesso/erro -->
-    <?php if (isset($_SESSION['mensagem_sucesso'])): ?>
-      <div class="alert alert-success">
-        <?php echo $_SESSION['mensagem_sucesso'];
-        unset($_SESSION['mensagem_sucesso']); ?>
-      </div>
-    <?php endif; ?>
-
-    <?php if (isset($_SESSION['mensagem_erro'])): ?>
-      <div class="alert alert-error">
-        <?php echo $_SESSION['mensagem_erro'];
-        unset($_SESSION['mensagem_erro']); ?>
-      </div>
-    <?php endif; ?>
-
+    
     <div class="features-detailed-grid">
       <!-- Card Perfil -->
       <div class="feature-detailed-card profile-card">
         <div class="profile-photo">
-          <?php if (!empty($fotoPerfil)): ?>
-            <img src="uploads/perfil/<?php echo htmlspecialchars($fotoPerfil); ?>" alt="Foto de perfil">
-          <?php else: ?>
-            <div class="profile-placeholder"><?php echo $iniciais; ?></div>
-          <?php endif; ?>
+
+            <div class="profile-placeholder"></div>
+
         </div>
-        <h2><?php echo htmlspecialchars($nome); ?></h2>
-        <p><?php echo htmlspecialchars($email); ?></p>
-        <p><?php echo htmlspecialchars($numTelefone); ?></p>
-        <!-- Mudando link para botão que abre modal -->
         <button onclick="openEditModal()" class="btn-primary">Editar Perfil</button>
       </div>
 
@@ -524,11 +397,11 @@ $iniciais = strtoupper(substr($nome, 0, 1));
       <h2 style="text-align: center; margin-bottom: 0.5rem;">Editar Perfil</h2>
 
       <div class="modal-profile-photo" style="text-align: center; margin-bottom: 0.5rem;">
-        <?php if (!empty($fotoPerfil)): ?>
-          <img id="modalFotoPreview" src="uploads/perfil/<?php echo htmlspecialchars($fotoPerfil); ?>" alt="Foto de perfil">
-        <?php else: ?>
-          <div id="modalFotoPlaceholder" class="modal-profile-placeholder"><?php echo $iniciais; ?></div>
-        <?php endif; ?>
+
+          <img id="modalFotoPreview" src="uploads/perfil/" alt="Foto de perfil">
+
+          <div id="modalFotoPlaceholder" class="modal-profile-placeholder"></div>
+
         <div class="custom-file">
           <input type="file" id="modalFoto" name="foto" accept="image/*" onchange="previewModalFoto(event)">
           <label for="modalFoto">Trocar Foto de Perfil</label>
@@ -540,22 +413,22 @@ $iniciais = strtoupper(substr($nome, 0, 1));
 
         <div class="form-group">
           <label for="modalNome">Nome Completo</label>
-          <input type="text" id="modalNome" name="nome" value="<?php echo htmlspecialchars($nome); ?>" required>
+          <input type="text" id="modalNome" name="nome" value="" required>
         </div>
 
         <div class="form-group">
           <label for="modalNomeConj">Nome do Cônjuge</label>
-          <input type="text" id="modalNomeConj" name="nome_conj" value="<?php echo htmlspecialchars($nomeConj); ?>" required>
+          <input type="text" id="modalNomeConj" name="nome_conj" value="" required>
         </div>
 
         <div class="form-group">
           <label for="modalEmail">E-mail</label>
-          <input type="email" id="modalEmail" name="email" value="<?php echo htmlspecialchars($email); ?>" required>
+          <input type="email" id="modalEmail" name="email" value="" required>
         </div>
 
         <div class="form-group">
           <label for="modalTelefone">Telefone</label>
-          <input type="text" id="modalTelefone" name="telefone" value="<?php echo htmlspecialchars($numTelefone); ?>" required>
+          <input type="text" id="modalTelefone" name="telefone" value="" required>
         </div>
 
         <div class="form-group">
@@ -572,7 +445,7 @@ $iniciais = strtoupper(substr($nome, 0, 1));
   <footer class="footer">
     <div class="container footer-content">
       <div class="footer-brand">
-        <a href="../index.php" class="logo">
+        <a href="../index.html" class="logo">
           <div class="heart-icon">
             <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
@@ -585,10 +458,10 @@ $iniciais = strtoupper(substr($nome, 0, 1));
       <div class="footer-links">
         <h3>Links</h3>
         <ul>
-          <li><a href="../index.php">Início</a></li>
-          <li><a href="perfil.php">Perfil</a></li>
-          <li><a href="calendar.php">Calendario</a></li>
-          <li><a href="financeiro.php">Orçamento</a></li>
+          <li><a href="../index.html">Início</a></li>
+          <li><a href="perfil.html">Perfil</a></li>
+          <li><a href="../pages/calendario.html">Calendario</a></li>
+          <li><a href="../pages/orcamento.html">Orçamento</a></li>
         </ul>
       </div>
       <div class="footer-modules">
@@ -601,7 +474,7 @@ $iniciais = strtoupper(substr($nome, 0, 1));
       </div>
     </div>
     <div class="footer-bottom">
-      <p>&copy; <?php echo date("Y"); ?> WeddingEasy. Todos os direitos reservados.</p>
+      <p>&copy; 2025 WeddingEasy. Todos os direitos reservados.</p>
     </div>
   </footer>
 
