@@ -228,8 +228,8 @@
         <input type="text" id="local" name="local" placeholder="Local do evento">
       </div>
       <div class="form-row">
-        <button type="submit" id="btnSalvarModal" class="btn-primary">Criar novo evento</button>
-        <button type="button" id="btnCancelar" class="btn-outline">Cancelar</button>
+        <button type="button" id="btnSalvarPrincipal" class="btn-primary">Criar novo evento</button>
+        <button type="button" id="btnCancelarPrincipal" class="btn-outline">Cancelar</button>
       </div>
     </form>
   </div>
@@ -253,8 +253,8 @@
         <input type="text" id="descricao" name="descricao">
       </div>
       <div class="form-row">
-        <button type="submit" id="btnSalvar" class="btn-primary">Criar novo evento</button>
-        <button type="button" id="btnCancelar" class="btn-outline">Cancelar</button>
+        <button type="button" id="btnSalvarCalendario" class="btn-primary">Criar novo evento</button>
+        <button type="button" id="btnCancelarCalendario" class="btn-outline">Cancelar</button>
       </div>
     </form>
   </div>
@@ -262,10 +262,12 @@
     <div class="card card-view">
       <h1 class="text-primary">Eventos do Dia</h1>
 
-      <div id="listaEventos" class="event-list"></div>
+      <div id="listaEventos" class="event-list">
+        <ul id="eventList"></ul>
+      </div>
 
       <div class="form-row">
-        <button type="button" id="btnFecharView" class="btn-outline">Fechar</button>
+        <button  id="btnFecharView" class="btn-outline">Fechar</button>
       </div>
     </div>
   </div>
@@ -343,13 +345,13 @@
             <div class="calendar-controls-card">
               <div class="calendar-controls">
                 <div class="calendar-nav">
-                  <button class="nav-btn prev">
+                  <button class="nav-btn prev" id="prev-month-btn">
                     <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                       <polyline points="15,18 9,12 15,6" />
                     </svg>
                   </button>
-                  <h2 class="calendar-month">Agosto 2025</h2>
-                  <button class="nav-btn next">
+                  <h2 class="calendar-month" id="calendar-month">Agosto 2025</h2>
+                  <button class="nav-btn next" id="next-month-btn">
                     <svg class="chevron-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                       <polyline points="9,18 15,12 9,6" />
                     </svg>
@@ -374,7 +376,7 @@
                     <div class="calendar-day-header">Sex</div>
                     <div class="calendar-day-header">Sáb</div>
                   </div>
-                  <div class="calendar-days"><div class="calendar-day" data-date="2025-09-01">1</div></div>
+                  <div class="calendar-days" id="calendar-days-container"></div>
                 </div>
               </div>
               <div id="view-week" class="calendar-view" style="display: none">
