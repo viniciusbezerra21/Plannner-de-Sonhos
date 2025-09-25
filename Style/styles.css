@@ -331,7 +331,7 @@ p {
       var(--wedding-rose-white) 0%,
       rgba(225, 190, 231, 0.2) 50%,
       rgba(186, 104, 200, 0.3) 100%);
-  animation: slideInFromBottom 0.8s ease-out;
+  animation: staticFadeIn 0.8s ease-out;
 }
 
 .hero-content {
@@ -339,6 +339,7 @@ p {
   grid-template-columns: 1fr;
   gap: 3rem;
   align-items: center;
+  animation: slideInFromBottom 0.8s ease-out;
 }
 
 @media (min-width: 1024px) {
