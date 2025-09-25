@@ -1696,23 +1696,36 @@ p {
   margin-left: auto;
 }
 
-.event-type.meeting {
+.event-type.azul {
   background: #dbeafe;
   color: #1e40af;
   border-color: #bfdbfe;
 }
 
-.event-type.tasting {
+.event-type.verde {
   background: #dcfce7;
   color: #166534;
   border-color: #bbf7d0;
 }
 
-.event-type.fitting {
+.event-type.rosa {
   background: #f3e8ff;
   color: #7c2d12;
   border-color: #e9d5ff;
 }
+
+.event-type.vermelho {
+  background: #fee2e2;
+  color: #991b1b;
+  border-color: #fecaca;
+}
+
+.event-type.amarelo {
+  background: #fef3c7;
+  color: #92400e;
+  border-color: #fde68a;
+}
+
 
 .calendar-sidebar {
   display: flex;
@@ -3500,3 +3513,5 @@ td {
   vertical-align: none;
   unicode-bidi: isolate;
 }
+
+

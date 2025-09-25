@@ -208,16 +208,22 @@
     <form class="card-modal contact-form">
       <h1 class="text-primary">Adicionar Novo Evento</h1>
       <div class="form-group">
-        <label for="organizar">Organizar</label>
-        <select id="organizarPorCor" name="organizar" placeholder="Selecione uma cor"></select>
+        <label for="organizarPorCor">Cor da Tag</label>
+        <select id="organizarPorCor" placeholder="Selecione uma cor">
+          <option value="azul" id="azul">Azul</option>
+          <option value="vermelho" id="vermelho">Vermelho</option>
+          <option value="verde" id="verde">Verde</option>
+          <option value="amarelo" id="amarelo">Amarelo</option>
+          <option value="rosa" id="rosa">Rosa</option>
+        </select>
+        <div class="form-group">
+          <label for="descricao">Adicionar Tag</label>
+          <input type="text" id="descricao" name="descricao">
+        </div>
       </div>
       <div class="form-group">
         <label for="nome">Nome do evento</label>
         <input type="text" id="nome" name="nome">
-      </div>
-      <div class="form-group">
-        <label for="descricao">Descrição do evento</label>
-        <input type="text" id="descricao" name="descricao">
       </div>
       <div class="form-group">
         <label for="data">Selecione a data</label>
@@ -478,130 +484,7 @@
                 </div>
               </div>
               <div class="events-list">
-                <div class="event-item high-priority">
-                  <div class="event-content">
-                    <h4 class="event-title">Reunião com Fotógrafo</h4>
-                    <div class="event-details">
-                      <div class="event-detail">
-                        <svg class="calendar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                          <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                          <line x1="16" y1="2" x2="16" y2="6" />
-                          <line x1="8" y1="2" x2="8" y2="6" />
-                          <line x1="3" y1="10" x2="21" y2="10" />
-                        </svg>
-                        15/08/2025
-                      </div>
-                      <div class="event-detail">
-                        <svg class="clock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                          <circle cx="12" cy="12" r="10" />
-                          <polyline points="12,6 12,12 16,14" />
-                        </svg>
-                        14:00
-                      </div>
-                    </div>
-                    <div class="event-location">
-                      <svg class="map-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                        <circle cx="12" cy="10" r="3" />
-                      </svg>
-                      Studio Fotográfico
-                    </div>
-                  </div>
-                  <span class="event-type meeting">Reunião</span>
-                </div>
-                <div class="event-item high-priority">
-                  <div class="event-content">
-                    <h4 class="event-title">Degustação do Buffet</h4>
-                    <div class="event-details">
-                      <div class="event-detail">
-                        <svg class="calendar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                          <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                          <line x1="16" y1="2" x2="16" y2="6" />
-                          <line x1="8" y1="2" x2="8" y2="6" />
-                          <line x1="3" y1="10" x2="21" y2="10" />
-                        </svg>
-                        18/08/2025
-                      </div>
-                      <div class="event-detail">
-                        <svg class="clock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                          <circle cx="12" cy="12" r="10" />
-                          <polyline points="12,6 12,12 16,14" />
-                        </svg>
-                        19:00
-                      </div>
-                    </div>
-                    <div class="event-location">
-                      <svg class="map-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                        <circle cx="12" cy="10" r="3" />
-                      </svg>
-                      Restaurante Elegance
-                    </div>
-                  </div>
-                  <span class="event-type tasting">Degustação</span>
-                </div>
-                <div class="event-item medium-priority">
-                  <div class="event-content">
-                    <h4 class="event-title">Prova do Vestido</h4>
-                    <div class="event-details">
-                      <div class="event-detail">
-                        <svg class="calendar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                          <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                          <line x1="16" y1="2" x2="16" y2="6" />
-                          <line x1="8" y1="2" x2="8" y2="6" />
-                          <line x1="3" y1="10" x2="21" y2="10" />
-                        </svg>
-                        22/08/2025
-                      </div>
-                      <div class="event-detail">
-                        <svg class="clock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                          <circle cx="12" cy="12" r="10" />
-                          <polyline points="12,6 12,12 16,14" />
-                        </svg>
-                        15:30
-                      </div>
-                    </div>
-                    <div class="event-location">
-                      <svg class="map-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                        <circle cx="12" cy="10" r="3" />
-                      </svg>
-                      Atelier Noiva Bella
-                    </div>
-                  </div>
-                  <span class="event-type fitting">Prova</span>
-                </div>
-                <div class="event-item medium-priority">
-                  <div class="event-content">
-                    <h4 class="event-title">Reunião com Decorador</h4>
-                    <div class="event-details">
-                      <div class="event-detail">
-                        <svg class="calendar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                          <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                          <line x1="16" y1="2" x2="16" y2="6" />
-                          <line x1="8" y1="2" x2="8" y2="6" />
-                          <line x1="3" y1="10" x2="21" y2="10" />
-                        </svg>
-                        25/08/2025
-                      </div>
-                      <div class="event-detail">
-                        <svg class="clock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                          <circle cx="12" cy="12" r="10" />
-                          <polyline points="12,6 12,12 16,14" />
-                        </svg>
-                        10:00
-                      </div>
-                    </div>
-                    <div class="event-location">
-                      <svg class="map-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                        <circle cx="12" cy="10" r="3" />
-                      </svg>
-                      Escritório Decor & Arte
-                    </div>
-                  </div>
-                  <span class="event-type meeting">Reunião</span>
-                </div>
+               
               </div>
             </div>
           </div>

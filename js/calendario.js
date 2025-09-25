@@ -52,10 +52,36 @@ function abrirEventoDoDia(data) {
         eventos[data].forEach((evento, index) => {
             const li = document.createElement('li');
             li.innerHTML = `
-                <strong>${evento.nome}</strong> - ${evento.horario || ''} <br>
-                ${evento.local || ''} <br>
-                ${evento.descricao || ''}
-                <br>
+                <div class="event-content">
+                    <h4 class="event-title" id="tituloEvento">${evento.nome}</h4>
+                    <div class="event-details">
+                      <div class="event-detail">
+                        <svg class="calendar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                          <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                          <line x1="16" y1="2" x2="16" y2="6" />
+                          <line x1="8" y1="2" x2="8" y2="6" />
+                          <line x1="3" y1="10" x2="21" y2="10" />
+                        </svg>
+                        <p id="dataEvento">${evento.data}</p>
+                      </div>
+                      <div class="event-detail">
+                        <svg class="clock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                          <circle cx="12" cy="12" r="10" />
+                          <polyline points="12,6 12,12 16,14" />
+                        </svg>
+                        <p id="horaEvento">${evento.horario}</p>
+                      </div>
+                    </div>
+                    <div class="event-location">
+                      <svg class="map-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                        <circle cx="12" cy="10" r="3" />
+                      </svg>
+                      <p id="localEvento">${evento.local}</p>
+                    </div>
+                  </div>
+                  <span class="event-type meeting" id="tagEvento">${evento.descricao}</span>
+                </div>
                 <button onclick="removerEvento('${data}', ${index})" class="btn-outline">Excluir</button>
             `;
             lista.appendChild(li);
@@ -180,13 +206,14 @@ btnSalvarPrincipal.addEventListener('click', () => {
     const inputData = document.querySelector('#janela-modal #data');
     const inputHorario = document.querySelector('#janela-modal #hora');
     const inputLocal = document.querySelector('#janela-modal #local');
+    const cor = document.querySelector('#organizarPorCor').value;
 
     const evento = {
         nome: inputNome.value,
         descricao: inputDescricao.value,
         data: inputData.value,
         horario: inputHorario.value,
-        local: inputLocal.value
+        local: inputLocal.value,
     };
 
     inputNome.value = '';
@@ -195,34 +222,84 @@ btnSalvarPrincipal.addEventListener('click', () => {
     inputHorario.value = '';
     inputLocal.value = '';
 
+    adicionaEventonaListaDeEventos(evento)
     salvarEvento(evento);
     fecharModal();
+    corDaTag(cor)
     criarDiasDoMes();
 });
 
-// Salvar evento do modal calendário
-btnSalvarCalendario.addEventListener('click', () => {
-    const inputNome = document.querySelector('#janela-modal-day #nome');
-    const inputDescricao = document.querySelector('#janela-modal-day #descricao');
-    const inputHorario = document.querySelector('#janela-modal-day #hora');
-    const inputLocal = document.querySelector('#janela-modal-day #local');
 
-    if (!dataSelecionada) return;
 
-    const evento = {
-        nome: inputNome.value,
-        descricao: inputDescricao.value,
-        data: dataSelecionada,
-        horario: inputHorario.value,
-        local: inputLocal.value
-    };
 
-    inputNome.value = '';
-    inputDescricao.value = '';
-    inputHorario.value = '';
-    inputLocal.value = '';
+function adicionaEventonaListaDeEventos(evento) {
+    const div = document.createElement('div');
+    const listaDeEventos = document.querySelector('.events-list');
 
-    salvarEvento(evento);
-    fecharModal();
-    criarDiasDoMes();
-});
+    div.classList.add('event-item');
+    div.innerHTML = `
+        <div class="event-content">
+                    <h4 class="event-title" id="tituloEvento">${evento.nome}</h4>
+                    <div class="event-details">
+                      <div class="event-detail">
+                        <svg class="calendar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                          <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                          <line x1="16" y1="2" x2="16" y2="6" />
+                          <line x1="8" y1="2" x2="8" y2="6" />
+                          <line x1="3" y1="10" x2="21" y2="10" />
+                        </svg>
+                        <p id="dataEvento">${evento.data}</p>
+                      </div>
+                      <div class="event-detail">
+                        <svg class="clock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                          <circle cx="12" cy="12" r="10" />
+                          <polyline points="12,6 12,12 16,14" />
+                        </svg>
+                        <p id="horaEvento">${evento.horario}</p>
+                      </div>
+                    </div>
+                    <div class="event-location">
+                      <svg class="map-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                        <circle cx="12" cy="10" r="3" />
+                      </svg>
+                      <p id="localEvento">${evento.local}</p>
+                    </div>
+                  </div>
+                  <span class="event-type meeting" id="tagEvento">${evento.descricao}</span>
+                </div>
+    `;
+
+    listaDeEventos.appendChild(div);
+}
+
+function corDaTag(cor) {
+    // pega a última tag adicionada
+    const tag = document.querySelector('.event-item:last-child .event-type');
+    if (!tag) return;
+  
+    // limpa cores anteriores
+    tag.classList.remove('azul', 'vermelho', 'verde', 'amarelo', 'rosa');
+  
+    // adiciona a nova cor
+    switch (cor.toLowerCase()) {
+      case 'azul':
+        tag.classList.add('azul');
+        break;
+      case 'vermelho':
+        tag.classList.add('vermelho');
+        break;
+      case 'verde':
+        tag.classList.add('verde');
+        break;
+      case 'amarelo':
+        tag.classList.add('amarelo');
+        break;
+      case 'rosa':
+        tag.classList.add('rosa');
+        break;
+    }
+  }
+  
+
+
