@@ -1,3 +1,24 @@
+<?php
+session_start();
+require_once "../config/conexao.php";
+
+// Verifica se o usuário está logado
+if (!isset($_SESSION["usuario_id"])) {
+    header("Location: login.php");
+    exit;
+}
+
+$usuario_id = $_SESSION["usuario_id"];
+
+// Pega os dados do usuário
+$sql = "SELECT nome, nome_conjuge, telefone, email FROM usuarios WHERE id_usuario = ?";
+$stmt = $pdo->prepare($sql);
+$stmt->execute([$usuario_id]);
+$usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+
+// Foto padrão
+$foto_perfil = $usuario["foto_perfil"] ?? "default.png";
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -10,66 +31,76 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet" />
   <style>
     .profile-card {
-      grid-column: span 2;
-      text-align: center;
-      padding: 3rem 2rem;
-    }
+    display: flex;               /* Deixa a foto e as infos lado a lado */
+    align-items: center;         /* Centraliza verticalmente */
+    gap: 2rem;                   /* Espaço entre foto e infos */
+    padding: 3rem 2rem;
+    border-radius: 1rem;
+    grid-column: span 2;
+    background: hsl(var(--card-background, 0, 0%, 100%));
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    margin: 0 auto;
+}
 
-    .profile-photo {
-      position: relative;
-      display: inline-block;
-    }
+.profile-photo {
+    flex-shrink: 0;              /* Foto não encolhe */
+    display: inline-block;
+}
 
-    .profile-photo img,
-    .profile-placeholder {
-      width: 150px;
-      height: 150px;
-      border-radius: 50%;
-      object-fit: cover;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-      display: block;
-      margin: 0 auto;
-    }
+.profile-photo img,
+.profile-placeholder {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    display: block;
+}
 
-    .profile-placeholder {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: hsl(var(--primary));
-      color: hsl(var(--primary-foreground));
-      font-size: 3rem;
-      font-weight: bold;
-      user-select: none;
-    }
+.profile-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    font-size: 3rem;
+    font-weight: bold;
+    user-select: none;
+}
 
-    .profile-card h2 {
-      font-size: 1.75rem;
-      margin-bottom: 0.5rem;
-      color: hsl(var(--foreground));
-    }
+.profile-info {
+    flex: 1;                     /* Ocupa o resto do espaço */
+}
 
-    .profile-card p {
-      margin-bottom: 0.25rem;
-      color: hsl(var(--muted-foreground));
-    }
+.profile-card h2 {
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+    color: hsl(var(--foreground));
+}
 
-    .profile-card .btn-primary {
-      margin-top: 1.5rem;
-      display: inline-block;
-      padding: 0.75rem 1.5rem;
-      border-radius: 0.5rem;
-      background: hsl(var(--primary));
-      color: hsl(var(--primary-foreground));
-      font-weight: 600;
-      transition: all 0.3s;
-      cursor: pointer;
-      border: none;
-    }
+.profile-card p {
+    margin-bottom: 0.25rem;
+    color: hsl(var(--muted-foreground));
+}
 
-    .profile-card .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
-    }
+.profile-card .btn-primary {
+    margin-top: 1.5rem;
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    font-weight: 600;
+    transition: all 0.3s;
+    cursor: pointer;
+    border: none;
+}
+
+.profile-card .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
 
     /* Adicionando estilos para o modal */
     .modal {
@@ -307,15 +338,18 @@
     
     <div class="features-detailed-grid">
       <!-- Card Perfil -->
-      <div class="feature-detailed-card profile-card" style="
-      padding-left: 30rem; padding-right: 30rem;">
-        <div class="profile-photo">
-
-            <div class="profile-placeholder"></div>
-
-        </div>
-        <button onclick="openEditModal()" class="btn-primary">Editar Perfil</button>
-      </div>
+      <div class="profile-card">
+    <div class="profile-photo">
+        <img src="fotos/<?php echo $foto_perfil; ?>" alt="Foto de perfil">
+    </div>
+    <div class="profile-info">
+        <h2><?php echo htmlspecialchars($usuario['nome']); ?></h2>
+        <p>E-mail: <?php echo htmlspecialchars($usuario['email']); ?></p>
+        <p>Telefone: <?php echo htmlspecialchars($usuario['telefone']); ?></p>
+        <p>Cônjuge: <?php echo htmlspecialchars($usuario['nome_conjuge']); ?></p>
+        <button class="btn-primary" onclick="openEditModal()">Editar Perfil</button>
+    </div>
+</div>
 
       <!-- Card Preferências -->
       <div class="feature-detailed-card">
@@ -397,9 +431,7 @@
       <h2 style="text-align: center; margin-bottom: 0.5rem;">Editar Perfil</h2>
 
       <div class="modal-profile-photo" style="text-align: center; margin-bottom: 0.5rem;">
-
-          <div id="modalFotoPlaceholder" class="modal-profile-placeholder"></div>
-
+      <img src="fotos/<?php echo $_SESSION['foto_perfil']; ?>" alt="Foto de perfil" class="modal-profile-photo">
         <div class="custom-file">
           <input type="file" id="modalFoto" name="foto" accept="image/*" onchange="previewModalFoto(event)">
           <label for="modalFoto">Trocar Foto de Perfil</label>
@@ -542,6 +574,24 @@
         this.appendChild(hiddenInput);
       }
     });
+  </script>
+  <script>
+    function openEditModal() {
+      document.getElementById('editModal').style.display = 'flex';
+    }
+
+    function closeEditModal() {
+      document.getElementById('editModal').style.display = 'none';
+    }
+    window.onclick = function(e) {
+      if (e.target.id === 'editModal') closeEditModal();
+    }
+
+    function toggleVisibility(fieldId) {
+      const input = document.getElementById(fieldId);
+      if (input.type === 'password') input.type = 'text';
+      else input.type = 'password';
+    }
   </script>
 </body>
 

@@ -1,3 +1,44 @@
+<?php
+session_start();
+
+// inclui conexão
+require_once "../config/conexao.php";
+
+// Verifica se veio POST
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+  $nome       = $_POST["nome"];
+  $nome_conj  = $_POST["nome_conj"];
+  $genero     = $_POST["genero"];
+  $idade      = $_POST["idade"];
+  $telefone   = $_POST["num_telefone"];
+  $email      = $_POST["email"];
+  $senha      = password_hash($_POST["senha"], PASSWORD_DEFAULT);
+
+  // Foto padrão de perfil
+  $foto_perfil = "default.png";
+
+  $sql = "INSERT INTO usuarios (nome, nome_conjuge, genero, idade, telefone, email, senha, cargo) 
+          VALUES (?, ?, ?, ?, ?, ?, ?, 'cliente')";
+  $stmt = $pdo->prepare($sql);
+
+  try {
+    $stmt->execute([$nome, $nome_conj, $genero, $idade, $telefone, $email, $senha]);
+
+    // pega ID do usuário inserido
+    $id_usuario = $pdo->lastInsertId();
+
+    // cria sessão
+    $_SESSION["usuario_id"]   = $id_usuario;
+    $_SESSION["nome"]         = $nome;
+    $_SESSION["foto_perfil"]  = $foto_perfil;
+
+    header("Location: ../index.php");
+    exit;
+  } catch (PDOException $e) {
+    echo "<div class='mensagem-erro'>Erro ao cadastrar: " . $e->getMessage() . "</div>";
+  }
+}
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -9,7 +50,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto:wght@300;400;500&display=swap"
     rel="stylesheet" />
-    <link rel="shortcut icon" href="../Style/assets/icon.png" type="image/x-icon">
+  <link rel="shortcut icon" href="../Style/assets/icon.png" type="image/x-icon">
   <style>
     .input-group {
       position: relative;
@@ -124,7 +165,7 @@
             Preencha suas informações para criar sua conta no WeddingEasy.
           </p>
         </div>
-        <form class="cadastro-form" action="#" method="POST">
+        <form class="cadastro-form" action="cadastro.php" method="POST">
           <div class="card form-section" style="margin-bottom: 1rem">
             <h2>Informações Pessoais</h2>
             <div class="input-group">

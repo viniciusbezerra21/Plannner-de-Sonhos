@@ -1,3 +1,35 @@
+<?php
+session_start();
+require_once "../config/conexao.php"; // conecta no banco
+
+$cookieName = "lembrar_me";
+$cookieTime = time() + (86400 * 30); // 30 dias
+$mensagem = "";
+
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["acao"]) && $_POST["acao"] === "login") {
+    $email = $_POST["email"];
+    $senha = $_POST["senha"];
+
+    // Buscar usuário no banco
+    $stmt = $pdo->prepare("SELECT id_usuario, nome, email, senha FROM usuarios WHERE email = ? OR nome = ?");
+    $stmt->execute([$email, $email]);
+    $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($usuario && password_verify($senha, $usuario["senha"])) {
+        // Cria sessão
+        $_SESSION["usuario_id"] = $usuario["id_usuario"];
+        $_SESSION["nome"] = $usuario["nome"];
+
+        // Cria cookie para manter login
+        setcookie($cookieName, $usuario["id_usuario"], $cookieTime, "/");
+
+        header("Location: ../index.php");
+        exit;
+    } else {
+        $mensagem = "<div class='mensagem-erro'>E-mail/usuário ou senha inválidos.</div>";
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -9,7 +41,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto:wght@300;400;500&display=swap"
     rel="stylesheet" />
-    <link rel="shortcut icon" href="../Style/assets/icon.png" type="image/x-icon">
+  <link rel="shortcut icon" href="../Style/assets/icon.png" type="image/x-icon">
   <style>
     .input-group {
       position: relative;
@@ -82,7 +114,7 @@
         </a>
         <nav class="nav">
           <a href="../index.html" class="nav-link">Início</a>
-          <a href="cadastro.html" class="btn-primary" style="align-items: center">Cadastre-se</a>
+          <a href="cadastro.php" class="btn-primary" style="align-items: center">Cadastre-se</a>
         </nav>
         <button id="hamburgerBtn" class="mobile-menu-btn" onclick="toggleMobileMenu()">
           <span class="hamburger-line"></span>
@@ -116,36 +148,20 @@
           </p>
         </div>
 
-        <form action="#" method="POST">
+        <?php if ($mensagem) echo $mensagem; ?>
+
+        <form method="POST">
           <input type="hidden" name="acao" value="login">
 
           <div class="card form-section" style="margin-bottom: 1rem">
 
             <div class="input-group">
-              <svg viewBox="0 0 24 24">
-                <path
-                  d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
-              </svg>
               <input type="text" name="email" placeholder="E-mail ou Nome de Usuário" required />
             </div>
 
             <div class="input-group">
-              <svg viewBox="0 0 24 24">
-                <path
-                  d="M12 17a2 2 0 0 0 2-2v-3a2 2 0 1 0-4 0v3a2 2 0 0 0 2 2zm6-6v3a6 6 0 0 1-12 0v-3a6 6 0 0 1 12 0z" />
-              </svg>
               <input type="password" name="senha" placeholder="Senha" required />
             </div>
-
-            <label style="
-        display: flex;
-        justify-content: flex-end;
-        font-size: 0.875rem;
-        margin-top: 0.5rem;
-      ">
-              <a href="#" style="color: hsl(var(--primary)); text-decoration: underline">Esqueceu a
-                senha?</a>
-            </label>
 
             <button type="submit" class="btn-primary" style="margin-top: 1rem; width: 100%; text-align: center">
               Entrar
@@ -154,7 +170,7 @@
 
           <p style="text-align: center; margin-top: 1rem; font-size: 0.875rem">
             Não tem uma conta?
-            <a href="cadastro.html" style="color: hsl(var(--primary)); text-decoration: underline">Cadastre-se aqui</a>.
+            <a href="cadastro.php" style="color: hsl(var(--primary)); text-decoration: underline">Cadastre-se aqui</a>.
           </p>
         </form>
       </div>
