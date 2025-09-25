@@ -2805,20 +2805,6 @@ a {
   }
 }
 
-@keyframes breathe {
-
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-
-  50% {
-    transform: scale(1.05);
-    opacity: 0.8;
-  }
-}
-
 @keyframes ripple {
   0% {
     transform: scale(0);
@@ -2987,12 +2973,6 @@ a {
   animation-delay: 0.1s;
 }
 
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-  animation: glow 0.5s ease-out, breathe 5s ease-in-out infinite;
-}
-
 /* Animações para elementos de contato */
 .contact-detail {
   animation: slideInFromLeft 0.8s ease-out;
@@ -3096,8 +3076,78 @@ a {
   z-index: 10;
 }
 
-.calendar-day.has-event {
-  animation: breathe 3s ease-in-out infinite;
+.custom-select {
+  position: relative;
+  user-select: none;
+  width: 100%;
+  font-family: 'Poppins', sans-serif;
+  animation: slideInFromBottom 0.6s ease-out;
+}
+
+/* Caixa selecionada */
+.custom-select .selected {
+  padding: 0.75rem 1rem;
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.5rem;
+  background: hsl(var(--card));
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* Hover/foco */
+.custom-select .selected:hover,
+.custom-select .selected:focus {
+  border-color: hsl(var(--primary));
+  box-shadow: 0 0 0 3px hsl(var(--primary) / 0.2);
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  cursor: pointer;
+}
+
+/* Lista de opções */
+.custom-select .options {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 9999; /* 🔥 garante que fique por cima */
+  margin-top: 0.25rem;
+  overflow: hidden;
+}
+
+/* Cada item */
+.custom-select .options li {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.custom-select .options li:hover {
+  background: hsl(var(--accent));
+}
+.custom-select .options li[data-value="pendente"]:hover {
+  background: #fee2e2; /* vermelho claro */
+  color: #b91c1c;
+}
+
+.custom-select .options li[data-value="progresso"]:hover {
+  background: #fef3c7; /* laranja claro */
+  color: #b45309;
+}
+
+.custom-select .options li[data-value="concluido"]:hover {
+  background: #dcfce7; /* verde claro */
+  color: #166534;
 }
 
 .event-dot {
@@ -3467,32 +3517,32 @@ a {
   width: 90%;
 }
 
-#estrelas-container{
-  display:flex;
-  gap:0.5rem;
-  align-items:center;
-  justify-content:flex-start;
-  padding:0.25rem 0;
+#estrelas-container {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0.25rem 0;
 }
 
-.star-icon{
-  width:20px;
-  height:20px;
-  cursor:pointer;
+.star-icon {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
   color: #ffb400;
-  transition:transform .12s ease, color .12s ease;
-  display:inline-block;
+  transition: transform .12s ease, color .12s ease;
+  display: inline-block;
 }
 
-.star-icon path{
-  fill:none;
-  stroke:currentColor;
-  stroke-width:1;
+.star-icon path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
 }
 
-.star-icon.selected path{
-  fill:currentColor;
-  stroke:currentColor;
+.star-icon.selected path {
+  fill: currentColor;
+  stroke: currentColor;
 }
 
 td {
