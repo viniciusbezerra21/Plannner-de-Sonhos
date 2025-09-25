@@ -114,7 +114,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   <header class="header">
     <div class="container">
       <div class="header-content">
-        <a href="../index.html" class="logo">
+        <a href="../index.php" class="logo">
           <div class="heart-icon">
             <svg
               width="16"
@@ -128,8 +128,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
           <span class="logo-text">WeddingEasy</span>
         </a>
         <nav class="nav">
-          <a href="../index.html" class="nav-link">Início</a>
-          <a href="login.html" class="btn-primary" style="align-items: center">Login</a>
+          <a href="../index.php" class="nav-link">Início</a>
+          <a href="login.php" class="btn-primary" style="align-items: center">Login</a>
         </nav>
         <button
           id="hamburgerBtn"
@@ -150,8 +150,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
               border-top: 1px solid hsl(var(--border));
               margin-top: 0.5rem;
             ">
-          <a href="../index.html" class="nav-link">Início</a>
-          <a href="login.html" class="btn-primary" style="align-items: center">Login</a>
+          <a href="../index.php" class="nav-link">Início</a>
+          <a href="login.php" class="btn-primary" style="align-items: center">Login</a>
         </nav>
       </div>
     </div>
@@ -256,7 +256,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             Cadastrar
           </button>
           <div style="text-align: center; margin-top: 1rem">
-            <a href="login.html" style="color: hsl(var(--primary)); text-decoration: none">
+            <a href="login.php" style="color: hsl(var(--primary)); text-decoration: none">
               Já tem uma conta? Fazer login
             </a>
           </div>

@@ -180,7 +180,7 @@ if (isset($_POST['logout'])) {
               <a href="pages/calendario.html">Calendário</a>
               <a href="pages/orcamento.html">Orçamento</a>
               <a href="pages/gestao-contratos.html">Gestão de Contratos</a>
-              <a href="pages/tarefas.html">Lista de Tarefas</a>
+              <a href="pages/tarefas.php">Lista de Tarefas</a>
             </div>
           </div>
           <a href="pages/contato.html" class="nav-link">Contato</a>
@@ -532,7 +532,7 @@ if (isset($_POST['logout'])) {
   <div class="container">
     <div class="footer-content">
       <div class="footer-brand">
-        <a href="index.html" class="logo">
+        <a href="index.php" class="logo">
           <div class="heart-icon">
             <svg
               width="16"
@@ -566,7 +566,7 @@ if (isset($_POST['logout'])) {
       <div class="footer-links">
         <h3>Navegação</h3>
         <ul>
-          <li><a href="index.html">Início</a></li>
+          <li><a href="index.php">Início</a></li>
           <li>
             <a href="pages/funcionalidades.html">Funcionalidades</a>
           </li>

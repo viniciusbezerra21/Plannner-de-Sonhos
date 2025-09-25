@@ -298,7 +298,7 @@ $foto_perfil = $usuario["foto_perfil"] ?? "default.png";
   <header class="header">
     <div class="container">
       <div class="header-content">
-        <a href="../index.html" class="logo">
+        <a href="../index.php" class="logo">
           <div class="heart-icon">
             <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
@@ -307,8 +307,8 @@ $foto_perfil = $usuario["foto_perfil"] ?? "default.png";
           <span class="logo-text">WeddingEasy</span>
         </a>
         <nav class="nav">
-          <a href="../index.html" class="nav-link">Início</a>
-          <a href="perfil.html" class="nav-link">Perfil</a>
+          <a href="../index.php" class="nav-link">Início</a>
+          <a href="perfil.php" class="nav-link">Perfil</a>
           <a href="../pages/calendario.html" class="nav-link">Calendario</a>
           <a href="../pages/orcamento.html" class="nav-link">Orçamento</a>
         </nav>
@@ -319,8 +319,8 @@ $foto_perfil = $usuario["foto_perfil"] ?? "default.png";
         </button>
       </div>
       <div id="mobileMenu" class="mobile-menu">
-        <a href="../index.html" class="nav-link">Início</a>
-        <a href="perfil.html" class="nav-link">Perfil</a>
+        <a href="../index.php" class="nav-link">Início</a>
+        <a href="perfil.php" class="nav-link">Perfil</a>
         <a href="../pages/calendario.html" class="nav-link">Calendario</a>
         <a href="../pages/orcamento.html" class="nav-link">Orçamento</a>
       </div>
@@ -475,7 +475,7 @@ $foto_perfil = $usuario["foto_perfil"] ?? "default.png";
   <footer class="footer">
     <div class="container footer-content">
       <div class="footer-brand">
-        <a href="../index.html" class="logo">
+        <a href="../index.php" class="logo">
           <div class="heart-icon">
             <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
@@ -488,8 +488,8 @@ $foto_perfil = $usuario["foto_perfil"] ?? "default.png";
       <div class="footer-links">
         <h3>Links</h3>
         <ul>
-          <li><a href="../index.html">Início</a></li>
-          <li><a href="perfil.html">Perfil</a></li>
+          <li><a href="../index.php">Início</a></li>
+          <li><a href="perfil.php">Perfil</a></li>
           <li><a href="../pages/calendario.html">Calendario</a></li>
           <li><a href="../pages/orcamento.html">Orçamento</a></li>
         </ul>
