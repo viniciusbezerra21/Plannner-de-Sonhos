@@ -178,7 +178,7 @@ if (isset($_POST['logout'])) {
             <a href="pages/funcionalidades.html" class="nav-link dropdown-toggle">Funcionalidades ▾</a>
             <div class="dropdown-menu">
               <a href="pages/calendario.html">Calendário</a>
-              <a href="pages/orcamento.html">Orçamento</a>
+              <a href="pages/orcamento.php">Orçamento</a>
               <a href="pages/gestao-contratos.html">Gestão de Contratos</a>
               <a href="pages/tarefas.php">Lista de Tarefas</a>
             </div>

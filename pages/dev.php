@@ -47,6 +47,28 @@ $eventos = $pdo->query("
   ORDER BY e.id_evento DESC
 ")->fetchAll();
 $mensagens = $pdo->query("SELECT id, nome, email, mensagem FROM contatos ORDER BY id DESC")->fetchAll();
+
+if (isset($_POST['edit_user'])) {
+  $userId = (int) $_POST['user_id'];
+  $nome = trim($_POST['nome']);
+  $email = trim($_POST['email']);
+  
+  if ($nome && $email) {
+    $stmt = $pdo->prepare("UPDATE usuarios SET nome = ?, email = ? WHERE id_usuario = ?");
+    $stmt->execute([$nome, $email, $userId]);
+  }
+  header("Location: dev.php");
+  exit;
+}
+
+if (isset($_POST['delete_user'])) {
+  $userId = (int) $_POST['user_id'];
+  $stmt = $pdo->prepare("DELETE FROM usuarios WHERE id_usuario = ? AND cargo = 'cliente'");
+  $stmt->execute([$userId]);
+  header("Location: dev.php");
+  exit;
+}
+
 if (isset($_POST['delete_task'])) {
   $idTarefa = (int) $_POST['delete_task'];
   $stmt = $pdo->prepare("DELETE FROM tarefas WHERE id_tarefa = ?");
@@ -59,6 +81,14 @@ $tarefas = $pdo->query("
   FROM tarefas t
   JOIN usuarios u ON t.id_usuario = u.id_usuario
   ORDER BY t.prazo ASC
+")->fetchAll();
+
+$orcamentos = $pdo->query("
+  SELECT o.id_orcamento, o.item, o.fornecedor, o.quantidade, o.valor_unitario, o.avaliacao, u.nome AS usuario
+  FROM orcamentos o
+  JOIN usuarios u ON o.id_usuario = u.id_usuario
+  ORDER BY o.id_orcamento DESC
+  LIMIT 20
 ")->fetchAll();
 ?>
 <!DOCTYPE html>
@@ -246,6 +276,38 @@ $tarefas = $pdo->query("
       font-size: 1.25rem;
       color: white;
     }
+
+    .edit-form {
+      display: none;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 1rem;
+      border-radius: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .edit-form.active {
+      display: block;
+    }
+
+    .edit-form input {
+      width: 100%;
+      padding: 0.5rem;
+      margin: 0.25rem 0;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 0.25rem;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+
+    .edit-form input::placeholder {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .btn-small {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.8rem;
+      margin: 0.25rem;
+    }
   </style>
 </head>
 
@@ -304,6 +366,11 @@ $tarefas = $pdo->query("
           <p>Visualizar e gerenciar todas as tarefas criadas pelos clientes.</p>
           <button class="btn-dev" onclick="openModal('tasksModal')">Acessar</button>
         </div>
+        <div class="action-card">
+          <h3>Orçamentos</h3>
+          <p>Visualizar e monitorar itens de orçamento dos usuários.</p>
+          <button class="btn-dev" onclick="openModal('budgetModal')">Acessar</button>
+        </div>
       </div>
     </main>
   </div>
@@ -328,7 +395,26 @@ $tarefas = $pdo->query("
               <td><?= $u['id_usuario'] ?></td>
               <td><?= htmlspecialchars($u['nome']) ?></td>
               <td><?= htmlspecialchars($u['email']) ?></td>
-              <td><button class="btn-dev">Editar</button></td>
+              <td>
+                <button class="btn-dev btn-small" onclick="toggleEditForm(<?= $u['id_usuario'] ?>)">Editar</button>
+                <form method="post" style="display: inline;">
+                  <input type="hidden" name="user_id" value="<?= $u['id_usuario'] ?>">
+                  <button type="submit" name="delete_user" class="btn-dev btn-small" style="background: #ef4444;" onclick="return confirm('Tem certeza que deseja excluir este usuário?')">Excluir</button>
+                </form>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="4">
+                <div class="edit-form" id="editForm<?= $u['id_usuario'] ?>">
+                  <form method="post">
+                    <input type="hidden" name="user_id" value="<?= $u['id_usuario'] ?>">
+                    <input type="text" name="nome" value="<?= htmlspecialchars($u['nome']) ?>" placeholder="Nome" required>
+                    <input type="email" name="email" value="<?= htmlspecialchars($u['email']) ?>" placeholder="Email" required>
+                    <button type="submit" name="edit_user" class="btn-dev btn-small">Salvar</button>
+                    <button type="button" class="btn-dev btn-small" onclick="toggleEditForm(<?= $u['id_usuario'] ?>)">Cancelar</button>
+                  </form>
+                </div>
+              </td>
             </tr>
           <?php endforeach; ?>
         </tbody>
@@ -416,11 +502,48 @@ $tarefas = $pdo->query("
               <td><?= htmlspecialchars($t['status']) ?></td>
               <td><?= htmlspecialchars($t['usuario']) ?></td>
               <td>
-                <form method="post" style="display:inline">
-                  <input type="hidden" name="delete_task" value="<?= $t['id_tarefa'] ?>">
-                  <button type="submit" class="btn-dev" onclick="return confirm('Excluir tarefa?')">Excluir</button>
+                <form method="post" style="display: inline;">
+                  <button type="submit" name="delete_task" value="<?= $t['id_tarefa'] ?>" class="btn-dev btn-small" style="background: #ef4444;" onclick="return confirm('Tem certeza que deseja excluir esta tarefa?')">Excluir</button>
                 </form>
               </td>
+            </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal Orçamentos -->
+  <div class="modal-overlay" id="budgetModal">
+    <div class="modal">
+      <button class="close-modal" onclick="closeModal('budgetModal')">&times;</button>
+      <h2>Orçamentos dos Usuários</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Item</th>
+            <th>Fornecedor</th>
+            <th>Quantidade</th>
+            <th>Valor Unit.</th>
+            <th>Avaliação</th>
+            <th>Usuário</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php foreach ($orcamentos as $o): ?>
+            <tr>
+              <td><?= $o['id_orcamento'] ?></td>
+              <td><?= htmlspecialchars($o['item']) ?></td>
+              <td><?= htmlspecialchars($o['fornecedor']) ?></td>
+              <td><?= $o['quantidade'] ?></td>
+              <td>R$ <?= number_format($o['valor_unitario'], 2, ',', '.') ?></td>
+              <td>
+                <?php for($i = 1; $i <= 5; $i++): ?>
+                  <span style="color: <?= ($o['avaliacao'] >= $i) ? '#ffc107' : '#ddd' ?>">★</span>
+                <?php endfor; ?>
+              </td>
+              <td><?= htmlspecialchars($o['usuario']) ?></td>
             </tr>
           <?php endforeach; ?>
         </tbody>
@@ -437,6 +560,11 @@ $tarefas = $pdo->query("
     function closeModal(id) {
       document.getElementById(id).style.display = 'none';
       document.getElementById("pageContent").classList.remove("blurred");
+    }
+
+    function toggleEditForm(userId) {
+      const form = document.getElementById('editForm' + userId);
+      form.classList.toggle('active');
     }
   </script>
 </body>
