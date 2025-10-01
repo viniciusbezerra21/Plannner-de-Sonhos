@@ -361,20 +361,6 @@ btnSalvarPrioridade.addEventListener('click', (e) => {
   modalPrioridades.style.display = "none";
 });
 
-const btnPesquisar = document.getElementById('search-btn');
-const inputPesquisar = document.getElementById('search-input');
-
-btnPesquisar.addEventListener('click', (e) => { 
-  e.preventDefault();
-  if (inputPesquisar.style.display === 'none') {
-    inputPesquisar.style.display = 'flex';
-  } else {
-    inputPesquisar.style.display = 'none';
-  }
-
-});
-  
-
 
 
 

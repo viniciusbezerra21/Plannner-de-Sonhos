@@ -7034,7 +7034,7 @@ td {
   padding: 0.5rem 1rem;
   width: 100%;
   max-width: 300px;
-  display: none;
+  display: flex;
 }
 
 .search-input:focus {
