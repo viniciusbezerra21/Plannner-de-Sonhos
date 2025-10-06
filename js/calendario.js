@@ -175,6 +175,9 @@ window.onclick = function (event) {
     if (event.target === createEventModal) {
         createEventModal.style.display = "none";
     }
+    if (event.target === modalPrioridades) {
+        modalPrioridades.style.display = "none";
+    }
 };
 
 // Botões modais
@@ -301,5 +304,65 @@ function corDaTag(cor) {
     }
   }
   
+  const eventosSalvos = document.querySelector('.events-list');
+const modalPrioridades = document.getElementById('janela-modal-prioridade');
+const btnSalvarPrioridade = document.getElementById('btnSalvarPrioridade');
+const selectPrioridade = document.getElementById('prioridadeInput');
+
+let eventoSelecionado = null; // aqui guardamos o evento clicado
+
+// abrir modal ao clicar num evento
+eventosSalvos.addEventListener('click', (e) => {
+  const item = e.target.closest('.event-item'); // pega o .event-item mais próximo do clique
+  if (!item) return; // se não clicou num evento, não faz nada
+
+  eventoSelecionado = item; // salva o item clicado
+  modalPrioridades.style.display = 'flex';
+});
+
+// salvar prioridade
+btnSalvarPrioridade.addEventListener('click', (e) => {
+  e.preventDefault();
+  modalPrioridades.style.display = 'none';
+
+  if (!eventoSelecionado) return;
+
+  // Pega os eventos já salvos
+  let eventos = JSON.parse(localStorage.getItem("eventos")) || [];
+
+  // Pega a data e o título do evento selecionado (como chave para identificar)
+  const dataEvento = eventoSelecionado.querySelector("#dataEvento").textContent;
+  const nomeEvento = eventoSelecionado.querySelector("#tituloEvento").textContent;
+
+  // Acha o evento correspondente no localStorage
+  if (eventos[dataEvento]) {
+    eventos[dataEvento] = eventos[dataEvento].map(ev => {
+      if (ev.nome === nomeEvento) {
+        ev.prioridade = prioridadeInput.value; // salva prioridade
+      }
+      return ev;
+    });
+  }
+
+  // Atualiza localStorage
+  localStorage.setItem("eventos", JSON.stringify(eventos));
+
+  // Atualiza visualmente
+  eventoSelecionado.classList.remove("high-priority", "medium-priority", "low-priority");
+
+  if (prioridadeInput.value === "alta") {
+    eventoSelecionado.classList.add("high-priority");
+  } else if (prioridadeInput.value === "media") {
+    eventoSelecionado.classList.add("medium-priority");
+  } else if (prioridadeInput.value === "baixa") {
+    eventoSelecionado.classList.add("low-priority");
+  }
+
+  modalPrioridades.style.display = "none";
+});
+
+
+
+
 
 
