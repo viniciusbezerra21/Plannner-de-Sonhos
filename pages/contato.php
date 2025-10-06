@@ -1,11 +1,52 @@
+<?php
+require_once '../config/conexao.php';
 
+$success = false;
+$error = false;
+$errorMessage = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Sanitize and validate input
+    $nome = trim($_POST['name'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $mensagem = trim($_POST['message'] ?? '');
+    
+    // Basic validation
+    if (empty($nome) || empty($email) || empty($mensagem)) {
+        $error = true;
+        $errorMessage = 'Por favor, preencha todos os campos obrigatórios.';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = true;
+        $errorMessage = 'Por favor, insira um e-mail válido.';
+    } else {
+        try {
+            // Insert into database
+            $stmt = $pdo->prepare("INSERT INTO contatos (nome, email, mensagem, data_envio) VALUES (:nome, :email, :mensagem, NOW())");
+            $stmt->execute([
+                ':nome' => $nome,
+                ':email' => $email,
+                ':mensagem' => $mensagem
+            ]);
+            
+            $success = true;
+            // Clear form data on success
+            $_POST = [];
+        } catch (PDOException $e) {
+            $error = true;
+            $errorMessage = 'Erro ao enviar mensagem. Por favor, tente novamente mais tarde.';
+            // Log error for debugging (in production, use proper logging)
+            error_log("Contact form error: " . $e->getMessage());
+        }
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WeddingEasy</title>
+  <title>Planner de Sonhos - Contato</title>
   <link rel="stylesheet" href="../Style/styles.css" />
   <link
     href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto:wght@300;400;500&display=swap"
@@ -116,6 +157,50 @@
         right: -1rem;
       }
     }
+    
+    /* Added styles for success and error alerts */
+    .alert {
+      padding: 1rem;
+      border-radius: 0.5rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      animation: slideDown 0.3s ease-out;
+    }
+    
+    .alert-success {
+      background-color: #d1fae5;
+      color: #065f46;
+      border: 1px solid #6ee7b7;
+    }
+    
+    .alert-error {
+      background-color: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fca5a5;
+    }
+    
+    .alert svg {
+      width: 1.5rem;
+      height: 1.5rem;
+      flex-shrink: 0;
+    }
+    
+    .alert-message {
+      flex: 1;
+    }
+    
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
   </style>
 </head>
 
@@ -131,7 +216,7 @@
                 d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
             </svg>
           </div>
-          <span class="logo-text">WeddingEasy</span>
+          <span class="logo-text">Planner de Sonhos</span>
         </a>
 
         <nav class="nav">
@@ -146,7 +231,7 @@
               </div>
             </div>
 
-            <a href="contato.html" class="nav-link">Contato</a> 
+            <a href="contato.php" class="nav-link">Contato</a> 
             <a href="../user/login.php" class="btn-primary" style="align-items: center">Login</a>
            </nav>
         <button id="hamburgerBtn" class="mobile-menu-btn" onclick="toggleMobileMenu()">
@@ -160,10 +245,10 @@
           <a href="../index.php" class="nav-link" style="padding: 0.5rem 0">Início</a>
           <a href="funcionalidades.html" class="nav-link" style="padding: 0.5rem 0">Funcionalidades</a>
  
-            <a href="contato.html" class="nav-link" style="padding: 0.5rem 0">Contato</a>
+            <a href="contato.php" class="nav-link" style="padding: 0.5rem 0">Contato</a>
 
             
-            <a href="login.php" class="btn-primary" style="align-items: center">Login</a>
+            <a href="../user/login.php" class="btn-primary" style="align-items: center">Login</a>
         </nav>
       </div>
     </div>
@@ -194,43 +279,59 @@
               </svg>
               <h2>Envie uma Mensagem</h2>
             </div>
+            
+            <?php if ($success): ?>
+              <!-- Display success message when form is submitted successfully -->
               <div class="alert alert-success">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 2rem;
-                height: 2rem;">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                 </svg>
+                <div class="alert-message">
+                  <strong>Mensagem enviada com sucesso!</strong><br>
+                  Obrigado pelo contato. Responderemos em breve.
+                </div>
               </div>
+            <?php endif; ?>
+            
+            <?php if ($error): ?>
+              <!-- Display error message when form submission fails -->
               <div class="alert alert-error">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 2rem;
-                height: 2rem;">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
+                <div class="alert-message">
+                  <strong>Erro ao enviar mensagem!</strong><br>
+                  <?php echo htmlspecialchars($errorMessage); ?>
+                </div>
               </div>
-            <form method="POST" class="contact-form">
+            <?php endif; ?>
+            
+            <!-- Updated form to submit to itself via POST -->
+            <form method="POST" action="contato.php" class="contact-form">
               <div class="form-row">
                 <div class="form-group">
                   <label for="name">Nome Completo</label>
-                  <input type="text" id="name" name="name" value="" required />
+                  <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($_POST['name'] ?? ''); ?>" required />
                 </div>
                 <div class="form-group">
                   <label for="email">E-mail</label>
-                  <input type="email" id="email" name="email" value="" required />
+                  <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>" required />
                 </div>
               </div>
               <div class="form-row">
                 <div class="form-group">
                   <label for="phone">Telefone</label>
-                  <input type="tel" id="phone" name="phone" value="" />
+                  <input type="tel" id="phone" name="phone" value="<?php echo htmlspecialchars($_POST['phone'] ?? ''); ?>" />
                 </div>
                 <div class="form-group">
                   <label for="subject">Assunto</label>
                   <select id="subject" name="subject" required>
                     <option value="">Selecione um assunto</option>
-                    <option value="duvidas">Dúvidas Gerais</option>
-                    <option value="suporte">Suporte Técnico</option>
-                    <option value="vendas">Informações de Vendas</option>
-                    <option value="feedback">Feedback</option>
-                    <option value="outros">Outros</option>
+                    <option value="duvidas" <?php echo (($_POST['subject'] ?? '') === 'duvidas') ? 'selected' : ''; ?>>Dúvidas Gerais</option>
+                    <option value="suporte" <?php echo (($_POST['subject'] ?? '') === 'suporte') ? 'selected' : ''; ?>>Suporte Técnico</option>
+                    <option value="vendas" <?php echo (($_POST['subject'] ?? '') === 'vendas') ? 'selected' : ''; ?>>Informações de Vendas</option>
+                    <option value="feedback" <?php echo (($_POST['subject'] ?? '') === 'feedback') ? 'selected' : ''; ?>>Feedback</option>
+                    <option value="outros" <?php echo (($_POST['subject'] ?? '') === 'outros') ? 'selected' : ''; ?>>Outros</option>
                   </select>
                 </div>
               </div>
@@ -241,7 +342,7 @@
                   name="message"
                   rows="6"
                   placeholder="Conte-nos como podemos ajudar você..."
-                  required></textarea>
+                  required><?php echo htmlspecialchars($_POST['message'] ?? ''); ?></textarea>
               </div>
               <button type="submit" class="btn btn-primary btn-full">
                 <svg
@@ -282,8 +383,8 @@
                   </svg>
                   <div>
                     <h3>E-mail</h3>
-                    <p>contato@weddingeasy.com</p>
-                    <p>suporte@weddingeasy.com</p>
+                    <p>contato@plannerdesonhos.com</p>
+                    <p>suporte@plannerdesonhos.com</p>
                   </div>
                 </div>
 
@@ -348,9 +449,9 @@
           <h2>Perguntas Frequentes</h2>
           <div class="faq-items">
             <div class="faq-item">
-              <h3>Como funciona o WeddingEasy?</h3>
+              <h3>Como funciona o Planner de Sonhos?</h3>
               <p>
-                O WeddingEasy é uma plataforma completa para planejamento de
+                O Planner de Sonhos é uma plataforma completa para planejamento de
                 casamentos com módulos especializados para cada aspecto da
                 organização.
               </p>
@@ -380,7 +481,7 @@
             dos seus sonhos. Entre em contato conosco hoje mesmo!
           </p>
           <div class="cta-buttons">
-            <a href="mailto:contato@weddingeasy.com" class="btn btn-primary">
+            <a href="mailto:contato@plannerdesonhos.com" class="btn btn-primary">
               <svg
                 class="mail-icon"
                 viewBox="0 0 24 24"
@@ -426,7 +527,7 @@
                   d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>
             </div>
-            <span class="logo-text">WeddingEasy</span>
+            <span class="logo-text">Planner de Sonhos</span>
           </a>
           <p class="footer-description">
             A plataforma mais completa para cerimonialistas organizarem
@@ -443,7 +544,7 @@
                 d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
               <polyline points="22,6 12,13 2,6" />
             </svg>
-            <span>contato@weddingeasy.com</span>
+            <span>contato@plannerdesonhos.com</span>
           </div>
         </div>
         <div class="footer-modules">
@@ -461,7 +562,7 @@
       </div>
 
       <div class="footer-bottom">
-        <p>&copy; 2024 WeddingEasy. Todos os direitos reservados.</p>
+        <p>&copy; 2025 Planner de Sonhos. Todos os direitos reservados.</p>
       </div>
     </div>
   </footer>

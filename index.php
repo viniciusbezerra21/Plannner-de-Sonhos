@@ -31,7 +31,7 @@ if (isset($_POST['logout'])) {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WeddingEasy</title>
+  <title>Planner de Sonhos</title>
   <link
     href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap"
     rel="stylesheet" />
@@ -169,21 +169,25 @@ if (isset($_POST['logout'])) {
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
             </svg>
           </div>
-          <span class="logo-text">WeddingEasy</span>
+          <span class="logo-text">Planner de Sonhos</span>
         </a>
 
         <nav class="nav">
-          <a href="index.php" class="nav-link">Início</a>
-          <div class="dropdown">
-            <a href="pages/funcionalidades.html" class="nav-link dropdown-toggle">Funcionalidades ▾</a>
-            <div class="dropdown-menu">
-              <a href="pages/calendario.html">Calendário</a>
-              <a href="pages/orcamento.php">Orçamento</a>
-              <a href="pages/gestao-contratos.html">Gestão de Contratos</a>
-              <a href="pages/tarefas.php">Lista de Tarefas</a>
+          <?php if (isset($_SESSION["usuario_id"])): ?>
+            <a href="index.php" class="nav-link">Início</a>
+            <div class="dropdown">
+              <a href="pages/funcionalidades.php" class="nav-link dropdown-toggle">Funcionalidades ▾</a>
+              <div class="dropdown-menu">
+                <a href="pages/calendario.php">Calendário</a>
+                <a href="pages/orcamento.php">Orçamento</a>
+                <a href="pages/gestao-contratos.php">Gestão de Contratos</a>
+                <a href="pages/tarefas.php">Lista de Tarefas</a>
+              </div>
             </div>
-          </div>
-          <a href="pages/contato.html" class="nav-link">Contato</a>
+            <a href="pages/contato.php" class="nav-link">Contato</a>
+          <?php else: ?>
+            <a href="index.php" class="nav-link">Início</a>
+          <?php endif; ?>
 
           <?php if (isset($_SESSION["usuario_id"])): ?>
             <!-- Foto de perfil em bolinha -->
@@ -195,7 +199,7 @@ if (isset($_POST['logout'])) {
                 <a href="user/perfil.php">Meu Perfil</a>
                 <!-- Logout via POST -->
                 <form method="post" style="margin:0;">
-                  <button type="submit" name="logout" style="all:unset;cursor:pointer;">Sair</button>
+                  <button type="submit" name="logout" class="btn-outline"">Sair</button>
                 </form>
               </div>
             </div>
@@ -207,100 +211,72 @@ if (isset($_POST['logout'])) {
       </div>
     </div>
   </header>
-</body>
+  <div class="modal" id="modal">
+    <video id="video" controls>
+      <source src="Style/assets/Prototipo.mp4" type="video/mp4">
+      Seu navegador não suporta vídeo.
+    </video>
+  </div>
+  <main>
+    <section class="hero">
+      <div class="container">
+        <div class="hero-content">
+          <!-- Content -->
+          <div class="hero-text">
+            <div>
+              <h1 class="hero-title">
+                Organize o casamento
+                <span class="text-primary">
+                  perfeito
+                  <svg
+                    style="
+                          width: 1.5rem;
+                          height: 1.5rem;
+                          color: hsl(var(--secondary));
+                          position: absolute;
+                          top: -0.5rem;
+                          right: -2rem;
+                          animation: pulse 3s infinite;
+                        "
+                    fill="currentColor"
+                    viewBox="0 0 24 24">
+                    <path
+                      d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09z" />
+                  </svg>
+                </span>
+                . Sem estresse, sem falhas.
+              </h1>
 
-</html>
-<div class="modal" id="modal">
-  <video id="video" controls>
-    <source src="Style/assets/Prototipo.mp4" type="video/mp4">
-    Seu navegador não suporta vídeo.
-  </video>
-</div>
-<main>
-  <section class="hero">
-    <div class="container">
-      <div class="hero-content">
-        <!-- Content -->
-        <div class="hero-text">
-          <div>
-            <h1 class="hero-title">
-              Organize o casamento
-              <span class="text-primary">
-                perfeito
-                <svg
-                  style="
-                        width: 1.5rem;
-                        height: 1.5rem;
-                        color: hsl(var(--secondary));
-                        position: absolute;
-                        top: -0.5rem;
-                        right: -2rem;
-                        animation: pulse 3s infinite;
-                      "
-                  fill="currentColor"
-                  viewBox="0 0 24 24">
+              <p class="hero-description">
+                Uma plataforma completa para cerimonialistas gerenciarem
+                eventos com excelência.
+              </p>
+            </div>
+
+            <div class="hero-buttons">
+            <?php if (isset($_SESSION["usuario_id"])): ?>
+              <a href="pages/funcionalidades.php" class="btn-primary">
+                Explorar Funcionalidades
+              </a>
+              <?php else: ?>
+              <a href="user/login.php" class="btn-primary">
+                Explorar Funcionalidades
+              </a>
+              <?php endif; ?>
+              <button class="btn-outline" id="abrirModal">Assistir Demonstração</button>
+            </div>
+
+            <!-- Trust indicators -->
+            <div class="trust-indicators">
+              <div class="trust-indicator">
+                <svg fill="currentColor" viewBox="0 0 24 24">
                   <path
-                    d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09z" />
+                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
                 </svg>
-              </span>
-              . Sem estresse, sem falhas.
-            </h1>
-
-            <p class="hero-description">
-              Uma plataforma completa para cerimonialistas gerenciarem
-              eventos com excelência.
-            </p>
-          </div>
-
-          <div class="hero-buttons">
-            <a href="pages/funcionalidades.html" class="btn-primary">
-              Explorar Funcionalidades
-            </a>
-            <button class="btn-outline" id="abrirModal">Assistir Demonstração</button>
-          </div>
-
-          <!-- Trust indicators -->
-          <div class="trust-indicators">
-            <div class="trust-indicator">
-              <svg fill="currentColor" viewBox="0 0 24 24">
-                <path
-                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-              </svg>
-              <span style="cursor: default">500+ casamentos organizados</span>
-            </div>
-            <div class="trust-indicator">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <rect
-                  x="3"
-                  y="4"
-                  width="18"
-                  height="18"
-                  rx="2"
-                  ry="2"></rect>
-                <line x1="16" y1="2" x2="16" y2="6"></line>
-                <line x1="8" y1="2" x2="8" y2="6"></line>
-                <line x1="3" y1="10" x2="21" y2="10"></line>
-              </svg>
-              <span style="cursor: default">Sem complicações</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="hero-visual">
-          <div class="hero-visual-card">
-            <!-- Main content area -->
-            <div class="hero-visual-content">
-              <div class="hero-visual-header">
-                <h3 class="hero-visual-title">Próximos Eventos</h3>
-                <svg
-                  style="
-                        width: 1.25rem;
-                        height: 1.25rem;
-                        color: hsl(var(--primary));
-                      "
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24">
+                <span style="cursor: default">500+ casamentos organizados</span>
+              </div>
+              <div class="trust-indicator">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <rect
                     x="3"
                     y="4"
@@ -312,389 +288,432 @@ if (isset($_POST['logout'])) {
                   <line x1="8" y1="2" x2="8" y2="6"></line>
                   <line x1="3" y1="10" x2="21" y2="10"></line>
                 </svg>
-              </div>
-
-              <div class="hero-visual-events">
-                <div class="hero-visual-event">
-                  <div class="hero-visual-dot"></div>
-                  <div class="hero-visual-event-info">
-                    <h4>Casamento Maria & João</h4>
-                    <p>15 de Dezembro</p>
-                  </div>
-                </div>
-
-                <div class="hero-visual-event">
-                  <div class="hero-visual-dot"></div>
-                  <div class="hero-visual-event-info">
-                    <h4>Casamento Ana & Pedro</h4>
-                    <p>22 de Dezembro</p>
-                  </div>
-                </div>
+                <span style="cursor: default">Sem complicações</span>
               </div>
             </div>
+          </div>
 
-            <svg
+          <div class="hero-visual">
+            <div class="hero-visual-card">
+              <!-- Main content area -->
+              <div class="hero-visual-content">
+                <div class="hero-visual-header">
+                  <h3 class="hero-visual-title">Próximos Eventos</h3>
+                  <svg
+                    style="
+                          width: 1.25rem;
+                          height: 1.25rem;
+                          color: hsl(var(--primary));
+                        "
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <rect
+                      x="3"
+                      y="4"
+                      width="18"
+                      height="18"
+                      rx="2"
+                      ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+                </div>
+
+                <div class="hero-visual-events">
+                  <div class="hero-visual-event">
+                    <div class="hero-visual-dot"></div>
+                    <div class="hero-visual-event-info">
+                      <h4>Casamento Maria & João</h4>
+                      <p>15 de Dezembro</p>
+                    </div>
+                  </div>
+
+                  <div class="hero-visual-event">
+                    <div class="hero-visual-dot"></div>
+                    <div class="hero-visual-event-info">
+                      <h4>Casamento Ana & Pedro</h4>
+                      <p>22 de Dezembro</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <svg
+                style="
+                      position: absolute;
+                      top: 1.5rem;
+                      left: 1.5rem;
+                      width: 1rem;
+                      height: 1rem;
+                      color: hsla(var(--primary), 0.6);
+                      animation: pulse 3s infinite;
+                    "
+                fill="currentColor"
+                viewBox="0 0 24 24">
+                <path
+                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              </svg>
+              <svg
+                style="
+                      position: absolute;
+                      bottom: 4rem;
+                      right: 2rem;
+                      width: 0.75rem;
+                      height: 0.75rem;
+                      color: hsla(var(--secondary), 0.6);
+                      animation: pulse 4s infinite;
+                    "
+                fill="currentColor"
+                viewBox="0 0 24 24">
+                <path
+                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="stats">
+      <div class="container">
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-number">10,000+</div>
+            <div class="stat-label">Casamentos Organizados</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">98%</div>
+            <div class="stat-label">Satisfação dos Clientes</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">50+</div>
+            <div class="stat-label">Funcionalidades</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">24/7</div>
+            <div class="stat-label">Suporte Disponível</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="features">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Por que usar nosso sistema?</h2>
+          <p class="section-description">
+            Descubra como nossa plataforma pode transformar a organização dos
+            seus eventos
+          </p>
+        </div>
+
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </div>
+            <h3 class="feature-title">Visão descomplicada dos dados</h3>
+            <p class="feature-description">
+              Interface clara e amigável para acompanhar todos os detalhes do
+              evento de forma intuitiva.
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <line x1="12" y1="1" x2="12" y2="23"></line>
+                <path
+                  d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+              </svg>
+            </div>
+            <h3 class="feature-title">Flexibilidade na gestão de parcelas</h3>
+            <p class="feature-description">
+              Controle personalizado de pagamentos com opções flexíveis para
+              cada cliente.
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  d="M9 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-4"></path>
+                <polyline points="9,11 12,14 15,11"></polyline>
+                <line x1="12" y1="2" x2="12" y2="14"></line>
+              </svg>
+            </div>
+            <h3 class="feature-title">Listagem de itens</h3>
+            <p class="feature-description">
+              Checklist completo com fornecedores, status e quantidade de cada
+              item necessário.
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+            </div>
+            <h3 class="feature-title">Visão de datas e prazos</h3>
+            <p class="feature-description">
+              Calendário integrado com eventos, lembretes e prazos importantes
+              organizados.
+            </p>
+          </div>
+        </div>
+
+        <div style="position: relative; margin-top: 4rem; text-align: center">
+          <div
+            style="
+                  display: inline-flex;
+                  align-items: center;
+                  gap: 0.5rem;
+                  padding: 0.75rem 1.5rem;
+                  background: rgba(225, 190, 231, 0.1);
+                  border-radius: 9999px;
+                ">
+            <span
               style="
-                    position: absolute;
-                    top: 1.5rem;
-                    left: 1.5rem;
-                    width: 1rem;
-                    height: 1rem;
-                    color: hsla(var(--primary), 0.6);
+                    width: 0.5rem;
+                    height: 0.5rem;
+                    background: hsl(var(--primary));
+                    border-radius: 50%;
+                    animation: pulse 2s infinite;
+                  "></span>
+            <span
+              style="
+                    font-family: 'Roboto', sans-serif;
+                    font-size: 0.875rem;
+                    color: hsl(var(--muted-foreground));
+                    cursor: default;
+                  ">
+              Mais de 50 funcionalidades para facilitar seu trabalho
+            </span>
+            <span
+              style="
+                    width: 0.5rem;
+                    height: 0.5rem;
+                    background: hsl(var(--secondary));
+                    border-radius: 50%;
                     animation: pulse 3s infinite;
-                  "
-              fill="currentColor"
-              viewBox="0 0 24 24">
-              <path
-                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-            </svg>
+                  "></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta">
+      <div class="container">
+        <div class="cta-content">
+          <h2 class="cta-title">Pronto para começar?</h2>
+          <p class="cta-description">
+            Junte-se a milhares de casais que já organizaram o casamento dos
+            sonhos com o Planner de Sonhos.
+          </p>
+          <?php if (isset($_SESSION["usuario_id"])): ?>
+          <a href="pages/funcionalidades.php" class="btn-primary">
+            Explorar Funcionalidades
             <svg
-              style="
-                    position: absolute;
-                    bottom: 4rem;
-                    right: 2rem;
-                    width: 0.75rem;
-                    height: 0.75rem;
-                    color: hsla(var(--secondary), 0.6);
-                    animation: pulse 4s infinite;
-                  "
-              fill="currentColor"
+              style="width: 1rem; height: 1rem"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </a>
+          <?php else: ?>
+            <a href="user/login.php" class="btn-primary">
+            Explorar Funcionalidades
+            <svg
+              style="width: 1rem; height: 1rem"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </a>
+          <?php endif; ?>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <a href="index.php" class="logo">
+            <div class="heart-icon">
+              <svg
+                width="16"
+                height="16"
+                fill="currentColor"
+                viewBox="0 0 24 24">
+                <path
+                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              </svg>
+            </div>
+            <span class="logo-text">Planner de Sonhos</span>
+          </a>
+          <p class="footer-description">
+            A plataforma mais completa para cerimonialistas organizarem
+            casamentos perfeitos. Simplifique sua gestão e encante seus
+            clientes.
+          </p>
+          <div class="footer-contact">
+            <svg
+              style="width: 1rem; height: 1rem"
+              fill="none"
+              stroke="currentColor"
               viewBox="0 0 24 24">
               <path
-                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+              <polyline points="22,6 12,13 2,6" />
             </svg>
+            <span>contato@plannerdesonhos.com</span>
           </div>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="stats">
-    <div class="container">
-      <div class="stats-grid">
-        <div class="stat-item">
-          <div class="stat-number">10,000+</div>
-          <div class="stat-label">Casamentos Organizados</div>
+        <div class="footer-links">
+          <h3>Navegação</h3>
+          <ul>
+            <li><a href="index.php">Início</a></li>
+            <li>
+              <a href="pages/funcionalidades.php">Funcionalidades</a>
+            </li>
+            <li>
+              <a href="pages/contato.php">Contato</a>
+            </li>
+          </ul>
         </div>
-        <div class="stat-item">
-          <div class="stat-number">98%</div>
-          <div class="stat-label">Satisfação dos Clientes</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-number">50+</div>
-          <div class="stat-label">Funcionalidades</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-number">24/7</div>
-          <div class="stat-label">Suporte Disponível</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="features">
-    <div class="container">
-      <div class="section-header">
-        <h2 class="section-title">Por que usar nosso sistema?</h2>
-        <p class="section-description">
-          Descubra como nossa plataforma pode transformar a organização dos
-          seus eventos
-        </p>
-      </div>
-
-      <div class="features-grid">
-        <div class="feature-card">
-          <div class="feature-icon">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-              <circle cx="12" cy="12" r="3"></circle>
-            </svg>
-          </div>
-          <h3 class="feature-title">Visão descomplicada dos dados</h3>
-          <p class="feature-description">
-            Interface clara e amigável para acompanhar todos os detalhes do
-            evento de forma intuitiva.
-          </p>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-icon">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <line x1="12" y1="1" x2="12" y2="23"></line>
-              <path
-                d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-            </svg>
-          </div>
-          <h3 class="feature-title">Flexibilidade na gestão de parcelas</h3>
-          <p class="feature-description">
-            Controle personalizado de pagamentos com opções flexíveis para
-            cada cliente.
-          </p>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-icon">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                d="M9 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-4"></path>
-              <polyline points="9,11 12,14 15,11"></polyline>
-              <line x1="12" y1="2" x2="12" y2="14"></line>
-            </svg>
-          </div>
-          <h3 class="feature-title">Listagem de itens</h3>
-          <p class="feature-description">
-            Checklist completo com fornecedores, status e quantidade de cada
-            item necessário.
-          </p>
-        </div>
-
-        <div class="feature-card">
-          <div class="feature-icon">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-              <line x1="16" y1="2" x2="16" y2="6"></line>
-              <line x1="8" y1="2" x2="8" y2="6"></line>
-              <line x1="3" y1="10" x2="21" y2="10"></line>
-            </svg>
-          </div>
-          <h3 class="feature-title">Visão de datas e prazos</h3>
-          <p class="feature-description">
-            Calendário integrado com eventos, lembretes e prazos importantes
-            organizados.
-          </p>
+        <div class="footer-modules">
+          <h3>Legal</h3>
+          <ul>
+            <li><a href="legal-pages/about.html">Sobre</a></li>
+            <li>
+              <a href="legal-pages/privacity-politics.html">Política de Privacidade</a>
+            </li>
+            <li><a href="legal-pages/uses-terms.html">Termos de Uso</a></li>
+          </ul>
         </div>
       </div>
 
-      <div style="position: relative; margin-top: 4rem; text-align: center">
+      <div class="footer-bottom">
+        <p>&copy; 2024 Planner de Sonhos. Todos os direitos reservados.</p>
         <div
           style="
-                display: inline-flex;
+                display: flex;
                 align-items: center;
-                gap: 0.5rem;
-                padding: 0.75rem 1.5rem;
-                background: rgba(225, 190, 231, 0.1);
-                border-radius: 9999px;
+                gap: 0.25rem;
+                font-size: 0.875rem;
+                color: hsl(var(--muted-foreground));
               ">
-          <span
-            style="
-                  width: 0.5rem;
-                  height: 0.5rem;
-                  background: hsl(var(--primary));
-                  border-radius: 50%;
-                  animation: pulse 2s infinite;
-                "></span>
-          <span
-            style="
-                  font-family: 'Roboto', sans-serif;
-                  font-size: 0.875rem;
-                  color: hsl(var(--muted-foreground));
-                  cursor: default;
-                ">
-            Mais de 100 funcionalidades para facilitar seu trabalho
-          </span>
-          <span
-            style="
-                  width: 0.5rem;
-                  height: 0.5rem;
-                  background: hsl(var(--secondary));
-                  border-radius: 50%;
-                  animation: pulse 3s infinite;
-                "></span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="cta">
-    <div class="container">
-      <div class="cta-content">
-        <h2 class="cta-title">Pronto para começar?</h2>
-        <p class="cta-description">
-          Junte-se a milhares de casais que já organizaram o casamento dos
-          sonhos com o WeddingEasy.
-        </p>
-        <a href="pages/funcionalidades.html" class="btn-primary">
-          Explorar Funcionalidades
+          <span>Feito com</span>
           <svg
-            style="width: 1rem; height: 1rem"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24">
-            <path d="M5 12h14M12 5l7 7-7 7" />
-          </svg>
-        </a>
-      </div>
-    </div>
-  </section>
-</main>
-
-<footer class="footer">
-  <div class="container">
-    <div class="footer-content">
-      <div class="footer-brand">
-        <a href="index.php" class="logo">
-          <div class="heart-icon">
-            <svg
-              width="16"
-              height="16"
-              fill="currentColor"
-              viewBox="0 0 24 24">
-              <path
-                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-            </svg>
-          </div>
-          <span class="logo-text">WeddingEasy</span>
-        </a>
-        <p class="footer-description">
-          A plataforma mais completa para cerimonialistas organizarem
-          casamentos perfeitos. Simplifique sua gestão e encante seus
-          clientes.
-        </p>
-        <div class="footer-contact">
-          <svg
-            style="width: 1rem; height: 1rem"
-            fill="none"
-            stroke="currentColor"
+            style="
+                  width: 1rem;
+                  height: 1rem;
+                  color: hsl(var(--primary));
+                  margin: 0 0.25rem;
+                "
+            fill="currentColor"
             viewBox="0 0 24 24">
             <path
-              d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-            <polyline points="22,6 12,13 2,6" />
+              d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
           </svg>
-          <span>contato@weddingeasy.com</span>
+          <span>para cerimonialistas</span>
         </div>
       </div>
-      <div class="footer-links">
-        <h3>Navegação</h3>
-        <ul>
-          <li><a href="index.php">Início</a></li>
-          <li>
-            <a href="pages/funcionalidades.html">Funcionalidades</a>
-          </li>
-          <li>
-            <a href="pages/contato.html">Contato</a>
-            <a href="#" onclick="openLoginModal()"></a>
-          </li>
-        </ul>
-      </div>
-      <div class="footer-modules">
-        <h3>Legal</h3>
-        <ul>
-          <li><a href="legal-pages/about.html">Sobre</a></li>
-          <li>
-            <a href="legal-pages/privacity-politics.html">Política de Privacidade</a>
-          </li>
-          <li><a href="legal-pages/uses-terms.html">Termos de Uso</a></li>
-        </ul>
-      </div>
     </div>
+  </footer>
 
-    <div class="footer-bottom">
-      <p>&copy; 2024 WeddingEasy. Todos os direitos reservados.</p>
-      <div
-        style="
-              display: flex;
-              align-items: center;
-              gap: 0.25rem;
-              font-size: 0.875rem;
-              color: hsl(var(--muted-foreground));
-            ">
-        <span>Feito com</span>
-        <svg
-          style="
-                width: 1rem;
-                height: 1rem;
-                color: hsl(var(--primary));
-                margin: 0 0.25rem;
-              "
-          fill="currentColor"
-          viewBox="0 0 24 24">
-          <path
-            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-        </svg>
-        <span>para cerimonialistas</span>
-      </div>
-    </div>
-  </div>
-</footer>
+  <script>
+    function toggleMobileMenu() {
+      const mobileMenu = document.getElementById("mobileMenu");
+      const hamburgerBtn = document.getElementById("hamburgerBtn");
 
-<script>
-  function toggleMobileMenu() {
-    const mobileMenu = document.getElementById("mobileMenu");
-    const hamburgerBtn = document.getElementById("hamburgerBtn");
-
-    mobileMenu.classList.toggle("active");
-    hamburgerBtn.classList.toggle("hamburger-active");
-  }
-
-  function toggleProfileDropdown() {
-    const dropdown = document.getElementById("profileDropdown");
-    dropdown.classList.toggle("active");
-  }
-
-  function openLoginModal() {
-    document.getElementById("loginModal").style.display = "block";
-  }
-
-  function closeLoginModal() {
-    document.getElementById("loginModal").style.display = "none";
-  }
-
-  window.onclick = function(event) {
-    const modal = document.getElementById("loginModal");
-    if (event.target === modal) {
-      closeLoginModal();
+      mobileMenu.classList.toggle("active");
+      hamburgerBtn.classList.toggle("hamburger-active");
     }
-  };
 
-  document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-    anchor.addEventListener("click", function(e) {
-      e.preventDefault();
-      const target = document.querySelector(this.getAttribute("href"));
-      if (target) {
-        target.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
+    function toggleProfileDropdown() {
+      const dropdown = document.getElementById("profileDropdown");
+      dropdown.classList.toggle("active");
+    }
 
-        const mobileMenu = document.getElementById("mobileMenu");
-        const hamburgerBtn = document.getElementById("hamburgerBtn");
-        mobileMenu.classList.remove("active");
-        hamburgerBtn.classList.remove("hamburger-active");
+    function openLoginModal() {
+      document.getElementById("loginModal").style.display = "block";
+    }
+
+    function closeLoginModal() {
+      document.getElementById("loginModal").style.display = "none";
+    }
+
+    window.onclick = function(event) {
+      const modal = document.getElementById("loginModal");
+      if (event.target === modal) {
+        closeLoginModal();
       }
+    };
+
+    document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+      anchor.addEventListener("click", function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute("href"));
+        if (target) {
+          target.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+
+          const mobileMenu = document.getElementById("mobileMenu");
+          const hamburgerBtn = document.getElementById("hamburgerBtn");
+          mobileMenu.classList.remove("active");
+          hamburgerBtn.classList.remove("hamburger-active");
+        }
+      });
     });
-  });
 
-  const successMessage = document.getElementById("mensagemSucesso");
-  if (successMessage) {
-    setTimeout(() => {
-      successMessage.style.animation = "slideOut 0.3s ease-in forwards";
+    const successMessage = document.getElementById("mensagemSucesso");
+    if (successMessage) {
       setTimeout(() => {
-        successMessage.remove();
-      }, 300);
-    }, 5000);
-  }
-  const btn = document.getElementById('abrirModal')
-  const modal = document.getElementById('modal')
-  const video = document.getElementById('video')
+        successMessage.style.animation = "slideOut 0.3s ease-in forwards";
+        setTimeout(() => {
+          successMessage.remove();
+        }, 300);
+      }, 5000);
+    }
+    const btn = document.getElementById('abrirModal')
+    const modal = document.getElementById('modal')
+    const video = document.getElementById('video')
 
-  btn.addEventListener('click', () => {
-    modal.style.display = 'flex'
-    video.currentTime = 0
-    video.play()
-  })
+    btn.addEventListener('click', () => {
+      modal.style.display = 'flex'
+      video.currentTime = 0
+      video.play()
+    })
 
-  video.addEventListener('ended', () => {
-    modal.style.display = 'none'
-    video.pause()
-  })
-
-  modal.addEventListener('click', e => {
-    if (e.target === modal) {
+    video.addEventListener('ended', () => {
       modal.style.display = 'none'
       video.pause()
-    }
-  })
-</script>
+    })
+
+    modal.addEventListener('click', e => {
+      if (e.target === modal) {
+        modal.style.display = 'none'
+        video.pause()
+      }
+    })
+  </script>
 </body>
 
 </html>

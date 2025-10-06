@@ -96,7 +96,7 @@ $orcamentos = $pdo->query("
 
 <head>
   <meta charset="UTF-8" />
-  <title>WeddingEasy - Painel Desenvolvedor</title>
+  <title>Planner de Sonhos - Painel Desenvolvedor</title>
   <link rel="stylesheet" href="../Style/styles.css" />
   <link rel="shortcut icon" href="../Style/assets/devicon.png" type="image/x-icon" />
   <style>
@@ -316,7 +316,7 @@ $orcamentos = $pdo->query("
     <header class="dev-header">
       <div class="dev-container">
         <div class="header-content">
-          <a href="../index.php" class="logo"><span class="logo-text">WeddingEasy - DEV</span></a>
+          <a href="../index.php" class="logo"><span class="logo-text">Planner de Sonhos - DEV</span></a>
           <nav style="display:flex; gap:1rem; align-items:center">
             <span style="color: rgba(255,255,255,0.8)">Bem-vindo, <?= htmlspecialchars($_SESSION['nome']); ?></span>
             <form method="post" style="margin:0;">
@@ -330,7 +330,7 @@ $orcamentos = $pdo->query("
     <main class="dev-container">
       <div class="page-header" style="text-align:center; margin:2rem 0">
         <h1 style="font-size:3rem; color:hsl(var(--primary))">Painel Desenvolvedor</h1>
-        <p style="font-size:1.2rem; color:rgba(255,255,255,0.8)">Gerencie o sistema WeddingEasy</p>
+        <p style="font-size:1.2rem; color:rgba(255,255,255,0.8)">Gerencie o sistema Planner de Sonhos</p>
       </div>
 
       <div class="dev-stats">

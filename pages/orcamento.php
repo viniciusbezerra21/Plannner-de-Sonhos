@@ -87,7 +87,7 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WeddingEasy</title>
+  <title>Planner de Sonhos</title>
   <link rel="stylesheet" href="../Style/styles.css" />
   <link rel="shortcut icon" href="../Style/assets/icon.png" type="image/x-icon">
   <link
@@ -332,7 +332,7 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="container">
       <div class="header-content">
         <a href="../index.php" class="logo">
-          <span class="logo-text">WeddingEasy</span>
+          <span class="logo-text">Planner de Sonhos</span>
         </a>
 
         <nav class="nav">
@@ -468,7 +468,7 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>
             </div>
-            <span class="logo-text">WeddingEasy</span>
+            <span class="logo-text">Planner de Sonhos</span>
           </a>
           <p class="footer-description">
             A plataforma mais completa para cerimonialistas organizarem casamentos perfeitos. Simplifique sua gestão e encante seus clientes.
@@ -478,7 +478,7 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
               <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
               <polyline points="22,6 12,13 2,6" />
             </svg>
-            <span>contato@weddingeasy.com</span>
+            <span>contato@plannerdesonhos.com</span>
           </div>
         </div>
         <div class="footer-links">
@@ -492,7 +492,7 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
       </div>
 
       <div class="footer-bottom">
-        <p>&copy; 2024 WeddingEasy. Todos os direitos reservados.</p>
+        <p>&copy; 2024 Planner de Sonhos. Todos os direitos reservados.</p>
       </div>
     </div>
   </footer>

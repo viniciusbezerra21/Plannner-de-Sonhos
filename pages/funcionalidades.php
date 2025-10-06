@@ -1,10 +1,41 @@
+<?php
+session_start();
+require_once "../config/conexao.php";
+
+$cookieName = "lembrar_me";
+
+/* --- Restaurar sessão a partir do cookie (seguro: valida no DB) --- */
+if (!isset($_SESSION['id_usuario']) && isset($_COOKIE[$cookieName])) {
+  $cookieUserId = (int) $_COOKIE[$cookieName];
+  if ($cookieUserId > 0) {
+    $chk = $pdo->prepare("SELECT id_usuario, nome, cargo FROM usuarios WHERE id_usuario = ?");
+    $chk->execute([$cookieUserId]);
+    $u = $chk->fetch(PDO::FETCH_ASSOC);
+    if ($u) {
+      $_SESSION['id_usuario'] = (int)$u['id_usuario'];
+      $_SESSION['nome'] = $u['nome'];
+      $_SESSION['cargo'] = $u['cargo'] ?? 'cliente';
+    } else {
+      // cookie inválido -> remover
+      setcookie($cookieName, "", time() - 3600, "/");
+    }
+  }
+}
+
+/* --- Verifica login --- */
+if (!isset($_SESSION['id_usuario'])) {
+  header("Location: ../user/login.php");
+  exit;
+}
+$idUsuario = (int) $_SESSION['id_usuario'];
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WeddingEasy</title>
+  <title>Planner de Sonhos</title>
   <link rel="stylesheet" href="../Style/styles.css" />
   <link rel="shortcut icon" href="../Style/assets/icon.png" type="image/x-icon">
   <link
@@ -126,47 +157,36 @@
   <header class="header">
     <div class="container">
       <div class="header-content">
-        <!-- Logo -->
         <a href="../index.php" class="logo">
-          <div class="heart-icon">
-            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-              <path
-                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-            </svg>
-          </div>
-          <span class="logo-text">WeddingEasy</span>
+          <span class="logo-text">Planner de Sonhos</span>
         </a>
 
         <nav class="nav">
           <a href="../index.php" class="nav-link">Início</a>
+          <div class="dropdown">
+            <a href="funcionalidades.php" class="nav-link dropdown-toggle">Funcionalidades ▾</a>
+            <div class="dropdown-menu">
+              <a href="calendario.php">Calendário</a>
+              <a href="orcamento.php">Orçamento</a>
+              <a href="gestao-contratos.php">Gestão de Contratos</a>
+              <a href="tarefas.php">Lista de Tarefas</a>
+            </div>
+          </div>
+          <a href="contato.php" class="nav-link">Contato</a>
+
+          <?php if (isset($_SESSION["id_usuario"])): ?>
             <div class="dropdown">
-              <a href="funcionalidades.html" class="nav-link dropdown-toggle">Funcionalidades ▾</a>
-              <div class="dropdown-menu">
-                <a href="calendario.html">Calendário</a>
-                <a href="orcamento.html">Orçamento</a>
-                <a href="gestao-contratos.html">Gestão de Contratos</a>
-                <a href="tarefas.php">Lista de Tarefas</a>
+              <img src="../user/fotos/<?php echo $_SESSION['foto_perfil']; ?>" alt="Foto de perfil" class="user-avatar" />
+              <div class="dropdown-menu" id="profileDropdown">
+                <a href="../user/perfil.php">Meu Perfil</a>
+                <form method="post" style="margin: 0">
+                  <button type="submit" name="logout" style="all: unset; cursor: pointer">Sair</button>
+                </form>
               </div>
             </div>
-
-            <a href="contato.html" class="nav-link">Contato</a> 
+          <?php else: ?>
             <a href="../user/login.php" class="btn-primary" style="align-items: center">Login</a>
-           </nav>
-        <button id="hamburgerBtn" class="mobile-menu-btn" onclick="toggleMobileMenu()">
-          <span class="hamburger-line"></span>
-          <span class="hamburger-line"></span>
-          <span class="hamburger-line"></span>
-        </button>
-      </div>
-      <div id="mobileMenu" class="mobile-menu">
-        <nav style="display: flex; flex-direction: column; gap: 1rem; padding: 1rem 0; border-top: 1px solid hsl(var(--border)); margin-top: 0.5rem;">
-          <a href="../index.php" class="nav-link" style="padding: 0.5rem 0">Início</a>
-          <a href="funcionalidades.html" class="nav-link" style="padding: 0.5rem 0">Funcionalidades</a>
- 
-            <a href="contato.html" class="nav-link" style="padding: 0.5rem 0">Contato</a>
-
-            
-            <a href="login.php" class="btn-primary" style="align-items: center">Login</a>
+          <?php endif; ?>
         </nav>
       </div>
     </div>
@@ -180,7 +200,7 @@
             <span class="gradient-text">diferença</span>
           </h1>
           <p class="page-description">
-            Descubra todas as ferramentas que o WeddingEasy oferece para
+            Descubra todas as ferramentas que o Planner de Sonhos oferece para
             tornar o planejamento do seu casamento uma experiência única e sem
             estresse.
           </p>
@@ -230,7 +250,7 @@
                 </ul>
               </div>
             </a>
-            <a href="orcamento.html">
+            <a href="orcamento.php">
                 <div class="feature-detailed-card">
                   <div class="feature-detailed-header">
                     <div class="feature-icon dollar-icon">
@@ -274,7 +294,7 @@
                   </ul>
                 </div>
                 </a>
-                <a href="gestao-contratos.html">
+                <a href="gestao-contratos.php">
                     <div class="feature-detailed-card">
                       <div class="feature-detailed-header">
                         <div class="feature-icon file-icon">
@@ -319,7 +339,7 @@
                       </ul>
                     </div>
                     </a>
-                    <a href="tarefas.html">
+                    <a href="tarefas.php">
                         <div class="feature-detailed-card">
                           <div class="feature-detailed-header">
                             <div class="feature-icon check-icon">
@@ -365,7 +385,7 @@
       </div>
       </a>
       <div class="features-cta">
-        <h2 class="cta-title">Por que escolher o WeddingEasy?</h2>
+        <h2 class="cta-title">Por que escolher o Planner de Sonhos?</h2>
         <p class="cta-description">
           Mais de 10.000 casais já confiaram em nós para organizar o dia
           mais importante de suas vidas.
@@ -412,7 +432,7 @@
                   d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>
             </div>
-            <span class="logo-text">WeddingEasy</span>
+            <span class="logo-text">Planner de Sonhos</span>
           </a>
           <p class="footer-description">
             A plataforma mais completa para cerimonialistas organizarem
@@ -424,7 +444,7 @@
               <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
               <polyline points="22,6 12,13 2,6" />
             </svg>
-            <span>contato@weddingeasy.com</span>
+            <span>contato@plannerdesonhos.com</span>
           </div>
         </div>
         <div class="footer-links">
@@ -432,10 +452,10 @@
           <ul>
             <li><a href="../index.php">Início</a></li>
             <li>
-              <a href="funcionalidades.html">Funcionalidades</a>
+              <a href="funcionalidades.php">Funcionalidades</a>
             </li>
             <li>
-                <a href="contato.html">Contato</a>
+                <a href="contato.php">Contato</a>
                 <a href="#" onclick="openLoginModal()"></a>
             </li>
           </ul>
@@ -450,7 +470,7 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <p>&copy; 2024 WeddingEasy. Todos os direitos reservados.</p>
+        <p>&copy; 2024 Planner de Sonhos. Todos os direitos reservados.</p>
       </div>
     </div>
     <div id="loginModal" class="login-modal">

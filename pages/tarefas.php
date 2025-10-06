@@ -74,7 +74,7 @@ $tarefas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WeddingEasy</title>
+  <title>Planner de Sonhos</title>
   <link rel="stylesheet" href="../Style/styles.css" />
   <link rel="shortcut icon" href="../Style/assets/icon.png" type="image/x-icon" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet" />
@@ -179,7 +179,7 @@ $tarefas = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="container">
       <div class="header-content">
         <a href="../index.php" class="logo">
-          <span class="logo-text">WeddingEasy</span>
+          <span class="logo-text">Planner de Sonhos</span>
         </a>
 
         <nav class="nav">
@@ -296,7 +296,7 @@ $tarefas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
   <footer>
     <div class="footer-bottom">
-      <p>&copy; 2024 WeddingEasy. Todos os direitos reservados.</p>
+      <p>&copy; 2024 Planner de Sonhos. Todos os direitos reservados.</p>
     </div>
   </footer>
 
