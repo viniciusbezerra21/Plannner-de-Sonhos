@@ -309,8 +309,8 @@ $foto_perfil = $usuario["foto_perfil"] ?? "default.png";
         <nav class="nav">
           <a href="../index.php" class="nav-link">Início</a>
           <a href="perfil.php" class="nav-link">Perfil</a>
-          <a href="../pages/calendario.html" class="nav-link">Calendario</a>
-          <a href="../pages/orcamento.html" class="nav-link">Orçamento</a>
+          <a href="../pages/calendario.php" class="nav-link">Calendario</a>
+          <a href="../pages/orcamento.php" class="nav-link">Orçamento</a>
         </nav>
         <button id="hamburgerBtn" class="mobile-menu-btn" onclick="toggleMobileMenu()">
           <span class="hamburger-line"></span>
@@ -321,8 +321,8 @@ $foto_perfil = $usuario["foto_perfil"] ?? "default.png";
       <div id="mobileMenu" class="mobile-menu">
         <a href="../index.php" class="nav-link">Início</a>
         <a href="perfil.php" class="nav-link">Perfil</a>
-        <a href="../pages/calendario.html" class="nav-link">Calendario</a>
-        <a href="../pages/orcamento.html" class="nav-link">Orçamento</a>
+        <a href="../pages/calendario.php" class="nav-link">Calendario</a>
+        <a href="../pages/orcamento.php" class="nav-link">Orçamento</a>
       </div>
     </div>
   </header>
@@ -490,8 +490,8 @@ $foto_perfil = $usuario["foto_perfil"] ?? "default.png";
         <ul>
           <li><a href="../index.php">Início</a></li>
           <li><a href="perfil.php">Perfil</a></li>
-          <li><a href="../pages/calendario.html">Calendario</a></li>
-          <li><a href="../pages/orcamento.html">Orçamento</a></li>
+          <li><a href="../pages/calendario.php">Calendario</a></li>
+          <li><a href="../pages/orcamento.php">Orçamento</a></li>
         </ul>
       </div>
       <div class="footer-modules">

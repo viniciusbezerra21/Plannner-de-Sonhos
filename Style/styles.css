@@ -1687,6 +1687,12 @@ p {
   height: 1rem;
 }
 
+.event-type.azul { background-color: #007bff; }
+.event-type.vermelho { background-color: #dc3545; }
+.event-type.verde { background-color: #28a745; }
+.event-type.amarelo { background-color: #ffc107; }
+.event-type.rosa { background-color: #e83e8c; }
+
 .event-type {
   padding: 0.25rem 0.5rem;
   border-radius: 9999px;

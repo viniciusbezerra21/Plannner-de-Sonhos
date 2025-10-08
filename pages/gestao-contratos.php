@@ -268,15 +268,15 @@ $contratos = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <nav class="nav">
           <a href="../index.php" class="nav-link">Início</a>
           <div class="dropdown">
-            <a href="funcionalidades.html" class="nav-link dropdown-toggle">Funcionalidades ▾</a>
+            <a href="funcionalidades.php" class="nav-link dropdown-toggle">Funcionalidades ▾</a>
             <div class="dropdown-menu">
-              <a href="calendario.html">Calendário</a>
+              <a href="calendario.php">Calendário</a>
               <a href="orcamento.php">Orçamento</a>
               <a href="gestao-contratos.php">Gestão de Contratos</a>
               <a href="tarefas.php">Lista de Tarefas</a>
             </div>
           </div>
-          <a href="contato.html" class="nav-link">Contato</a>
+          <a href="contato.php" class="nav-link">Contato</a>
 
           <?php if (isset($_SESSION["id_usuario"])): ?>
             <div class="dropdown">

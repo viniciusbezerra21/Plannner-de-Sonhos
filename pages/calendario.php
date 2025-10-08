@@ -1,10 +1,106 @@
+<?php
+session_start();
+require_once "../config/conexao.php";
+
+$cookieName = "lembrar_me";
+
+/* ------------------------
+   🔐 LOGIN POR COOKIE
+-------------------------*/
+if (!isset($_SESSION['id_usuario']) && isset($_COOKIE[$cookieName])) {
+  $usuarioId = (int) $_COOKIE[$cookieName]; // garante que é inteiro
+
+  $stmt = $pdo->prepare("SELECT id_usuario FROM usuarios WHERE id_usuario = ?");
+  $stmt->execute([$usuarioId]);
+  $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  if ($user) {
+    $_SESSION['id_usuario'] = $user['id_usuario'];
+    $_SESSION['foto_perfil'] = $user['foto_perfil'] ?: "default.png";
+  } else {
+    // cookie inválido → limpa
+    setcookie($cookieName, "", time() - 3600, "/");
+  }
+}
+
+/* ------------------------
+   🔑 VERIFICA LOGIN
+-------------------------*/
+if (!isset($_SESSION['id_usuario'])) {
+  header("Location: ../user/login.php");
+  exit;
+}
+
+$idUsuario = (int) $_SESSION['id_usuario'];
+
+/* ------------------------
+   🚪 LOGOUT
+-------------------------*/
+if (isset($_POST['logout'])) {
+  session_destroy();
+  setcookie($cookieName, "", time() - 3600, "/"); // apaga cookie
+  header("Location: ../user/login.php");
+  exit;
+}
+
+/* ------------------------
+   🚪 LOGOUT
+-------------------------*/
+if (isset($_POST['logout'])) {
+  session_destroy();
+  setcookie($cookieName, "", time() - 3600, "/");
+  header("Location: ../user/login.php");
+  exit;
+}
+
+/* ------------------------
+   📅 BUSCAR EVENTOS DO USUÁRIO
+-------------------------*/
+try {
+  $stmt = $pdo->prepare("SELECT 
+    id_evento,
+    id_usuario,
+    nome_evento,
+    descricao,
+    data_evento,
+    horario,
+    local,
+    status,
+    COALESCE(prioridade, 'media') as prioridade,
+    COALESCE(cor_tag, 'azul') as cor_tag,
+    data_criacao
+    FROM eventos 
+    WHERE id_usuario = ? 
+    ORDER BY data_evento ASC, horario ASC");
+  $stmt->execute([$idUsuario]);
+  $eventos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+  // If columns don't exist, try without them
+  $stmt = $pdo->prepare("SELECT * FROM eventos WHERE id_usuario = ? ORDER BY data_evento ASC, horario ASC");
+  $stmt->execute([$idUsuario]);
+  $eventos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+  
+  // Add default values for missing columns
+  foreach ($eventos as &$evento) {
+    if (!isset($evento['prioridade'])) {
+      $evento['prioridade'] = 'media';
+    }
+    if (!isset($evento['cor_tag'])) {
+      $evento['cor_tag'] = 'azul';
+    }
+  }
+}
+
+// Converter eventos para JSON para uso no JavaScript
+$eventosJson = json_encode($eventos);
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Planner de Sonhos</title>
+  <title>Planner de Sonhos - Calendário</title>
   <link rel="stylesheet" href="../Style/styles.css" />
   <link
     href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto:wght@300;400;500&display=swap"
@@ -236,6 +332,129 @@
       background: hsl(var(--accent));
     }
 
+    /* Added search bar transition styles */
+    .search-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+    
+    .search-input {
+      width: 0;
+      opacity: 0;
+      padding: 0;
+      border: none;
+      transition: all 0.3s ease;
+      overflow: hidden;
+    }
+    
+    .search-input.expanded {
+      width: 200px;
+      opacity: 1;
+      padding: 0.5rem 1rem;
+      border: 1px solid hsl(var(--border));
+      border-radius: 0.5rem;
+      margin-right: 0.5rem;
+    }
+    
+    .action-btn {
+      background: none;
+      border: none;
+      padding: 0.5rem;
+      cursor: pointer;
+      border-radius: 0.5rem;
+      transition: background-color 0.2s;
+    }
+    
+    .action-btn:hover {
+      background: hsl(var(--accent));
+    }
+    
+    /* Added filter modal styles */
+    .filter-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .filter-modal.active {
+      display: flex;
+    }
+    
+    .filter-content {
+      background: white;
+      border-radius: 1rem;
+      padding: 2rem;
+      max-width: 500px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    
+    .filter-group {
+      margin-bottom: 1.5rem;
+    }
+    
+    .filter-group label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: hsl(var(--foreground));
+    }
+    
+    .filter-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    
+    .filter-chip {
+      padding: 0.5rem 1rem;
+      border: 1px solid hsl(var(--border));
+      border-radius: 2rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: white;
+    }
+    
+    .filter-chip:hover {
+      background: hsl(var(--accent));
+    }
+    
+    .filter-chip.active {
+      background: hsl(var(--primary));
+      color: white;
+      border-color: hsl(var(--primary));
+    }
+    
+    .color-chip {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.2s;
+    }
+    
+    .color-chip.active {
+      border-color: #000;
+      transform: scale(1.2);
+    }
+    
+    .color-chip.azul { background-color: #3b82f6; }
+    .color-chip.vermelho { background-color: #ef4444; }
+    .color-chip.verde { background-color: #10b981; }
+    .color-chip.amarelo { background-color: #f59e0b; }
+    .color-chip.rosa { background-color: #ec4899; }
+
     @media (max-width: 768px) {
       .user-profile {
         order: -1;
@@ -249,6 +468,47 @@
 </head>
 
 <body>
+  <!-- Added filter modal -->
+  <div class="filter-modal" id="filter-modal">
+    <div class="filter-content card-modal">
+      <h2 class="text-primary">Filtrar Eventos</h2>
+      
+      <div class="filter-group">
+        <label>Prioridade</label>
+        <div class="filter-options">
+          <div class="filter-chip" data-filter="prioridade" data-value="alta">Alta</div>
+          <div class="filter-chip" data-filter="prioridade" data-value="media">Média</div>
+          <div class="filter-chip" data-filter="prioridade" data-value="baixa">Baixa</div>
+        </div>
+      </div>
+      
+      <div class="filter-group">
+        <label>Cor da Tag</label>
+        <div class="filter-options">
+          <div class="color-chip azul" data-filter="cor" data-value="azul" title="Azul"></div>
+          <div class="color-chip vermelho" data-filter="cor" data-value="vermelho" title="Vermelho"></div>
+          <div class="color-chip verde" data-filter="cor" data-value="verde" title="Verde"></div>
+          <div class="color-chip amarelo" data-filter="cor" data-value="amarelo" title="Amarelo"></div>
+          <div class="color-chip rosa" data-filter="cor" data-value="rosa" title="Rosa"></div>
+        </div>
+      </div>
+      
+      <div class="filter-group">
+        <label>Status</label>
+        <div class="filter-options">
+          <div class="filter-chip" data-filter="status" data-value="pendente">Pendente</div>
+          <div class="filter-chip" data-filter="status" data-value="concluido">Concluído</div>
+        </div>
+      </div>
+      
+      <div class="form-row" style="margin-top: 2rem;">
+        <button class="btn-primary" id="apply-filters">Aplicar Filtros</button>
+        <button class="btn-outline" id="clear-filters">Limpar Filtros</button>
+        <button class="btn-outline" id="close-filter-modal">Fechar</button>
+      </div>
+    </div>
+  </div>
+
   <div class="create-event-modal" id="janela-modal-prioridade">
     <form class="card-modal contact-form">
       <h1>Definir Prioridade</h1>
@@ -345,48 +605,36 @@
   <header class="header">
     <div class="container">
       <div class="header-content">
-        <!-- Logo -->
-        <a href="../index.html" class="logo">
-          <div class="heart-icon">
-            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-              <path
-                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-            </svg>
-          </div>
+        <a href="../index.php" class="logo">
           <span class="logo-text">Planner de Sonhos</span>
         </a>
 
         <nav class="nav">
-          <a href="../index.html" class="nav-link">Início</a>
+          <a href="../index.php" class="nav-link">Início</a>
           <div class="dropdown">
-            <a href="funcionalidades.html" class="nav-link dropdown-toggle">Funcionalidades ▾</a>
+            <a href="funcionalidades.php" class="nav-link dropdown-toggle">Funcionalidades ▾</a>
             <div class="dropdown-menu">
-              <a href="calendario.html">Calendário</a>
-              <a href="orcamento.html">Orçamento</a>
-              <a href="gestao-contratos.html">Gestão de Contratos</a>
-              <a href="tarefas.html">Lista de Tarefas</a>
+              <a href="calendario.php">Calendário</a>
+              <a href="orcamento.php">Orçamento</a>
+              <a href="gestao-contratos.php">Gestão de Contratos</a>
+              <a href="tarefas.php">Lista de Tarefas</a>
             </div>
           </div>
+          <a href="contato.php" class="nav-link">Contato</a>
 
-          <a href="contato.html" class="nav-link">Contato</a>
-          <a href="../user/login.html" class="btn-primary" style="align-items: center">Login</a>
-        </nav>
-        <button id="hamburgerBtn" class="mobile-menu-btn" onclick="toggleMobileMenu()">
-          <span class="hamburger-line"></span>
-          <span class="hamburger-line"></span>
-          <span class="hamburger-line"></span>
-        </button>
-      </div>
-      <div id="mobileMenu" class="mobile-menu">
-        <nav
-          style="display: flex; flex-direction: column; gap: 1rem; padding: 1rem 0; border-top: 1px solid hsl(var(--border)); margin-top: 0.5rem;">
-          <a href="../index.html" class="nav-link" style="padding: 0.5rem 0">Início</a>
-          <a href="funcionalidades.html" class="nav-link" style="padding: 0.5rem 0">Funcionalidades</a>
-
-          <a href="contato.html" class="nav-link" style="padding: 0.5rem 0">Contato</a>
-
-
-          <a href="login.html" class="btn-primary" style="align-items: center">Login</a>
+          <?php if (isset($_SESSION["id_usuario"])): ?>
+            <div class="dropdown">
+              <img src="../user/fotos/<?php echo $_SESSION['foto_perfil']; ?>" alt="Foto de perfil" class="user-avatar" />
+              <div class="dropdown-menu">
+                <a href="../user/perfil.php">Meu Perfil</a>
+                <form method="post" style="margin: 0">
+                  <button type="submit" name="logout" style="all: unset; cursor: pointer">Sair</button>
+                </form>
+              </div>
+            </div>
+          <?php else: ?>
+            <a href="../user/login.php" class="btn-primary" style="align-items: center">Login</a>
+          <?php endif; ?>
         </nav>
       </div>
     </div>
@@ -537,17 +785,24 @@
                       <polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46 22,3" />
                     </svg>
                   </button>
-                  <button type="button" class="action-btn" id="search-btn">
-                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                      <circle cx="11" cy="11" r="8" />
-                      <path d="M21 21l-4.35-4.35" />
-                    </svg>
-                  </button>
-                  <input type="text" class="search-input" id="search-input" placeholder="Buscar eventos..." />
+                  <!-- Modified search button and input for transition effect -->
+                  <div class="search-container">
+                    <input type="text" class="search-input" id="search-input" placeholder="Buscar eventos..." />
+                    <button type="button" class="action-btn" id="search-btn">
+                      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <circle cx="11" cy="11" r="8" />
+                        <path d="M21 21l-4.35-4.35" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
               </div>
               <div class="events-list">
-
+                <ul id="eventList">
+                  <?php foreach ($eventos as $evento): ?>
+                    
+                  <?php endforeach; ?>
+                </ul>
               </div>
             </div>
           </div>
@@ -663,7 +918,7 @@
     <div class="container">
       <div class="footer-content">
         <div class="footer-brand">
-          <a href="../index.html" class="logo">
+          <a href="../index.php" class="logo">
             <div class="heart-icon">
               <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
                 <path
@@ -688,9 +943,9 @@
         <div class="footer-links">
           <h3>Links Rápidos</h3>
           <ul>
-            <li><a href="../index.html">Início</a></li>
+            <li><a href="../index.php">Início</a></li>
             <li><a href="funcionalidades.html">Funcionalidades</a></li>
-            <li><a href="contato.html">Contato</a></li>
+            <li><a href="contato.php">Contato</a></li>
           </ul>
         </div>
         <div class="footer-modules">
@@ -711,6 +966,10 @@
       </div>
     </div>
   </footer>
+  <script>
+    const eventosFromDB = <?php echo $eventosJson; ?>;
+    const userId = <?php echo $idUsuario; ?>;
+  </script>
   <script src="../js/calendario.js"></script>
   <script>
     function toggleMobileMenu() {
@@ -777,6 +1036,130 @@
             options.style.display = "none";
           }
         });
+      });
+    });
+    
+    const searchBtn = document.getElementById('search-btn');
+    const searchInput = document.getElementById('search-input');
+    
+    searchBtn.addEventListener('click', () => {
+      searchInput.classList.toggle('expanded');
+      if (searchInput.classList.contains('expanded')) {
+        searchInput.focus();
+      }
+    });
+    
+    // Close search when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!searchBtn.contains(e.target) && !searchInput.contains(e.target)) {
+        searchInput.classList.remove('expanded');
+      }
+    });
+    
+    const filterBtn = document.getElementById('filter-btn');
+    const filterModal = document.getElementById('filter-modal');
+    const closeFilterBtn = document.getElementById('close-filter-modal');
+    const applyFiltersBtn = document.getElementById('apply-filters');
+    const clearFiltersBtn = document.getElementById('clear-filters');
+    
+    let activeFilters = {
+      prioridade: [],
+      cor: [],
+      status: []
+    };
+    
+    filterBtn.addEventListener('click', () => {
+      filterModal.classList.add('active');
+    });
+    
+    closeFilterBtn.addEventListener('click', () => {
+      filterModal.classList.remove('active');
+    });
+    
+    // Toggle filter chips
+    document.querySelectorAll('.filter-chip, .color-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        chip.classList.toggle('active');
+      });
+    });
+    
+    applyFiltersBtn.addEventListener('click', () => {
+      // Collect active filters
+      activeFilters = {
+        prioridade: [],
+        cor: [],
+        status: []
+      };
+      
+      document.querySelectorAll('.filter-chip.active, .color-chip.active').forEach(chip => {
+        const filterType = chip.dataset.filter;
+        const filterValue = chip.dataset.value;
+        activeFilters[filterType].push(filterValue);
+      });
+      
+      // Apply filters to events list
+      filtrarEventos(activeFilters);
+      filterModal.classList.remove('active');
+    });
+    
+    clearFiltersBtn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-chip, .color-chip').forEach(chip => {
+        chip.classList.remove('active');
+      });
+      activeFilters = { prioridade: [], cor: [], status: [] };
+      filtrarEventos(activeFilters);
+    });
+    
+    // Filter events function
+    function filtrarEventos(filters) {
+      const eventItems = document.querySelectorAll('.event-item');
+      
+      eventItems.forEach(item => {
+        let shouldShow = true;
+        
+        // Check prioridade filter
+        if (filters.prioridade.length > 0) {
+          const itemPrioridade = item.dataset.prioridade;
+          if (!filters.prioridade.includes(itemPrioridade)) {
+            shouldShow = false;
+          }
+        }
+        
+        // Check cor filter
+        if (filters.cor.length > 0) {
+          const itemCor = item.dataset.cor;
+          if (!filters.cor.includes(itemCor)) {
+            shouldShow = false;
+          }
+        }
+        
+        // Check status filter
+        if (filters.status.length > 0) {
+          const itemStatus = item.dataset.status;
+          if (!filters.status.includes(itemStatus)) {
+            shouldShow = false;
+          }
+        }
+        
+        item.style.display = shouldShow ? 'flex' : 'none';
+      });
+    }
+    
+    // Search functionality
+    searchInput.addEventListener('input', (e) => {
+      const searchTerm = e.target.value.toLowerCase();
+      const eventItems = document.querySelectorAll('.event-item');
+      
+      eventItems.forEach(item => {
+        const eventTitle = item.querySelector('#nomeEvento')?.textContent.toLowerCase() || '';
+        const eventLocation = item.querySelector('#localEvento')?.textContent.toLowerCase() || '';
+        const eventTag = item.querySelector('#tagEvento')?.textContent.toLowerCase() || '';
+        
+        if (eventTitle.includes(searchTerm) || eventLocation.includes(searchTerm) || eventTag.includes(searchTerm)) {
+          item.style.display = 'flex';
+        } else {
+          item.style.display = 'none';
+        }
       });
     });
   </script>

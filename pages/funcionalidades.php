@@ -206,7 +206,7 @@ $idUsuario = (int) $_SESSION['id_usuario'];
           </p>
         </div>
             <div class="features-detailed-grid">
-              <a href="calendario.html">
+              <a href="calendario.php">
               <div class="feature-detailed-card">
                 <div class="feature-detailed-header">
                   <div class="feature-icon calendar-icon">

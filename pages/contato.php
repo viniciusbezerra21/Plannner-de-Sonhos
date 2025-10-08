@@ -1,14 +1,20 @@
 <?php
+session_start();
 require_once '../config/conexao.php';
 
 $success = false;
 $error = false;
 $errorMessage = '';
 
+$loggedInEmail = $_SESSION['email'] ?? '';
+$loggedInName = $_SESSION['nome'] ?? '';
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Sanitize and validate input
     $nome = trim($_POST['name'] ?? '');
     $email = trim($_POST['email'] ?? '');
+    $telefone = trim($_POST['phone'] ?? '');
+    $assunto = trim($_POST['subject'] ?? '');
     $mensagem = trim($_POST['message'] ?? '');
     
     // Basic validation
@@ -20,11 +26,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errorMessage = 'Por favor, insira um e-mail válido.';
     } else {
         try {
-            // Insert into database
-            $stmt = $pdo->prepare("INSERT INTO contatos (nome, email, mensagem, data_envio) VALUES (:nome, :email, :mensagem, NOW())");
+            $stmt = $pdo->prepare("INSERT INTO contatos (nome, email, telefone, assunto, mensagem, data_envio) VALUES (:nome, :email, :telefone, :assunto, :mensagem, NOW())");
             $stmt->execute([
                 ':nome' => $nome,
                 ':email' => $email,
+                ':telefone' => $telefone,
+                ':assunto' => $assunto,
                 ':mensagem' => $mensagem
             ]);
             
@@ -222,11 +229,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <nav class="nav">
           <a href="../index.php" class="nav-link">Início</a>
             <div class="dropdown">
-              <a href="funcionalidades.html" class="nav-link dropdown-toggle">Funcionalidades ▾</a>
+              <a href="funcionalidades.php" class="nav-link dropdown-toggle">Funcionalidades ▾</a>
               <div class="dropdown-menu">
-                <a href="calendario.html">Calendário</a>
-                <a href="orcamento.html">Orçamento</a>
-                <a href="gestao-contratos.html">Gestão de Contratos</a>
+                <a href="calendario.php">Calendário</a>
+                <a href="orcamento.php">Orçamento</a>
+                <a href="gestao-contratos.php">Gestão de Contratos</a>
                 <a href="tarefas.php">Lista de Tarefas</a>
               </div>
             </div>
@@ -243,7 +250,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <div id="mobileMenu" class="mobile-menu">
         <nav style="display: flex; flex-direction: column; gap: 1rem; padding: 1rem 0; border-top: 1px solid hsl(var(--border)); margin-top: 0.5rem;">
           <a href="../index.php" class="nav-link" style="padding: 0.5rem 0">Início</a>
-          <a href="funcionalidades.html" class="nav-link" style="padding: 0.5rem 0">Funcionalidades</a>
+          <a href="funcionalidades.php" class="nav-link" style="padding: 0.5rem 0">Funcionalidades</a>
  
             <a href="contato.php" class="nav-link" style="padding: 0.5rem 0">Contato</a>
 
@@ -311,11 +318,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               <div class="form-row">
                 <div class="form-group">
                   <label for="name">Nome Completo</label>
-                  <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($_POST['name'] ?? ''); ?>" required />
+                  <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($loggedInName ?: ($_POST['name'] ?? '')); ?>" required />
                 </div>
                 <div class="form-group">
                   <label for="email">E-mail</label>
-                  <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>" required />
+                  <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    value="<?php echo htmlspecialchars($loggedInEmail ?: ($_POST['email'] ?? '')); ?>" 
+                    <?php echo $loggedInEmail ? 'readonly' : ''; ?>
+                    required 
+                  />
                 </div>
               </div>
               <div class="form-row">
