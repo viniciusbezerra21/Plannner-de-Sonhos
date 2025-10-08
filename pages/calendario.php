@@ -1068,12 +1068,6 @@ $eventosJson = json_encode($eventos);
       status: []
     };
     
-    window.addEventListener('click' (e) => {
-      if (!filterModal.contains(e.target)) {
-        filterModal.classList.remove('active');
-      }
-    })
-
     filterBtn.addEventListener('click', () => {
       filterModal.classList.add('active');
     });
@@ -1168,8 +1162,6 @@ $eventosJson = json_encode($eventos);
         }
       });
     });
-
-
   </script>
 </body>
 
