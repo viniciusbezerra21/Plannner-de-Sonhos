@@ -1067,6 +1067,12 @@ $eventosJson = json_encode($eventos);
       cor: [],
       status: []
     };
+
+    window.addEventListener('click', (e) => {
+      if (e.target === filterModal) {
+        filterModal.classList.remove('active');
+      }
+    })
     
     filterBtn.addEventListener('click', () => {
       filterModal.classList.add('active');
