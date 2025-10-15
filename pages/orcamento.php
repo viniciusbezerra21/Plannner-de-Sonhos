@@ -270,6 +270,133 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     .rating-form {
       display: inline-block;
+    } 
+    .profile-dropdown-wrapper {
+      position: relative;
+    }
+
+    .profile-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+      object-fit: cover;
+    }
+
+    .profile-avatar:hover {
+      border-color: hsl(var(--primary));
+      transform: scale(1.05);
+    }
+
+    .profile-dropdown {
+      position: absolute;
+      top: calc(100% + 0.5rem);
+      right: 0;
+      background: hsl(var(--card));
+      border: 1px solid hsl(var(--border));
+      border-radius: 0.75rem;
+      min-width: 280px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+      z-index: 1000;
+      overflow: hidden;
+    }
+
+    .profile-dropdown.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .profile-dropdown-header {
+      padding: 1.25rem;
+      border-bottom: 1px solid hsl(var(--border));
+      background: linear-gradient(135deg, hsl(var(--primary) / 0.05), hsl(var(--secondary) / 0.05));
+    }
+
+    .profile-dropdown-user {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .profile-dropdown-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid hsl(var(--primary));
+    }
+
+    .profile-dropdown-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .profile-dropdown-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: hsl(var(--foreground));
+      margin-bottom: 0.125rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .profile-dropdown-email {
+      font-size: 0.8rem;
+      color: hsl(var(--muted-foreground));
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .profile-dropdown-menu {
+      padding: 0.5rem;
+    }
+
+    .profile-dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      color: hsl(var(--foreground));
+      text-decoration: none;
+      border-radius: 0.5rem;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .profile-dropdown-item:hover {
+      background: hsl(var(--muted));
+      transform: translateX(4px);
+    }
+
+    .profile-dropdown-item svg {
+      width: 18px;
+      height: 18px;
+      stroke-width: 2;
+    }
+
+    .profile-dropdown-item.logout {
+      color: hsl(var(--destructive));
+      border-top: 1px solid hsl(var(--border));
+      margin-top: 0.5rem;
+      padding-top: 1rem;
+    }
+
+    .profile-dropdown-item.logout:hover {
+      background: hsl(var(--destructive) / 0.1);
+    }
+
+    .profile-dropdown-item.logout svg {
+      stroke: hsl(var(--destructive));
     }
   </style>
 </head>
@@ -349,15 +476,63 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
           <a href="contato.php" class="nav-link">Contato</a>
 
           <?php if (isset($_SESSION["usuario_id"])): ?>
-            <div class="dropdown">
-              <img src="../user/fotos/<?php echo $_SESSION['foto_perfil']; ?>" alt="Foto de perfil" class="user-avatar" />
-              <div class="dropdown-menu" id="profileDropdown">
-                <a href="../user/perfil.php">Meu Perfil</a>
-                <form method="post" style="margin: 0">
-                  <button type="submit" name="logout" style="all: unset; cursor: pointer">Sair</button>
-                </form>
+            <div class="profile-dropdown-wrapper">
+              <img 
+                src="user/fotos/<?php echo htmlspecialchars($_SESSION['foto_perfil'] ?? 'default.png'); ?>"
+                alt="Foto de perfil"
+                class="profile-avatar"
+                onclick="toggleProfileDropdown()"
+              >
+              <div class="profile-dropdown" id="profileDropdown">
+                <div class="profile-dropdown-header">
+                  <div class="profile-dropdown-user">
+                    <img 
+                      src="user/fotos/<?php echo htmlspecialchars($_SESSION['foto_perfil'] ?? 'default.png'); ?>" 
+                      alt="Avatar" 
+                      class="profile-dropdown-avatar"
+                    >
+                    <div class="profile-dropdown-info">
+                      <!-- Fixed to properly display user name and email -->
+                      <div class="profile-dropdown-name">
+                        <?php echo htmlspecialchars($user_data['nome']); ?>
+                      </div>
+                      <div class="profile-dropdown-email">
+                        <?php echo htmlspecialchars($user_data['email']); ?>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="profile-dropdown-menu">
+                  <a href="user/perfil.php" class="profile-dropdown-item">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    Meu Perfil
+                  </a>
+                  <a href="pages/funcionalidades.php" class="profile-dropdown-item">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <rect x="3" y="4" width="7" height="7"></rect>
+                      <rect x="14" y="3" width="7" height="7"></rect>
+                      <rect x="14" y="14" width="7" height="7"></rect>
+                      <rect x="3" y="14" width="7" height="7"></rect>
+                    </svg>
+                    Funcionalidades
+                  </a>
+                  <form method="post" style="margin:0;">
+                    <button type="submit" name="logout" class="profile-dropdown-item logout" style="width: 100%; text-align: left; background: none; border: none; font-family: inherit; font-size: inherit;">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                      </svg>
+                      Sair
+                    </button>
+                  </form>
+                </div>
               </div>
             </div>
+               
           <?php else: ?>
             <a href="../user/login.php" class="btn-primary" style="align-items: center">Login</a>
           <?php endif; ?>
@@ -625,6 +800,13 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
         });
       }
     });
+  </script>
+  <script>
+    function toggleProfileDropdown() {
+      const dropdown = document.getElementById("profileDropdown");
+      dropdown.classList.toggle("active");
+    }
+
   </script>
   <script src="../js/orcamento.js"></script>
 </body>
