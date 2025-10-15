@@ -2,12 +2,40 @@
 session_start();
 require_once '../config/conexao.php';
 
+$cookieName = "lembrar_me";
+
+// Restore session from cookie if needed
+if (!isset($_SESSION['usuario_id']) && isset($_COOKIE[$cookieName])) {
+  $cookieUserId = (int) $_COOKIE[$cookieName];
+  if ($cookieUserId > 0) {
+    $chk = $pdo->prepare("SELECT id_usuario, nome, email, foto_perfil FROM usuarios WHERE id_usuario = ?");
+    $chk->execute([$cookieUserId]);
+    $u = $chk->fetch(PDO::FETCH_ASSOC);
+    if ($u) {
+      $_SESSION['usuario_id'] = (int)$u['id_usuario'];
+      $_SESSION['nome'] = $u['nome'];
+      $_SESSION['email'] = $u['email'];
+      $_SESSION['foto_perfil'] = $u['foto_perfil'] ?: 'default.png';
+    } else {
+      setcookie($cookieName, "", time() - 3600, "/");
+    }
+  }
+}
+
+// Fetch user data if logged in
+$user_data = null;
+if (isset($_SESSION['usuario_id'])) {
+  $stmt = $pdo->prepare("SELECT nome, email, foto_perfil FROM usuarios WHERE id_usuario = ?");
+  $stmt->execute([$_SESSION['usuario_id']]);
+  $user_data = $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
 $success = false;
 $error = false;
 $errorMessage = '';
 
-$loggedInEmail = $_SESSION['email'] ?? '';
-$loggedInName = $_SESSION['nome'] ?? '';
+$loggedInEmail = $user_data['email'] ?? '';
+$loggedInName = $user_data['nome'] ?? '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Sanitize and validate input
@@ -239,7 +267,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
             <a href="contato.php" class="nav-link">Contato</a> 
-            <a href="../user/login.php" class="btn-primary" style="align-items: center">Login</a>
+            <?php if (isset($_SESSION["usuario_id"])): ?>
+              <!-- Added profile dropdown for logged-in users -->
+              <div class="user-profile" onclick="toggleProfileDropdown()">
+                <?php if ($user_data && $user_data['foto_perfil']): ?>
+                  <img src="../user/fotos/<?php echo htmlspecialchars($user_data['foto_perfil']); ?>" alt="Perfil" class="user-avatar">
+                <?php else: ?>
+                  <div class="user-avatar-default">
+                    <?php echo strtoupper(substr($user_data['nome'] ?? 'U', 0, 1)); ?>
+                  </div>
+                <?php endif; ?>
+                
+                <div class="profile-dropdown" id="profileDropdown">
+                  <div class="profile-dropdown-header">
+                    <p class="profile-dropdown-name"><?php echo htmlspecialchars($user_data['nome'] ?? 'Usuário'); ?></p>
+                    <p class="profile-dropdown-email"><?php echo htmlspecialchars($user_data['email'] ?? ''); ?></p>
+                  </div>
+                  <div class="profile-dropdown-menu">
+                    <a href="../user/perfil.php" class="profile-dropdown-item">Meu Perfil</a>
+                    <a href="../index.php" class="profile-dropdown-item">Dashboard</a>
+                    <a href="../user/login.php" class="profile-dropdown-item logout">Sair</a>
+                  </div>
+                </div>
+              </div>
+            <?php else: ?>
+              <a href="../user/login.php" class="btn-primary" style="align-items: center">Login</a>
+            <?php endif; ?>
            </nav>
         <button id="hamburgerBtn" class="mobile-menu-btn" onclick="toggleMobileMenu()">
           <span class="hamburger-line"></span>

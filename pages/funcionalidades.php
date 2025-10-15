@@ -5,14 +5,14 @@ require_once "../config/conexao.php";
 $cookieName = "lembrar_me";
 
 /* --- Restaurar sessão a partir do cookie (seguro: valida no DB) --- */
-if (!isset($_SESSION['id_usuario']) && isset($_COOKIE[$cookieName])) {
+if (!isset($_SESSION['usuario_id']) && isset($_COOKIE[$cookieName])) {
   $cookieUserId = (int) $_COOKIE[$cookieName];
   if ($cookieUserId > 0) {
     $chk = $pdo->prepare("SELECT id_usuario, nome, cargo FROM usuarios WHERE id_usuario = ?");
     $chk->execute([$cookieUserId]);
     $u = $chk->fetch(PDO::FETCH_ASSOC);
     if ($u) {
-      $_SESSION['id_usuario'] = (int)$u['id_usuario'];
+      $_SESSION['usuario_id'] = (int)$u['id_usuario'];
       $_SESSION['nome'] = $u['nome'];
       $_SESSION['cargo'] = $u['cargo'] ?? 'cliente';
     } else {
@@ -23,11 +23,11 @@ if (!isset($_SESSION['id_usuario']) && isset($_COOKIE[$cookieName])) {
 }
 
 /* --- Verifica login --- */
-if (!isset($_SESSION['id_usuario'])) {
+if (!isset($_SESSION['usuario_id'])) {
   header("Location: ../user/login.php");
   exit;
 }
-$idUsuario = (int) $_SESSION['id_usuario'];
+$idUsuario = (int) $_SESSION['usuario_id'];
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -174,7 +174,7 @@ $idUsuario = (int) $_SESSION['id_usuario'];
           </div>
           <a href="contato.php" class="nav-link">Contato</a>
 
-          <?php if (isset($_SESSION["id_usuario"])): ?>
+          <?php if (isset($_SESSION["usuario_id"])): ?>
             <div class="dropdown">
               <img src="../user/fotos/<?php echo $_SESSION['foto_perfil']; ?>" alt="Foto de perfil" class="user-avatar" />
               <div class="dropdown-menu" id="profileDropdown">
@@ -205,219 +205,219 @@ $idUsuario = (int) $_SESSION['id_usuario'];
             estresse.
           </p>
         </div>
-            <div class="features-detailed-grid">
-              <a href="calendario.php">
-              <div class="feature-detailed-card">
-                <div class="feature-detailed-header">
-                  <div class="feature-icon calendar-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                      <line x1="16" y1="2" x2="16" y2="6" />
-                      <line x1="8" y1="2" x2="8" y2="6" />
-                      <line x1="3" y1="10" x2="21" y2="10" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 class="feature-detailed-title">Calendário Inteligente</h3>
-                    <p class="feature-detailed-description">
-                      Organize todas as datas importantes, compromissos com
-                      fornecedores e prazos em um calendário visual e intuitivo.
-                    </p>
-                  </div>
+        <div class="features-detailed-grid">
+          <a href="calendario.php">
+            <div class="feature-detailed-card">
+              <div class="feature-detailed-header">
+                <div class="feature-icon calendar-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                    <line x1="16" y1="2" x2="16" y2="6" />
+                    <line x1="8" y1="2" x2="8" y2="6" />
+                    <line x1="3" y1="10" x2="21" y2="10" />
+                  </svg>
                 </div>
-                <ul class="feature-benefits">
-                  <li>
-                    <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
-                      <path
-                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                    </svg>
-                    Lembretes automáticos
-                  </li>
-                  <li>
-                    <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
-                      <path
-                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                    </svg>
-                    Sincronização com Google Calendar
-                  </li>
-                  <li>
-                    <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
-                      <path
-                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                    </svg>
-                    Visualização mensal/semanal/diária
-                  </li>
-                </ul>
+                <div>
+                  <h3 class="feature-detailed-title">Calendário Inteligente</h3>
+                  <p class="feature-detailed-description">
+                    Organize todas as datas importantes, compromissos com
+                    fornecedores e prazos em um calendário visual e intuitivo.
+                  </p>
+                </div>
               </div>
-            </a>
-            <a href="orcamento.php">
-                <div class="feature-detailed-card">
-                  <div class="feature-detailed-header">
-                    <div class="feature-icon dollar-icon">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <line x1="12" y1="1" x2="12" y2="23" />
-                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 class="feature-detailed-title">
-                        Controle Financeiro Completo
-                      </h3>
-                      <p class="feature-detailed-description">
-                        Gerencie seu orçamento de forma inteligente com relatórios
-                        detalhados e controle de gastos por categoria.
-                      </p>
-                    </div>
-                  </div>
-                  <ul class="feature-benefits">
-                    <li>
-                      <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
-                        <path
-                          d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                      </svg>
-                      Orçamento por categoria
-                    </li>
-                    <li>
-                      <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
-                        <path
-                          d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                      </svg>
-                      Relatórios financeiros
-                    </li>
-                    <li>
-                      <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
-                        <path
-                          d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                      </svg>
-                      Controle de pagamentos
-                    </li>
-                  </ul>
+              <ul class="feature-benefits">
+                <li>
+                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                    <path
+                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  Lembretes automáticos
+                </li>
+                <li>
+                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                    <path
+                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  Sincronização com Google Calendar
+                </li>
+                <li>
+                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                    <path
+                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  Visualização mensal/semanal/diária
+                </li>
+              </ul>
+            </div>
+          </a>
+          <a href="orcamento.php">
+            <div class="feature-detailed-card">
+              <div class="feature-detailed-header">
+                <div class="feature-icon dollar-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <line x1="12" y1="1" x2="12" y2="23" />
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                  </svg>
                 </div>
-                </a>
-                <a href="gestao-contratos.php">
-                    <div class="feature-detailed-card">
-                      <div class="feature-detailed-header">
-                        <div class="feature-icon file-icon">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                            <polyline points="14,2 14,8 20,8" />
-                            <line x1="16" y1="13" x2="8" y2="13" />
-                            <line x1="16" y1="17" x2="8" y2="17" />
-                            <polyline points="10,9 9,9 8,9" />
-                          </svg>
-                        </div>
-                        <div>
-                          <h3 class="feature-detailed-title">Gestão de Contratos</h3>
-                          <p class="feature-detailed-description">
-                            Centralize todos os contratos e documentos importantes em um
-                            local seguro e organizado.
-                          </p>
-                        </div>
-                      </div>
-                      <ul class="feature-benefits">
-                        <li>
-                          <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
-                            <path
-                              d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                          </svg>
-                          Armazenamento seguro
-                        </li>
-                        <li>
-                          <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
-                            <path
-                              d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                          </svg>
-                          Lembretes de vencimento
-                        </li>
-                        <li>
-                          <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
-                            <path
-                              d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                          </svg>
-                          Assinatura digital
-                        </li>
-                      </ul>
-                    </div>
-                    </a>
-                    <a href="tarefas.php">
-                        <div class="feature-detailed-card">
-                          <div class="feature-detailed-header">
-                            <div class="feature-icon check-icon">
-                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path d="M9 11l3 3L22 4" />
-                                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-                              </svg>
-                            </div>
-                            <div>
-                              <h3 class="feature-detailed-title">
-                                Lista de Tarefas Inteligente
-                              </h3>
-                              <p class="feature-detailed-description">
-                                Sistema completo de checklist com tarefas pré-definidas e
-                                personalizáveis para cada etapa do planejamento.
-                              </p>
-                            </div>
-                          </div>
-                          <ul class="feature-benefits">
-                            <li>
-                              <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
-                                <path
-                                  d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                              </svg>
-                              Templates prontos
-                            </li>
-                            <li>
-                              <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
-                                <path
-                                  d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                              </svg>
-                              Priorização de tarefas
-                            </li>
-                            <li>
-                              <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
-                                <path
-                                  d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                              </svg>
-                              Progresso visual
-                            </li>
-                          </ul>
-                        </div>
-      </div>
-      </a>
-      <div class="features-cta">
-        <h2 class="cta-title">Por que escolher o Planner de Sonhos?</h2>
-        <p class="cta-description">
-          Mais de 10.000 casais já confiaram em nós para organizar o dia
-          mais importante de suas vidas.
-        </p>
-        <div class="benefits-grid">
-          <div class="benefit-item">
-            <svg class="clock-icon" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--foreground))">
-              <circle cx="12" cy="12" r="10" />
-              <polyline points="12,6 12,12 16,14" />
-            </svg>
-            <h3>Economia de Tempo</h3>
-            <p>Reduza em 70% o tempo gasto no planejamento</p>
-          </div>
-          <div class="benefit-item">
-            <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--foreground))" stroke="hsl(var(--foreground))" color="hsl(var(--foreground))">
-              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-            </svg>
-            <h3>Qualidade Garantida</h3>
-            <p>98% de satisfação dos nossos usuários</p>
-          </div>
-          <div class="benefit-item">
-            <svg class="users-icon" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--foreground))">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-              <circle cx="9" cy="7" r="4" />
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-            </svg>
-            <h3>Suporte Especializado</h3>
-            <p>Equipe de especialistas em casamentos</p>
+                <div>
+                  <h3 class="feature-detailed-title">
+                    Controle Financeiro Completo
+                  </h3>
+                  <p class="feature-detailed-description">
+                    Gerencie seu orçamento de forma inteligente com relatórios
+                    detalhados e controle de gastos por categoria.
+                  </p>
+                </div>
+              </div>
+              <ul class="feature-benefits">
+                <li>
+                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                    <path
+                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  Orçamento por categoria
+                </li>
+                <li>
+                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                    <path
+                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  Relatórios financeiros
+                </li>
+                <li>
+                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                    <path
+                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  Controle de pagamentos
+                </li>
+              </ul>
+            </div>
+          </a>
+          <a href="gestao-contratos.php">
+            <div class="feature-detailed-card">
+              <div class="feature-detailed-header">
+                <div class="feature-icon file-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14,2 14,8 20,8" />
+                    <line x1="16" y1="13" x2="8" y2="13" />
+                    <line x1="16" y1="17" x2="8" y2="17" />
+                    <polyline points="10,9 9,9 8,9" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="feature-detailed-title">Gestão de Contratos</h3>
+                  <p class="feature-detailed-description">
+                    Centralize todos os contratos e documentos importantes em um
+                    local seguro e organizado.
+                  </p>
+                </div>
+              </div>
+              <ul class="feature-benefits">
+                <li>
+                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                    <path
+                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  Armazenamento seguro
+                </li>
+                <li>
+                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                    <path
+                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  Lembretes de vencimento
+                </li>
+                <li>
+                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                    <path
+                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  Assinatura digital
+                </li>
+              </ul>
+            </div>
+          </a>
+          <a href="tarefas.php">
+            <div class="feature-detailed-card">
+              <div class="feature-detailed-header">
+                <div class="feature-icon check-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M9 11l3 3L22 4" />
+                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="feature-detailed-title">
+                    Lista de Tarefas Inteligente
+                  </h3>
+                  <p class="feature-detailed-description">
+                    Sistema completo de checklist com tarefas pré-definidas e
+                    personalizáveis para cada etapa do planejamento.
+                  </p>
+                </div>
+              </div>
+              <ul class="feature-benefits">
+                <li>
+                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                    <path
+                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  Templates prontos
+                </li>
+                <li>
+                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                    <path
+                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  Priorização de tarefas
+                </li>
+                <li>
+                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                    <path
+                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  Progresso visual
+                </li>
+              </ul>
+            </div>
+          </a>
+        </div>
+        <div class="features-cta">
+          <h2 class="cta-title">Por que escolher o Planner de Sonhos?</h2>
+          <p class="cta-description">
+            Mais de 10.000 casais já confiaram em nós para organizar o dia
+            mais importante de suas vidas.
+          </p>
+          <div class="benefits-grid">
+            <div class="benefit-item">
+              <svg class="clock-icon" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--foreground))">
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12,6 12,12 16,14" />
+              </svg>
+              <h3>Economia de Tempo</h3>
+              <p>Reduza em 70% o tempo gasto no planejamento</p>
+            </div>
+            <div class="benefit-item">
+              <svg class="star-icon" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--foreground))" color="hsl(var(--foreground))">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+              </svg>
+              <h3>Qualidade Garantida</h3>
+              <p>98% de satisfação dos nossos usuários</p>
+            </div>
+            <div class="benefit-item">
+              <svg class="users-icon" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--foreground))">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+              <h3>Suporte Especializado</h3>
+              <p>Equipe de especialistas em casamentos</p>
+            </div>
           </div>
         </div>
-      </div>
       </div>
     </section>
   </main>
@@ -455,8 +455,7 @@ $idUsuario = (int) $_SESSION['id_usuario'];
               <a href="funcionalidades.php">Funcionalidades</a>
             </li>
             <li>
-                <a href="contato.php">Contato</a>
-                <a href="#" onclick="openLoginModal()"></a>
+              <a href="contato.php">Contato</a>
             </li>
           </ul>
         </div>

@@ -10,7 +10,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["acao"]) && $_POST["ac
     $email = $_POST["email"];
     $senha = $_POST["senha"];
 
-    $stmt = $pdo->prepare("SELECT id_usuario, nome, email, senha, cargo FROM usuarios WHERE email = ? OR nome = ?");
+    $stmt = $pdo->prepare("SELECT id_usuario, nome, email, senha, cargo, foto_perfil FROM usuarios WHERE email = ? OR nome = ?");
     $stmt->execute([$email, $email]);
     $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -18,10 +18,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["acao"]) && $_POST["ac
         // Protege a sessão
         session_regenerate_id(true);
 
-        // PADRÃO: usar 'id_usuario' porque o resto do sistema espera essa chave
-        $_SESSION["id_usuario"] = (int)$usuario["id_usuario"];
+        $_SESSION["usuario_id"] = (int)$usuario["id_usuario"];
         $_SESSION["nome"] = $usuario["nome"];
-        $_SESSION["cargo"] = $usuario["cargo"]; // Adicionar cargo na sessão
+        $_SESSION["cargo"] = $usuario["cargo"];
         $_SESSION["foto_perfil"] = $usuario['foto_perfil'] ?? 'default.png';
 
         $token = bin2hex(random_bytes(16));

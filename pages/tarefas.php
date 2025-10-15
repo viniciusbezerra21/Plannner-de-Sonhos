@@ -7,7 +7,7 @@ $cookieName = "lembrar_me";
 /* ------------------------
    🔐 LOGIN POR COOKIE
 -------------------------*/
-if (!isset($_SESSION['id_usuario']) && isset($_COOKIE[$cookieName])) {
+if (!isset($_SESSION['usuario_id']) && isset($_COOKIE[$cookieName])) {
   $usuarioId = (int) $_COOKIE[$cookieName]; // garante que é inteiro
 
   $stmt = $pdo->prepare("SELECT id_usuario FROM usuarios WHERE id_usuario = ?");
@@ -15,7 +15,7 @@ if (!isset($_SESSION['id_usuario']) && isset($_COOKIE[$cookieName])) {
   $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
   if ($user) {
-    $_SESSION['id_usuario'] = $user['id_usuario'];
+    $_SESSION['usuario_id'] = $user['id_usuario'];
     $_SESSION['foto_perfil'] = $user['foto_perfil'] ?: "default.png";
   } else {
     // cookie inválido → limpa
@@ -26,12 +26,12 @@ if (!isset($_SESSION['id_usuario']) && isset($_COOKIE[$cookieName])) {
 /* ------------------------
    🔑 VERIFICA LOGIN
 -------------------------*/
-if (!isset($_SESSION['id_usuario'])) {
+if (!isset($_SESSION['usuario_id'])) {
   header("Location: ../user/login.php");
   exit;
 }
 
-$idUsuario = (int) $_SESSION['id_usuario'];
+$idUsuario = (int) $_SESSION['usuario_id'];
 
 /* ------------------------
    🚪 LOGOUT
@@ -195,7 +195,7 @@ $tarefas = $stmt->fetchAll(PDO::FETCH_ASSOC);
           </div>
           <a href="contato.php" class="nav-link">Contato</a>
 
-          <?php if (isset($_SESSION["id_usuario"])): ?>
+          <?php if (isset($_SESSION["usuario_id"])): ?>
             <div class="dropdown">
               <img src="../user/fotos/<?php echo $_SESSION['foto_perfil']; ?>" alt="Foto de perfil" class="user-avatar" />
               <div class="dropdown-menu">

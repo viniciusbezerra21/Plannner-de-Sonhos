@@ -5,14 +5,14 @@ require_once "../config/conexao.php";
 $cookieName = "lembrar_me";
 
 // Verifica se está logado
-if (!isset($_SESSION['id_usuario'])) {
+if (!isset($_SESSION['usuario_id'])) {
   header("Location: ../user/login.php");
   exit;
 }
 
 // Busca cargo do usuário
 $stmt = $pdo->prepare("SELECT nome, cargo FROM usuarios WHERE id_usuario = ?");
-$stmt->execute([$_SESSION['id_usuario']]);
+$stmt->execute([$_SESSION['usuario_id']]);
 $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
 // Se não existir usuário ou não for dev → expulsa
@@ -26,7 +26,7 @@ $_SESSION['nome'] = $usuario['nome'];
 
 // === Logout ===
 if (isset($_POST['logout'])) {
-  setcookie($cookieName, "", time() - 3600, "/"); // apaga cookie
+  setcookie($cookieName, "", time() - 3600, "/");
   session_unset();
   session_destroy();
   header("Location: ../index.php");

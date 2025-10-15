@@ -5,14 +5,14 @@ require_once "../config/conexao.php";
 $cookieName = "lembrar_me";
 
 /* --- Restaurar sessão a partir do cookie (seguro: valida no DB) --- */
-if (!isset($_SESSION['id_usuario']) && isset($_COOKIE[$cookieName])) {
+if (!isset($_SESSION['usuario_id']) && isset($_COOKIE[$cookieName])) {
   $cookieUserId = (int) $_COOKIE[$cookieName];
   if ($cookieUserId > 0) {
     $chk = $pdo->prepare("SELECT id_usuario, nome, cargo FROM usuarios WHERE id_usuario = ?");
     $chk->execute([$cookieUserId]);
     $u = $chk->fetch(PDO::FETCH_ASSOC);
     if ($u) {
-      $_SESSION['id_usuario'] = (int)$u['id_usuario'];
+      $_SESSION['usuario_id'] = (int)$u['id_usuario'];
       $_SESSION['nome'] = $u['nome'];
       $_SESSION['cargo'] = $u['cargo'] ?? 'cliente';
     } else {
@@ -23,11 +23,11 @@ if (!isset($_SESSION['id_usuario']) && isset($_COOKIE[$cookieName])) {
 }
 
 /* --- Verifica login --- */
-if (!isset($_SESSION['id_usuario'])) {
+if (!isset($_SESSION['usuario_id'])) {
   header("Location: ../user/login.php");
   exit;
 }
-$idUsuario = (int) $_SESSION['id_usuario'];
+$idUsuario = (int) $_SESSION['usuario_id'];
 
 /* ------------------------
    ⭐ SALVAR AVALIAÇÃO
@@ -348,7 +348,7 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
           </div>
           <a href="contato.php" class="nav-link">Contato</a>
 
-          <?php if (isset($_SESSION["id_usuario"])): ?>
+          <?php if (isset($_SESSION["usuario_id"])): ?>
             <div class="dropdown">
               <img src="../user/fotos/<?php echo $_SESSION['foto_perfil']; ?>" alt="Foto de perfil" class="user-avatar" />
               <div class="dropdown-menu" id="profileDropdown">

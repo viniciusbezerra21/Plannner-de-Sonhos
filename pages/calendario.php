@@ -7,18 +7,17 @@ $cookieName = "lembrar_me";
 /* ------------------------
    🔐 LOGIN POR COOKIE
 -------------------------*/
-if (!isset($_SESSION['id_usuario']) && isset($_COOKIE[$cookieName])) {
-  $usuarioId = (int) $_COOKIE[$cookieName]; // garante que é inteiro
+if (!isset($_SESSION['usuario_id']) && isset($_COOKIE[$cookieName])) {
+  $usuarioId = (int) $_COOKIE[$cookieName];
 
   $stmt = $pdo->prepare("SELECT id_usuario FROM usuarios WHERE id_usuario = ?");
   $stmt->execute([$usuarioId]);
   $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
   if ($user) {
-    $_SESSION['id_usuario'] = $user['id_usuario'];
+    $_SESSION['usuario_id'] = $user['id_usuario'];
     $_SESSION['foto_perfil'] = $user['foto_perfil'] ?: "default.png";
   } else {
-    // cookie inválido → limpa
     setcookie($cookieName, "", time() - 3600, "/");
   }
 }
@@ -26,22 +25,12 @@ if (!isset($_SESSION['id_usuario']) && isset($_COOKIE[$cookieName])) {
 /* ------------------------
    🔑 VERIFICA LOGIN
 -------------------------*/
-if (!isset($_SESSION['id_usuario'])) {
+if (!isset($_SESSION['usuario_id'])) {
   header("Location: ../user/login.php");
   exit;
 }
 
-$idUsuario = (int) $_SESSION['id_usuario'];
-
-/* ------------------------
-   🚪 LOGOUT
--------------------------*/
-if (isset($_POST['logout'])) {
-  session_destroy();
-  setcookie($cookieName, "", time() - 3600, "/"); // apaga cookie
-  header("Location: ../user/login.php");
-  exit;
-}
+$idUsuario = (int) $_SESSION['usuario_id'];
 
 /* ------------------------
    🚪 LOGOUT
@@ -75,12 +64,10 @@ try {
   $stmt->execute([$idUsuario]);
   $eventos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
-  // If columns don't exist, try without them
   $stmt = $pdo->prepare("SELECT * FROM eventos WHERE id_usuario = ? ORDER BY data_evento ASC, horario ASC");
   $stmt->execute([$idUsuario]);
   $eventos = $stmt->fetchAll(PDO::FETCH_ASSOC);
   
-  // Add default values for missing columns
   foreach ($eventos as &$evento) {
     if (!isset($evento['prioridade'])) {
       $evento['prioridade'] = 'media';
@@ -622,7 +609,7 @@ $eventosJson = json_encode($eventos);
           </div>
           <a href="contato.php" class="nav-link">Contato</a>
 
-          <?php if (isset($_SESSION["id_usuario"])): ?>
+          <?php if (isset($_SESSION["usuario_id"])): ?>
             <div class="dropdown">
               <img src="../user/fotos/<?php echo $_SESSION['foto_perfil']; ?>" alt="Foto de perfil" class="user-avatar" />
               <div class="dropdown-menu">
@@ -700,11 +687,7 @@ $eventosJson = json_encode($eventos);
                 </div>
               </div>
               <div id="view-week" class="calendar-view" style="display: none">
-                <div class="calendar-week-grid" style="
-                      display: grid;
-                      grid-template-columns: repeat(7, 1fr);
-                      border-top: 1px solid #eee;
-                    ">
+                <div class="calendar-week-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); border-top: 1px solid #eee;">
                   <div class="calendar-week-day">
                     Dom<br /><small>04/08</small>
                   </div>
@@ -730,47 +713,16 @@ $eventosJson = json_encode($eventos);
                 </div>
               </div>
               <div id="view-day" class="calendar-view" style="display: none">
-                <div class="calendar-day-view" style="
-                      display: flex;
-                      flex-direction: column;
-                      border: 1px solid #f3f4f6;
-                    ">
-                  <div class="calendar-hour-slot" style="
-                        padding: 0.75rem;
-                        border-bottom: 1px solid #f3f4f6;
-                        display: flex;
-                        justify-content: space-between;
-                      ">
+                <div class="calendar-day-view" style="display: flex; flex-direction: column; border: 1px solid #f3f4f6;">
+                  <div class="calendar-hour-slot" style="padding: 0.75rem; border-bottom: 1px solid #f3f4f6; display: flex; justify-content: space-between;">
                     <span class="hour-label" style="font-weight: 500; color: #6b7280">09:00</span>
-                    <span class="hour-event" style="
-                          background: hsl(var(--primary));
-                          color: white;
-                          padding: 0.25rem 0.5rem;
-                          border-radius: 15px;
-                          font-size: 0.875rem;
-                        ">Reunião com fotógrafo</span>
+                    <span class="hour-event" style="background: hsl(var(--primary)); color: white; padding: 0.25rem 0.5rem; border-radius: 15px; font-size: 0.875rem;">Reunião com fotógrafo</span>
                   </div>
-                  <div class="calendar-hour-slot" style="
-                        padding: 0.75rem;
-                        border-bottom: 1px solid #f3f4f6;
-                        display: flex;
-                        justify-content: space-between;
-                      ">
+                  <div class="calendar-hour-slot" style="padding: 0.75rem; border-bottom: 1px solid #f3f4f6; display: flex; justify-content: space-between;">
                     <span class="hour-label" style="font-weight: 500; color: #6b7280">14:00</span>
-                    <span class="hour-event" style="
-                          background: hsl(var(--primary));
-                          color: white;
-                          padding: 0.25rem 0.5rem;
-                          border-radius: 15px;
-                          font-size: 0.875rem;
-                        ">Visita ao local</span>
+                    <span class="hour-event" style="background: hsl(var(--primary)); color: white; padding: 0.25rem 0.5rem; border-radius: 15px; font-size: 0.875rem;">Visita ao local</span>
                   </div>
-                  <div class="calendar-hour-slot" style="
-                        padding: 0.75rem;
-                        border-bottom: 1px solid #f3f4f6;
-                        display: flex;
-                        justify-content: space-between;
-                      ">
+                  <div class="calendar-hour-slot" style="padding: 0.75rem; border-bottom: 1px solid #f3f4f6; display: flex; justify-content: space-between;">
                     <span class="hour-label" style="font-weight: 500; color: #6b7280">18:00</span>
                   </div>
                 </div>
@@ -800,7 +752,11 @@ $eventosJson = json_encode($eventos);
               <div class="events-list">
                 <ul id="eventList">
                   <?php foreach ($eventos as $evento): ?>
-                    
+                    <li class="event-item" data-prioridade="<?php echo $evento['prioridade']; ?>" data-cor="<?php echo $evento['cor_tag']; ?>" data-status="<?php echo $evento['status']; ?>">
+                      <h4 id="nomeEvento"><?php echo $evento['nome_evento']; ?></h4>
+                      <p id="localEvento"><?php echo $evento['local']; ?></p>
+                      <span id="tagEvento"><?php echo $evento['cor_tag']; ?></span>
+                    </li>
                   <?php endforeach; ?>
                 </ul>
               </div>
@@ -921,8 +877,7 @@ $eventosJson = json_encode($eventos);
           <a href="../index.php" class="logo">
             <div class="heart-icon">
               <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-                <path
-                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>
             </div>
             <span class="logo-text">Planner de Sonhos</span>

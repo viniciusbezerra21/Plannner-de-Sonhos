@@ -6,23 +6,58 @@ $cookieName = "lembrar_me";
 $cookieTime = time() + (86400 * 30); // 30 dias
 
 // === Simulação de login automático ===
-// Aqui você pode trocar por um check real no banco depois do login
 if (!isset($_SESSION['usuario_id']) && isset($_COOKIE[$cookieName])) {
-  // recriar sessão a partir do cookie
   $_SESSION['usuario_id'] = $_COOKIE[$cookieName];
-  $_SESSION['foto_perfil'] = "default.png"; // pega do banco real no futuro
+  $_SESSION['foto_perfil'] = "default.png";
 }
 if (isset($_SESSION["usuario_id"]) && empty($_SESSION['foto_perfil'])) {
-  $_SESSION['foto_perfil'] = "default.png"; // caminho da foto default
+  $_SESSION['foto_perfil'] = "default.png";
 }
 
 // === Logout ===
 if (isset($_POST['logout'])) {
-  setcookie($cookieName, "", time() - 3600, "/"); // apaga cookie
+  setcookie($cookieName, "", time() - 3600, "/");
   session_unset();
   session_destroy();
   header("Location: index.php");
   exit;
+}
+
+require_once 'config/conexao.php';
+
+$user_data = ['nome' => 'Usuário', 'email' => ''];
+if (isset($_SESSION["usuario_id"])) {
+  try {
+    $stmt = $pdo->prepare("SELECT nome, email, foto_perfil FROM usuarios WHERE id_usuario = ?");
+    $stmt->execute([(int)$_SESSION['usuario_id']]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($result) {
+      $user_data = $result;
+      // Update session with latest photo
+      if (!empty($result['foto_perfil'])) {
+        $_SESSION['foto_perfil'] = $result['foto_perfil'];
+      }
+    }
+  } catch (PDOException $e) {
+    error_log("Error fetching user data: " . $e->getMessage());
+  }
+}
+
+$proximos_eventos = [];
+if (isset($_SESSION["usuario_id"])) {
+  try {
+    $sql = "SELECT nome_evento, data_evento 
+            FROM eventos 
+            WHERE id_usuario = ? AND data_evento >= CURDATE()
+            ORDER BY data_evento ASC 
+            LIMIT 2";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([(int)$_SESSION['usuario_id']]);
+    $proximos_eventos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+  } catch (PDOException $e) {
+    error_log("Error fetching events: " . $e->getMessage());
+  }
 }
 ?>
 <!DOCTYPE html>
@@ -147,6 +182,135 @@ if (isset($_POST['logout'])) {
         padding: 1.5rem;
       }
     }
+
+    /* Enhanced profile dropdown styles */
+    .profile-dropdown-wrapper {
+      position: relative;
+    }
+
+    .profile-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+      object-fit: cover;
+    }
+
+    .profile-avatar:hover {
+      border-color: hsl(var(--primary));
+      transform: scale(1.05);
+    }
+
+    .profile-dropdown {
+      position: absolute;
+      top: calc(100% + 0.5rem);
+      right: 0;
+      background: hsl(var(--card));
+      border: 1px solid hsl(var(--border));
+      border-radius: 0.75rem;
+      min-width: 280px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+      z-index: 1000;
+      overflow: hidden;
+    }
+
+    .profile-dropdown.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .profile-dropdown-header {
+      padding: 1.25rem;
+      border-bottom: 1px solid hsl(var(--border));
+      background: linear-gradient(135deg, hsl(var(--primary) / 0.05), hsl(var(--secondary) / 0.05));
+    }
+
+    .profile-dropdown-user {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .profile-dropdown-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid hsl(var(--primary));
+    }
+
+    .profile-dropdown-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .profile-dropdown-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: hsl(var(--foreground));
+      margin-bottom: 0.125rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .profile-dropdown-email {
+      font-size: 0.8rem;
+      color: hsl(var(--muted-foreground));
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .profile-dropdown-menu {
+      padding: 0.5rem;
+    }
+
+    .profile-dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      color: hsl(var(--foreground));
+      text-decoration: none;
+      border-radius: 0.5rem;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .profile-dropdown-item:hover {
+      background: hsl(var(--muted));
+      transform: translateX(4px);
+    }
+
+    .profile-dropdown-item svg {
+      width: 18px;
+      height: 18px;
+      stroke-width: 2;
+    }
+
+    .profile-dropdown-item.logout {
+      color: hsl(var(--destructive));
+      border-top: 1px solid hsl(var(--border));
+      margin-top: 0.5rem;
+      padding-top: 1rem;
+    }
+
+    .profile-dropdown-item.logout:hover {
+      background: hsl(var(--destructive) / 0.1);
+    }
+
+    .profile-dropdown-item.logout svg {
+      stroke: hsl(var(--destructive));
+    }
   </style>
 </head>
 
@@ -190,17 +354,61 @@ if (isset($_POST['logout'])) {
           <?php endif; ?>
 
           <?php if (isset($_SESSION["usuario_id"])): ?>
-            <!-- Foto de perfil em bolinha -->
-            <div class="dropdown">
-              <img src="user/fotos/<?php echo $_SESSION['foto_perfil']; ?>"
+            <!-- Enhanced profile dropdown with user info -->
+            <div class="profile-dropdown-wrapper">
+              <img 
+                src="user/fotos/<?php echo htmlspecialchars($_SESSION['foto_perfil'] ?? 'default.png'); ?>"
                 alt="Foto de perfil"
-                style="width:40px; height:40px; border-radius:50%; cursor:pointer;">
-              <div class="dropdown-menu">
-                <a href="user/perfil.php">Meu Perfil</a>
-                <!-- Logout via POST -->
-                <form method="post" style="margin:0;">
-                  <button type="submit" name="logout" class="btn-outline"">Sair</button>
-                </form>
+                class="profile-avatar"
+                onclick="toggleProfileDropdown()"
+              >
+              <div class="profile-dropdown" id="profileDropdown">
+                <div class="profile-dropdown-header">
+                  <div class="profile-dropdown-user">
+                    <img 
+                      src="user/fotos/<?php echo htmlspecialchars($_SESSION['foto_perfil'] ?? 'default.png'); ?>" 
+                      alt="Avatar" 
+                      class="profile-dropdown-avatar"
+                    >
+                    <div class="profile-dropdown-info">
+                      <!-- Fixed to properly display user name and email -->
+                      <div class="profile-dropdown-name">
+                        <?php echo htmlspecialchars($user_data['nome']); ?>
+                      </div>
+                      <div class="profile-dropdown-email">
+                        <?php echo htmlspecialchars($user_data['email']); ?>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="profile-dropdown-menu">
+                  <a href="user/perfil.php" class="profile-dropdown-item">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    Meu Perfil
+                  </a>
+                  <a href="pages/funcionalidades.php" class="profile-dropdown-item">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <rect x="3" y="4" width="7" height="7"></rect>
+                      <rect x="14" y="3" width="7" height="7"></rect>
+                      <rect x="14" y="14" width="7" height="7"></rect>
+                      <rect x="3" y="14" width="7" height="7"></rect>
+                    </svg>
+                    Funcionalidades
+                  </a>
+                  <form method="post" style="margin:0;">
+                    <button type="submit" name="logout" class="profile-dropdown-item logout" style="width: 100%; text-align: left; background: none; border: none; font-family: inherit; font-size: inherit;">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                      </svg>
+                      Sair
+                    </button>
+                  </form>
+                </div>
               </div>
             </div>
           <?php else: ?>
@@ -300,21 +508,11 @@ if (isset($_POST['logout'])) {
                 <div class="hero-visual-header">
                   <h3 class="hero-visual-title">Próximos Eventos</h3>
                   <svg
-                    style="
-                          width: 1.25rem;
-                          height: 1.25rem;
-                          color: hsl(var(--primary));
-                        "
+                    style="width: 1.25rem; height: 1.25rem; color: hsl(var(--primary));"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24">
-                    <rect
-                      x="3"
-                      y="4"
-                      width="18"
-                      height="18"
-                      rx="2"
-                      ry="2"></rect>
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                     <line x1="16" y1="2" x2="16" y2="6"></line>
                     <line x1="8" y1="2" x2="8" y2="6"></line>
                     <line x1="3" y1="10" x2="21" y2="10"></line>
@@ -322,21 +520,28 @@ if (isset($_POST['logout'])) {
                 </div>
 
                 <div class="hero-visual-events">
-                  <div class="hero-visual-event">
-                    <div class="hero-visual-dot"></div>
-                    <div class="hero-visual-event-info">
-                      <h4>Casamento Maria & João</h4>
-                      <p>15 de Dezembro</p>
+                  <?php if (count($proximos_eventos) > 0): ?>
+                    <?php foreach ($proximos_eventos as $evento): ?>
+                      <div class="hero-visual-event">
+                        <div class="hero-visual-dot"></div>
+                        <div class="hero-visual-event-info">
+                          <h4><?php echo htmlspecialchars($evento['nome_evento']); ?></h4>
+                          <p><?php 
+                            $data = new DateTime($evento['data_evento']);
+                            echo $data->format('d \d\e F');
+                          ?></p>
+                        </div>
+                      </div>
+                    <?php endforeach; ?>
+                  <?php else: ?>
+                    <div class="hero-visual-event">
+                      <div class="hero-visual-dot"></div>
+                      <div class="hero-visual-event-info">
+                        <h4>Nenhum evento próximo</h4>
+                        <p>Crie seu primeiro evento</p>
+                      </div>
                     </div>
-                  </div>
-
-                  <div class="hero-visual-event">
-                    <div class="hero-visual-dot"></div>
-                    <div class="hero-visual-event-info">
-                      <h4>Casamento Ana & Pedro</h4>
-                      <p>22 de Dezembro</p>
-                    </div>
-                  </div>
+                  <?php endif; ?>
                 </div>
               </div>
 
@@ -608,7 +813,7 @@ if (isset($_POST['logout'])) {
       </div>
 
       <div class="footer-bottom">
-        <p>&copy; 2024 Planner de Sonhos. Todos os direitos reservados.</p>
+        <p>&copy; 2025 Planner de Sonhos. Todos os direitos reservados.</p>
         <div
           style="
                 display: flex;
@@ -650,6 +855,16 @@ if (isset($_POST['logout'])) {
       dropdown.classList.toggle("active");
     }
 
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+      const dropdown = document.getElementById("profileDropdown");
+      const wrapper = document.querySelector('.profile-dropdown-wrapper');
+      
+      if (dropdown && wrapper && !wrapper.contains(event.target)) {
+        dropdown.classList.remove("active");
+      }
+    });
+
     function openLoginModal() {
       document.getElementById("loginModal").style.display = "block";
     }
@@ -664,24 +879,6 @@ if (isset($_POST['logout'])) {
         closeLoginModal();
       }
     };
-
-    document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-      anchor.addEventListener("click", function(e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute("href"));
-        if (target) {
-          target.scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-          });
-
-          const mobileMenu = document.getElementById("mobileMenu");
-          const hamburgerBtn = document.getElementById("hamburgerBtn");
-          mobileMenu.classList.remove("active");
-          hamburgerBtn.classList.remove("hamburger-active");
-        }
-      });
-    });
 
     const successMessage = document.getElementById("mensagemSucesso");
     if (successMessage) {
