@@ -22,16 +22,38 @@ if (!isset($_SESSION['usuario_id']) && isset($_COOKIE[$cookieName])) {
   }
 }
 
-/* --- Verifica login --- */
-if (!isset($_SESSION['usuario_id'])) {
-  header("Location: ../user/login.php");
-  exit;
+$user_data = ['nome' => 'Usuário', 'email' => '', 'foto_perfil' => 'default.png'];
+
+/* --- Verifica login e busca dados do usuário --- */
+if (isset($_SESSION['usuario_id'])) {
+  try {
+    $stmt = $pdo->prepare("SELECT nome, email, foto_perfil FROM usuarios WHERE id_usuario = ?");
+    $stmt->execute([(int)$_SESSION['usuario_id']]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($result) {
+      $user_data = [
+        'nome' => $result['nome'] ?? 'Usuário',
+        'email' => $result['email'] ?? '',
+        'foto_perfil' => !empty($result['foto_perfil']) ? $result['foto_perfil'] : 'default.png'
+      ];
+      // Update session with latest photo
+      if (!empty($result['foto_perfil'])) {
+        $_SESSION['foto_perfil'] = $result['foto_perfil'];
+      } else {
+        $_SESSION['foto_perfil'] = 'default.png';
+      }
+    }
+  } catch (PDOException $e) {
+    error_log("Error fetching user data: " . $e->getMessage());
+  }
 }
+
 $idUsuario = (int) $_SESSION['usuario_id'];
 
-/* ------------------------
-   ⭐ SALVAR AVALIAÇÃO
--------------------------*/
+/* ------------------------ */
+/* ⭐ SALVAR AVALIAÇÃO */
+/* ------------------------ */
 if (isset($_POST['save_rating'])) {
   $idOrc = (int) $_POST['id_orcamento'];
   $rating = (int) $_POST['rating'];
@@ -45,9 +67,9 @@ if (isset($_POST['save_rating'])) {
   exit;
 }
 
-/* ------------------------
-   ➕ ADICIONAR ITEM
--------------------------*/
+/* ------------------------ */
+/* ➕ ADICIONAR ITEM */
+/* ------------------------ */
 if (isset($_POST['add_item'])) {
   $item = trim($_POST['item'] ?? '');
   $fornecedor = trim($_POST['fornecedor'] ?? '');
@@ -63,9 +85,9 @@ if (isset($_POST['add_item'])) {
   exit;
 }
 
-/* ------------------------
-   🗑️ EXCLUIR ITEM
--------------------------*/
+/* ------------------------ */
+/* 🗑️ EXCLUIR ITEM */
+/* ------------------------ */
 if (isset($_POST['delete_item'])) {
   $idOrc = (int) $_POST['delete_item'];
   $stmt = $pdo->prepare("DELETE FROM orcamentos WHERE id_orcamento = ? AND id_usuario = ?");
@@ -74,9 +96,9 @@ if (isset($_POST['delete_item'])) {
   exit;
 }
 
-/* ------------------------
-   📋 LISTAR ITENS
--------------------------*/
+/* ------------------------ */
+/* 📋 LISTAR ITENS */
+/* ------------------------ */
 $stmt = $pdo->prepare("SELECT * FROM orcamentos WHERE id_usuario = ? ORDER BY id_orcamento DESC");
 $stmt->execute([$idUsuario]);
 $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -478,7 +500,7 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
           <?php if (isset($_SESSION["usuario_id"])): ?>
             <div class="profile-dropdown-wrapper">
               <img 
-                src="user/fotos/<?php echo htmlspecialchars($_SESSION['foto_perfil'] ?? 'default.png'); ?>"
+                src="../user/fotos/<?php echo htmlspecialchars($user_data['foto_perfil'] ?? 'default.png'); ?>"
                 alt="Foto de perfil"
                 class="profile-avatar"
                 onclick="toggleProfileDropdown()"
@@ -487,7 +509,7 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="profile-dropdown-header">
                   <div class="profile-dropdown-user">
                     <img 
-                      src="user/fotos/<?php echo htmlspecialchars($_SESSION['foto_perfil'] ?? 'default.png'); ?>" 
+                      src="../user/fotos/<?php echo htmlspecialchars($user_data['foto_perfil'] ?? 'default.png'); ?>" 
                       alt="Avatar" 
                       class="profile-dropdown-avatar"
                     >
@@ -503,14 +525,14 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
                   </div>
                 </div>
                 <div class="profile-dropdown-menu">
-                  <a href="user/perfil.php" class="profile-dropdown-item">
+                  <a href="../user/perfil.php" class="profile-dropdown-item">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                       <circle cx="12" cy="7" r="4"></circle>
                     </svg>
                     Meu Perfil
                   </a>
-                  <a href="pages/funcionalidades.php" class="profile-dropdown-item">
+                  <a href="funcionalidades.php" class="profile-dropdown-item">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <rect x="3" y="4" width="7" height="7"></rect>
                       <rect x="14" y="3" width="7" height="7"></rect>
@@ -667,7 +689,7 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
       </div>
 
       <div class="footer-bottom">
-        <p>&copy; 2024 Planner de Sonhos. Todos os direitos reservados.</p>
+        <p>&copy; 2025 Planner de Sonhos. Todos os direitos reservados.</p>
       </div>
     </div>
   </footer>
@@ -800,13 +822,6 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
         });
       }
     });
-  </script>
-  <script>
-    function toggleProfileDropdown() {
-      const dropdown = document.getElementById("profileDropdown");
-      dropdown.classList.toggle("active");
-    }
-
   </script>
   <script src="../js/orcamento.js"></script>
 </body>

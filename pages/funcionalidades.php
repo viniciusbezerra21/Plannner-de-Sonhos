@@ -22,12 +22,33 @@ if (!isset($_SESSION['usuario_id']) && isset($_COOKIE[$cookieName])) {
   }
 }
 
-/* --- Verifica login --- */
-if (!isset($_SESSION['usuario_id'])) {
-  header("Location: ../user/login.php");
-  exit;
+$user_data = ['nome' => 'Usuário', 'email' => '', 'foto_perfil' => 'default.png'];
+
+/* --- Verifica login e busca dados do usuário --- */
+if (isset($_SESSION['usuario_id'])) {
+  try {
+    $stmt = $pdo->prepare("SELECT nome, email, foto_perfil FROM usuarios WHERE id_usuario = ?");
+    $stmt->execute([(int)$_SESSION['usuario_id']]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($result) {
+      $user_data = [
+        'nome' => $result['nome'] ?? 'Usuário',
+        'email' => $result['email'] ?? '',
+        'foto_perfil' => !empty($result['foto_perfil']) ? $result['foto_perfil'] : 'default.png'
+      ];
+      // Update session with latest photo
+      if (!empty($result['foto_perfil'])) {
+        $_SESSION['foto_perfil'] = $result['foto_perfil'];
+      } else {
+        $_SESSION['foto_perfil'] = 'default.png';
+      }
+    }
+  } catch (PDOException $e) {
+    error_log("Error fetching user data: " . $e->getMessage());
+  }
 }
-$idUsuario = (int) $_SESSION['usuario_id'];
+$idUsuario = (int) $_SESSION['usuario_id'] ?? 0;
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -304,7 +325,7 @@ $idUsuario = (int) $_SESSION['usuario_id'];
           <?php if (isset($_SESSION["usuario_id"])): ?>
             <div class="profile-dropdown-wrapper">
               <img 
-                src="user/fotos/<?php echo htmlspecialchars($_SESSION['foto_perfil'] ?? 'default.png'); ?>"
+                src="../user/fotos/<?php echo htmlspecialchars($_SESSION['foto_perfil'] ?? 'default.png'); ?>"
                 alt="Foto de perfil"
                 class="profile-avatar"
                 onclick="toggleProfileDropdown()"
@@ -313,7 +334,7 @@ $idUsuario = (int) $_SESSION['usuario_id'];
                 <div class="profile-dropdown-header">
                   <div class="profile-dropdown-user">
                     <img 
-                      src="user/fotos/<?php echo htmlspecialchars($_SESSION['foto_perfil'] ?? 'default.png'); ?>" 
+                      src="../user/fotos/<?php echo htmlspecialchars($_SESSION['foto_perfil'] ?? 'default.png'); ?>" 
                       alt="Avatar" 
                       class="profile-dropdown-avatar"
                     >
@@ -410,7 +431,7 @@ $idUsuario = (int) $_SESSION['usuario_id'];
                 <li>
                   <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
                     <path
-                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.06L12 2z" />
                   </svg>
                   Sincronização com Google Calendar
                 </li>
@@ -536,7 +557,7 @@ $idUsuario = (int) $_SESSION['usuario_id'];
                 <li>
                   <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
                     <path
-                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.06L12 2z" />
                   </svg>
                   Templates prontos
                 </li>
@@ -550,7 +571,7 @@ $idUsuario = (int) $_SESSION['usuario_id'];
                 <li>
                   <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
                     <path
-                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.06L12 2z" />
                   </svg>
                   Progresso visual
                 </li>
@@ -575,17 +596,15 @@ $idUsuario = (int) $_SESSION['usuario_id'];
             </div>
             <div class="benefit-item">
               <svg class="star-icon" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--foreground))" color="hsl(var(--foreground))">
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.06L12 2z" />
               </svg>
               <h3>Qualidade Garantida</h3>
               <p>98% de satisfação dos nossos usuários</p>
             </div>
             <div class="benefit-item">
               <svg class="users-icon" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--foreground))">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                <circle cx="9" cy="7" r="4" />
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                <polyline points="22,6 12,13 2,6" />
               </svg>
               <h3>Suporte Especializado</h3>
               <p>Equipe de especialistas em casamentos</p>
@@ -742,13 +761,6 @@ $idUsuario = (int) $_SESSION['usuario_id'];
         closeLoginModal();
       }
     };
-  </script>
-  <script>
-    function toggleProfileDropdown() {
-      const dropdown = document.getElementById("profileDropdown");
-      dropdown.classList.toggle("active");
-    }
-
   </script>
 </body>
 

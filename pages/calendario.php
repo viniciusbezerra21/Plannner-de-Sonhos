@@ -22,6 +22,39 @@ if (!isset($_SESSION['usuario_id']) && isset($_COOKIE[$cookieName])) {
   }
 }
 
+/* Initialize $user_data to prevent undefined variable errors in modal */
+$user_data = ['nome' => 'Usuário', 'email' => '', 'foto_perfil' => 'default.png'];
+
+/* --- Verifica login e busca dados do usuário --- */
+if (isset($_SESSION['usuario_id'])) {
+  try {
+    $stmt = $pdo->prepare("SELECT nome, email, foto_perfil FROM usuarios WHERE id_usuario = ?");
+    $stmt->execute([(int)$_SESSION['usuario_id']]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($result) {
+      $user_data = [
+        'nome' => $result['nome'] ?? 'Usuário',
+        'email' => $result['email'] ?? '',
+        'foto_perfil' => !empty($result['foto_perfil']) ? $result['foto_perfil'] : 'default.png'
+      ];
+      // Update session with latest photo
+      if (!empty($result['foto_perfil'])) {
+        $_SESSION['foto_perfil'] = $result['foto_perfil'];
+      } else {
+        $_SESSION['foto_perfil'] = 'default.png';
+      }
+    }
+  } catch (PDOException $e) {
+    error_log("Error fetching user data: " . $e->getMessage());
+  }
+}
+
+/* Ensure default photo is set in session */
+if (empty($_SESSION['foto_perfil'])) {
+  $_SESSION['foto_perfil'] = 'default.png';
+}
+
 /* ------------------------
    🔑 VERIFICA LOGIN
 -------------------------*/
@@ -634,9 +667,18 @@ $eventosJson = json_encode($eventos);
           <option value="media" id="media">Média</option>
           <option value="baixa" id="baixa">Baixa</option>
         </select>
-        
-          <button class="btn-primary" id="btnSalvarPrioridade">Salvar</button>
-        </div>
+      </div>
+      
+      <!-- Added checkbox to mark event as completed -->
+      <div class="form-group">
+        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+          <input type="checkbox" id="statusConcluidoInput" style="width: 18px; height: 18px; cursor: pointer;">
+          <span>Marcar como concluído</span>
+        </label>
+      </div>
+      
+      <div class="form-row">
+        <button type="button" class="btn-primary" id="btnSalvarPrioridade">Salvar</button>
       </div>
     </form>
   </div>
@@ -740,7 +782,7 @@ $eventosJson = json_encode($eventos);
           <?php if (isset($_SESSION["usuario_id"])): ?>
             <div class="profile-dropdown-wrapper">
               <img 
-                src="user/fotos/<?php echo htmlspecialchars($_SESSION['foto_perfil'] ?? 'default.png'); ?>"
+                src="../user/fotos/<?php echo htmlspecialchars($user_data['foto_perfil'] ?? 'default.png'); ?>"
                 alt="Foto de perfil"
                 class="profile-avatar"
                 onclick="toggleProfileDropdown()"
@@ -749,7 +791,7 @@ $eventosJson = json_encode($eventos);
                 <div class="profile-dropdown-header">
                   <div class="profile-dropdown-user">
                     <img 
-                      src="user/fotos/<?php echo htmlspecialchars($_SESSION['foto_perfil'] ?? 'default.png'); ?>" 
+                      src="../user/fotos/<?php echo htmlspecialchars($user_data['foto_perfil'] ?? 'default.png'); ?>"
                       alt="Avatar" 
                       class="profile-dropdown-avatar"
                     >
@@ -925,15 +967,7 @@ $eventosJson = json_encode($eventos);
                 </div>
               </div>
               <div class="events-list">
-                <ul id="eventList">
-                  <?php foreach ($eventos as $evento): ?>
-                    <li class="event-item" data-prioridade="<?php echo $evento['prioridade']; ?>" data-cor="<?php echo $evento['cor_tag']; ?>" data-status="<?php echo $evento['status']; ?>">
-                      <h4 id="nomeEvento"><?php echo $evento['nome_evento']; ?></h4>
-                      <p id="localEvento"><?php echo $evento['local']; ?></p>
-                      <span id="tagEvento"><?php echo $evento['cor_tag']; ?></span>
-                    </li>
-                  <?php endforeach; ?>
-                </ul>
+                <ul id="eventList"></ul>
               </div>
             </div>
           </div>
@@ -1298,12 +1332,6 @@ $eventosJson = json_encode($eventos);
         }
       });
     });
-  </script>
-  <script>
-    function toggleProfileDropdown() {
-      const dropdown = document.getElementById("profileDropdown");
-      dropdown.classList.toggle("active");
-    }
   </script>
 </body>
 

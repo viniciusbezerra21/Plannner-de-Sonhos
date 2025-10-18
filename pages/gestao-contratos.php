@@ -4,27 +4,72 @@ require_once "../config/conexao.php";
 
 $cookieName = "lembrar_me";
 
-/* ------------------------
-   🔐 LOGIN POR COOKIE
--------------------------*/
+/* --- Restaurar sessão a partir do cookie (seguro: valida no DB) --- */
 if (!isset($_SESSION['usuario_id']) && isset($_COOKIE[$cookieName])) {
-  $usuarioId = (int) $_COOKIE[$cookieName];
-
-  $stmt = $pdo->prepare("SELECT id_usuario, foto_perfil FROM usuarios WHERE id_usuario = ?");
-  $stmt->execute([$usuarioId]);
-  $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-  if ($user) {
-    $_SESSION['usuario_id'] = $user['id_usuario'];
-    $_SESSION['foto_perfil'] = $user['foto_perfil'] ?: "default.png";
-  } else {
-    setcookie($cookieName, "", time() - 3600, "/");
+  $cookieUserId = (int) $_COOKIE[$cookieName];
+  if ($cookieUserId > 0) {
+    $chk = $pdo->prepare("SELECT id_usuario, nome, cargo FROM usuarios WHERE id_usuario = ?");
+    $chk->execute([$cookieUserId]);
+    $u = $chk->fetch(PDO::FETCH_ASSOC);
+    if ($u) {
+      $_SESSION['usuario_id'] = (int)$u['id_usuario'];
+      $_SESSION['nome'] = $u['nome'];
+      $_SESSION['cargo'] = $u['cargo'] ?? 'cliente';
+    } else {
+      // cookie inválido -> remover
+      setcookie($cookieName, "", time() - 3600, "/");
+    }
   }
 }
 
-/* ------------------------
-   🔑 VERIFICA LOGIN
--------------------------*/
+$user_data = ['nome' => 'Usuário', 'email' => '', 'foto_perfil' => 'default.png'];
+
+/* --- Verifica login e busca dados do usuário --- */
+if (isset($_SESSION['usuario_id'])) {
+  try {
+    $stmt = $pdo->prepare("SELECT nome, email, foto_perfil FROM usuarios WHERE id_usuario = ?");
+    $stmt->execute([(int)$_SESSION['usuario_id']]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($result) {
+      $user_data = [
+        'nome' => $result['nome'] ?? 'Usuário',
+        'email' => $result['email'] ?? '',
+        'foto_perfil' => !empty($result['foto_perfil']) ? $result['foto_perfil'] : 'default.png'
+      ];
+      // Update session with latest photo
+      if (!empty($result['foto_perfil'])) {
+        $_SESSION['foto_perfil'] = $result['foto_perfil'];
+      } else {
+        $_SESSION['foto_perfil'] = 'default.png';
+      }
+    }
+  } catch (PDOException $e) {
+    error_log("Error fetching user data: " . $e->getMessage());
+  }
+}
+
+/* ------------------------ */
+/* 🔐 LOGIN POR COOKIE */
+/* ------------------------ */
+// if (!isset($_SESSION['usuario_id']) && isset($_COOKIE[$cookieName])) {
+//   $usuarioId = (int) $_COOKIE[$cookieName];
+//
+//   $stmt = $pdo->prepare("SELECT id_usuario, foto_perfil FROM usuarios WHERE id_usuario = ?");
+//   $stmt->execute([$usuarioId]);
+//   $user = $stmt->fetch(PDO::FETCH_ASSOC);
+//
+//   if ($user) {
+//     $_SESSION['usuario_id'] = $user['id_usuario'];
+//     $_SESSION['foto_perfil'] = $user['foto_perfil'] ?: "default.png";
+//   } else {
+//     setcookie($cookieName, "", time() - 3600, "/");
+//   }
+// }
+
+/* ------------------------ */
+/* 🔑 VERIFICA LOGIN */
+/* ------------------------ */
 if (!isset($_SESSION['usuario_id'])) {
   header("Location: ../user/login.php");
   exit;
@@ -32,9 +77,9 @@ if (!isset($_SESSION['usuario_id'])) {
 
 $idUsuario = (int) $_SESSION['usuario_id'];
 
-/* ------------------------
-   🚪 LOGOUT
--------------------------*/
+/* ------------------------ */
+/* 🚪 LOGOUT */
+/* ------------------------ */
 if (isset($_POST['logout'])) {
   session_destroy();
   setcookie($cookieName, "", time() - 3600, "/");
@@ -42,9 +87,9 @@ if (isset($_POST['logout'])) {
   exit;
 }
 
-/* ------------------------
-   ➕ ADICIONAR CONTRATO
--------------------------*/
+/* ------------------------ */
+/* ➕ ADICIONAR CONTRATO */
+/* ------------------------ */
 if (isset($_POST['add_contract'])) {
   $nome_fornecedor = trim($_POST['nome_fornecedor']);
   $categoria = trim($_POST['categoria']);
@@ -74,9 +119,9 @@ if (isset($_POST['add_contract'])) {
   exit;
 }
 
-/* ------------------------
-   🗑️ EXCLUIR CONTRATO
--------------------------*/
+/* ------------------------ */
+/* 🗑️ EXCLUIR CONTRATO */
+/* ------------------------ */
 if (isset($_POST['delete_contract'])) {
   $id_contrato = (int) $_POST['id_contrato'];
   
@@ -99,9 +144,9 @@ if (isset($_POST['delete_contract'])) {
   exit;
 }
 
-/* ------------------------
-   ✏️ EDITAR CONTRATO
--------------------------*/
+/* ------------------------ */
+/* ✏️ EDITAR CONTRATO */
+/* ------------------------ */
 if (isset($_POST['edit_contract'])) {
   $id_contrato = (int) $_POST['id_contrato'];
   $nome_fornecedor = trim($_POST['nome_fornecedor']);
@@ -119,9 +164,9 @@ if (isset($_POST['edit_contract'])) {
   exit;
 }
 
-/* ------------------------
-   📋 LISTAR CONTRATOS
--------------------------*/
+/* ------------------------ */
+/* 📋 LISTAR CONTRATOS */
+/* ------------------------ */
 $stmt = $pdo->prepare("SELECT * FROM contratos WHERE id_usuario = ? ORDER BY data_assinatura DESC");
 $stmt->execute([$idUsuario]);
 $contratos = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -409,7 +454,7 @@ $contratos = $stmt->fetchAll(PDO::FETCH_ASSOC);
           <?php if (isset($_SESSION["usuario_id"])): ?>
             <div class="profile-dropdown-wrapper">
               <img 
-                src="user/fotos/<?php echo htmlspecialchars($_SESSION['foto_perfil'] ?? 'default.png'); ?>"
+                src="../user/fotos/<?php echo htmlspecialchars($user_data['foto_perfil'] ?? 'default.png'); ?>"
                 alt="Foto de perfil"
                 class="profile-avatar"
                 onclick="toggleProfileDropdown()"
@@ -418,7 +463,7 @@ $contratos = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="profile-dropdown-header">
                   <div class="profile-dropdown-user">
                     <img 
-                      src="user/fotos/<?php echo htmlspecialchars($_SESSION['foto_perfil'] ?? 'default.png'); ?>" 
+                      src="../user/fotos/<?php echo htmlspecialchars($user_data['foto_perfil'] ?? 'default.png'); ?>"
                       alt="Avatar" 
                       class="profile-dropdown-avatar"
                     >

@@ -17,12 +17,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   // Foto padrão de perfil
   $foto_perfil = "default.png";
 
-  $sql = "INSERT INTO usuarios (nome, nome_conjuge, genero, idade, telefone, email, senha, cargo) 
-          VALUES (?, ?, ?, ?, ?, ?, ?, 'cliente')";
+  $sql = "INSERT INTO usuarios (nome, nome_conjuge, genero, idade, telefone, email, senha, cargo, foto_perfil) 
+          VALUES (?, ?, ?, ?, ?, ?, ?, 'cliente', ?)";
   $stmt = $pdo->prepare($sql);
 
   try {
-    $stmt->execute([$nome, $nome_conj, $genero, $idade, $telefone, $email, $senha]);
+    $stmt->execute([$nome, $nome_conj, $genero, $idade, $telefone, $email, $senha, $foto_perfil]);
 
     // pega ID do usuário inserido
     $id_usuario = $pdo->lastInsertId();
@@ -142,14 +142,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       </div>
       <div id="mobileMenu" class="mobile-menu">
         <nav
-          style="
-              display: flex;
-              flex-direction: column;
-              gap: 1rem;
-              padding: 1rem 0;
-              border-top: 1px solid hsl(var(--border));
-              margin-top: 0.5rem;
-            ">
+          style="display: flex; flex-direction: column; gap: 1rem; padding: 1rem 0; border-top: 1px solid hsl(var(--border)); margin-top: 0.5rem;">
           <a href="../index.php" class="nav-link">Início</a>
           <a href="login.php" class="btn-primary" style="align-items: center">Login</a>
         </nav>

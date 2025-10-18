@@ -4,28 +4,54 @@ require_once "../config/conexao.php";
 
 $cookieName = "lembrar_me";
 
-/* ------------------------
-   🔐 LOGIN POR COOKIE
--------------------------*/
+/* --- Restaurar sessão a partir do cookie (seguro: valida no DB) --- */
 if (!isset($_SESSION['usuario_id']) && isset($_COOKIE[$cookieName])) {
-  $usuarioId = (int) $_COOKIE[$cookieName]; // garante que é inteiro
-
-  $stmt = $pdo->prepare("SELECT id_usuario FROM usuarios WHERE id_usuario = ?");
-  $stmt->execute([$usuarioId]);
-  $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-  if ($user) {
-    $_SESSION['usuario_id'] = $user['id_usuario'];
-    $_SESSION['foto_perfil'] = $user['foto_perfil'] ?: "default.png";
-  } else {
-    // cookie inválido → limpa
-    setcookie($cookieName, "", time() - 3600, "/");
+  $cookieUserId = (int) $_COOKIE[$cookieName];
+  if ($cookieUserId > 0) {
+    $chk = $pdo->prepare("SELECT id_usuario, nome, cargo FROM usuarios WHERE id_usuario = ?");
+    $chk->execute([$cookieUserId]);
+    $u = $chk->fetch(PDO::FETCH_ASSOC);
+    if ($u) {
+      $_SESSION['usuario_id'] = (int)$u['id_usuario'];
+      $_SESSION['nome'] = $u['nome'];
+      $_SESSION['cargo'] = $u['cargo'] ?? 'cliente';
+    } else {
+      // cookie inválido -> remover
+      setcookie($cookieName, "", time() - 3600, "/");
+    }
   }
 }
 
-/* ------------------------
-   🔑 VERIFICA LOGIN
--------------------------*/
+$user_data = ['nome' => 'Usuário', 'email' => '', 'foto_perfil' => 'default.png'];
+
+/* --- Verifica login e busca dados do usuário --- */
+if (isset($_SESSION['usuario_id'])) {
+  try {
+    $stmt = $pdo->prepare("SELECT nome, email, foto_perfil FROM usuarios WHERE id_usuario = ?");
+    $stmt->execute([(int)$_SESSION['usuario_id']]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($result) {
+      $user_data = [
+        'nome' => $result['nome'] ?? 'Usuário',
+        'email' => $result['email'] ?? '',
+        'foto_perfil' => !empty($result['foto_perfil']) ? $result['foto_perfil'] : 'default.png'
+      ];
+      // Update session with latest photo
+      if (!empty($result['foto_perfil'])) {
+        $_SESSION['foto_perfil'] = $result['foto_perfil'];
+      } else {
+        $_SESSION['foto_perfil'] = 'default.png';
+      }
+    }
+  } catch (PDOException $e) {
+    error_log("Error fetching user data: " . $e->getMessage());
+  }
+}
+
+/* ------------------------ */
+/* 🔑 VERIFICA LOGIN */
+/* ------------------------ */
 if (!isset($_SESSION['usuario_id'])) {
   header("Location: ../user/login.php");
   exit;
@@ -33,9 +59,9 @@ if (!isset($_SESSION['usuario_id'])) {
 
 $idUsuario = (int) $_SESSION['usuario_id'];
 
-/* ------------------------
-   🚪 LOGOUT
--------------------------*/
+/* ------------------------ */
+/* 🚪 LOGOUT */
+/* ------------------------ */
 if (isset($_POST['logout'])) {
   session_destroy();
   setcookie($cookieName, "", time() - 3600, "/"); // apaga cookie
@@ -43,9 +69,9 @@ if (isset($_POST['logout'])) {
   exit;
 }
 
-/* ------------------------
-   ➕ ADICIONAR TAREFA
--------------------------*/
+/* ------------------------ */
+/* ➕ ADICIONAR TAREFA */
+/* ------------------------ */
 if (isset($_POST['add_task'])) {
   $titulo = trim($_POST['titulo']);
   $responsavel = trim($_POST['responsavel']);
@@ -61,9 +87,9 @@ if (isset($_POST['add_task'])) {
   exit;
 }
 
-/* ------------------------
-   📋 LISTAR TAREFAS
--------------------------*/
+/* ------------------------ */
+/* 📋 LISTAR TAREFAS */
+/* ------------------------ */
 $stmt = $pdo->prepare("SELECT * FROM tarefas WHERE id_usuario = ? ORDER BY prazo ASC");
 $stmt->execute([$idUsuario]);
 $tarefas = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -123,9 +149,9 @@ $tarefas = $stmt->fetchAll(PDO::FETCH_ASSOC);
       max-width: 500px;
     }
 
-    /* ------------------------
-       🎨 CUSTOM SELECT
-    -------------------------*/
+    /* ------------------------ */
+    /* 🎨 CUSTOM SELECT */
+    /* ------------------------ */
     .custom-select {
       position: relative;
       user-select: none;
@@ -325,7 +351,7 @@ $tarefas = $stmt->fetchAll(PDO::FETCH_ASSOC);
           <?php if (isset($_SESSION["usuario_id"])): ?>
             <div class="profile-dropdown-wrapper">
               <img 
-                src="user/fotos/<?php echo htmlspecialchars($_SESSION['foto_perfil'] ?? 'default.png'); ?>"
+                src="../user/fotos/<?php echo htmlspecialchars($user_data['foto_perfil'] ?? 'default.png'); ?>"
                 alt="Foto de perfil"
                 class="profile-avatar"
                 onclick="toggleProfileDropdown()"
@@ -334,7 +360,7 @@ $tarefas = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="profile-dropdown-header">
                   <div class="profile-dropdown-user">
                     <img 
-                      src="user/fotos/<?php echo htmlspecialchars($_SESSION['foto_perfil'] ?? 'default.png'); ?>" 
+                      src="../user/fotos/<?php echo htmlspecialchars($user_data['foto_perfil'] ?? 'default.png'); ?>"
                       alt="Avatar" 
                       class="profile-dropdown-avatar"
                     >
@@ -350,14 +376,14 @@ $tarefas = $stmt->fetchAll(PDO::FETCH_ASSOC);
                   </div>
                 </div>
                 <div class="profile-dropdown-menu">
-                  <a href="user/perfil.php" class="profile-dropdown-item">
+                  <a href="../user/perfil.php" class="profile-dropdown-item">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                       <circle cx="12" cy="7" r="4"></circle>
                     </svg>
                     Meu Perfil
                   </a>
-                  <a href="pages/funcionalidades.php" class="profile-dropdown-item">
+                  <a href="funcionalidades.php" class="profile-dropdown-item">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <rect x="3" y="4" width="7" height="7"></rect>
                       <rect x="14" y="3" width="7" height="7"></rect>

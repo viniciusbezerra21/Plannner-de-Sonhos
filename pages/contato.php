@@ -22,12 +22,31 @@ if (!isset($_SESSION['usuario_id']) && isset($_COOKIE[$cookieName])) {
   }
 }
 
-// Fetch user data if logged in
-$user_data = null;
+$user_data = ['nome' => 'Usuário', 'email' => '', 'foto_perfil' => 'default.png'];
+
+/* --- Verifica login e busca dados do usuário --- */
 if (isset($_SESSION['usuario_id'])) {
-  $stmt = $pdo->prepare("SELECT nome, email, foto_perfil FROM usuarios WHERE id_usuario = ?");
-  $stmt->execute([$_SESSION['usuario_id']]);
-  $user_data = $stmt->fetch(PDO::FETCH_ASSOC);
+  try {
+    $stmt = $pdo->prepare("SELECT nome, email, foto_perfil FROM usuarios WHERE id_usuario = ?");
+    $stmt->execute([(int)$_SESSION['usuario_id']]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($result) {
+      $user_data = [
+        'nome' => $result['nome'] ?? 'Usuário',
+        'email' => $result['email'] ?? '',
+        'foto_perfil' => !empty($result['foto_perfil']) ? $result['foto_perfil'] : 'default.png'
+      ];
+      // Update session with latest photo
+      if (!empty($result['foto_perfil'])) {
+        $_SESSION['foto_perfil'] = $result['foto_perfil'];
+      } else {
+        $_SESSION['foto_perfil'] = 'default.png';
+      }
+    }
+  } catch (PDOException $e) {
+    error_log("Error fetching user data: " . $e->getMessage());
+  }
 }
 
 $success = false;
@@ -396,70 +415,62 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <a href="contato.php" class="nav-link">Contato</a> 
             <?php if (isset($_SESSION["usuario_id"])): ?>
               <!-- Added profile dropdown for logged-in users -->
-              <div class="user-profile" onclick="toggleProfileDropdown()">
-                <?php if ($user_data && $user_data['foto_perfil']): ?>
-                  <img src="../user/fotos/<?php echo htmlspecialchars($user_data['foto_perfil']); ?>" alt="Perfil" class="user-avatar">
-                <?php else: ?>
-                  <div class="user-avatar-default">
-                    <?php echo strtoupper(substr($user_data['nome'] ?? 'U', 0, 1)); ?>
-                  </div>
-                <?php endif; ?>
-                <div class="profile-dropdown-wrapper">
-              <img 
-                src="user/fotos/<?php echo htmlspecialchars($_SESSION['foto_perfil'] ?? 'default.png'); ?>"
-                alt="Foto de perfil"
-                class="profile-avatar"
-                onclick="toggleProfileDropdown()"
-              >
-              <div class="profile-dropdown" id="profileDropdown">
-                <div class="profile-dropdown-header">
-                  <div class="profile-dropdown-user">
-                    <img 
-                      src="user/fotos/<?php echo htmlspecialchars($_SESSION['foto_perfil'] ?? 'default.png'); ?>" 
-                      alt="Avatar" 
-                      class="profile-dropdown-avatar"
-                    >
-                    <div class="profile-dropdown-info">
-                      <!-- Fixed to properly display user name and email -->
-                      <div class="profile-dropdown-name">
-                        <?php echo htmlspecialchars($user_data['nome']); ?>
-                      </div>
-                      <div class="profile-dropdown-email">
-                        <?php echo htmlspecialchars($user_data['email']); ?>
+              <div class="profile-dropdown-wrapper">
+                <img 
+                  src="../user/fotos/<?php echo htmlspecialchars($_SESSION['foto_perfil'] ?? 'default.png'); ?>"
+                  alt="Foto de perfil"
+                  class="profile-avatar"
+                  onclick="toggleProfileDropdown()"
+                >
+                <div class="profile-dropdown" id="profileDropdown">
+                  <div class="profile-dropdown-header">
+                    <div class="profile-dropdown-user">
+                      <img 
+                        src="../user/fotos/<?php echo htmlspecialchars($_SESSION['foto_perfil'] ?? 'default.png'); ?>" 
+                        alt="Avatar" 
+                        class="profile-dropdown-avatar"
+                      >
+                      <div class="profile-dropdown-info">
+                        <!-- Fixed to properly display user name and email -->
+                        <div class="profile-dropdown-name">
+                          <?php echo htmlspecialchars($user_data['nome']); ?>
+                        </div>
+                        <div class="profile-dropdown-email">
+                          <?php echo htmlspecialchars($user_data['email']); ?>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-                <div class="profile-dropdown-menu">
-                  <a href="user/perfil.php" class="profile-dropdown-item">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                      <circle cx="12" cy="7" r="4"></circle>
-                    </svg>
-                    Meu Perfil
-                  </a>
-                  <a href="pages/funcionalidades.php" class="profile-dropdown-item">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <rect x="3" y="4" width="7" height="7"></rect>
-                      <rect x="14" y="3" width="7" height="7"></rect>
-                      <rect x="14" y="14" width="7" height="7"></rect>
-                      <rect x="3" y="14" width="7" height="7"></rect>
-                    </svg>
-                    Funcionalidades
-                  </a>
-                  <form method="post" style="margin:0;">
-                    <button type="submit" name="logout" class="profile-dropdown-item logout" style="width: 100%; text-align: left; background: none; border: none; font-family: inherit; font-size: inherit;">
+                  <div class="profile-dropdown-menu">
+                    <a href="user/perfil.php" class="profile-dropdown-item">
                       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                        <polyline points="16 17 21 12 16 7"></polyline>
-                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
                       </svg>
-                      Sair
-                    </button>
-                  </form>
+                      Meu Perfil
+                    </a>
+                    <a href="pages/funcionalidades.php" class="profile-dropdown-item">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <rect x="3" y="4" width="7" height="7"></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="14" width="7" height="7"></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
+                      </svg>
+                      Funcionalidades
+                    </a>
+                    <form method="post" style="margin:0;">
+                      <button type="submit" name="logout" class="profile-dropdown-item logout" style="width: 100%; text-align: left; background: none; border: none; font-family: inherit; font-size: inherit;">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                          <polyline points="16 17 21 12 16 7"></polyline>
+                          <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                        Sair
+                      </button>
+                    </form>
+                  </div>
                 </div>
               </div>
-            </div>
                
             <?php else: ?>
               <a href="../user/login.php" class="btn-primary" style="align-items: center">Login</a>
@@ -840,12 +851,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
       });
     });
-  </script>
-  <script>
-    function toggleProfileDropdown() {
-      const dropdown = document.getElementById("profileDropdown");
-      dropdown.classList.toggle("active");
-    }
   </script>
 </body>
 
