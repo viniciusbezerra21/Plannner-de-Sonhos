@@ -316,7 +316,17 @@ $orcamentos = $pdo->query("
     <header class="dev-header">
       <div class="dev-container">
         <div class="header-content">
-          <a href="../index.php" class="logo"><span class="logo-text">Planner de Sonhos - DEV</span></a>
+          
+        <a href="../index.php" class="logo" style="display:flex; align-items:center; gap:6px; text-decoration:none;">
+          <div class="heart-icon">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+            </svg>
+          </div>
+          <span class="logo-text">Planner de Sonhos - DEV</span>
+        </a>
+
+          
           <nav style="display:flex; gap:1rem; align-items:center">
             <span style="color: rgba(255,255,255,0.8)">Bem-vindo, <?= htmlspecialchars($_SESSION['nome']); ?></span>
             <form method="post" style="margin:0;">
