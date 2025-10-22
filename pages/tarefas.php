@@ -342,6 +342,7 @@ $tarefas = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <div class="dropdown-menu">
               <a href="calendario.php">Calendário</a>
               <a href="orcamento.php">Orçamento</a>
+              <a href="fornecedores.php">Fornecedores</a>
               <a href="gestao-contratos.php">Gestão de Contratos</a>
               <a href="tarefas.php">Lista de Tarefas</a>
             </div>

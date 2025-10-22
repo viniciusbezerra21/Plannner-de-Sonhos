@@ -53,6 +53,44 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["acao"]) && $_POST["ac
     rel="stylesheet" />
   <link rel="shortcut icon" href="../Style/assets/icon.png" type="image/x-icon">
   <style>
+    .login-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      align-items: center;
+      min-height: calc(100vh - 120px);
+      padding: 2rem 0;
+    }
+
+    .login-content {
+      padding: 2rem;
+    }
+
+    .login-content h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      color: hsl(var(--foreground));
+    }
+
+    .login-content p {
+      color: hsl(var(--muted-foreground));
+      margin-bottom: 2rem;
+      line-height: 1.6;
+    }
+
+    .login-form {
+      background: hsl(var(--card));
+      border: 1px solid hsl(var(--border));
+      border-radius: 1rem;
+      padding: 2rem;
+    }
+
+    .login-form h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: hsl(var(--foreground));
+    }
+
     .input-group {
       position: relative;
       margin-top: 1rem;
@@ -106,6 +144,124 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["acao"]) && $_POST["ac
       margin-bottom: 1rem;
       text-align: center;
     }
+
+    .form-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .form-actions button,
+    .form-actions a {
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      text-align: center;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 1.5rem 0;
+      color: hsl(var(--muted-foreground));
+      font-size: 0.85rem;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: hsl(var(--border));
+    }
+
+    .supplier-section {
+      background: hsl(var(--primary) / 0.05);
+      border: 1px solid hsl(var(--primary) / 0.2);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      text-align: center;
+    }
+
+    .supplier-section h3 {
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+      color: hsl(var(--foreground));
+      font-size: 1rem;
+    }
+
+    .supplier-section p {
+      margin-bottom: 1rem;
+      color: hsl(var(--muted-foreground));
+      font-size: 0.9rem;
+    }
+
+    .supplier-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .supplier-buttons a {
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    .btn-supplier-login {
+      background: hsl(var(--primary));
+      color: hsl(var(--primary-foreground));
+    }
+
+    .btn-supplier-login:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-supplier-register {
+      background: transparent;
+      color: hsl(var(--primary));
+      border: 2px solid hsl(var(--primary));
+    }
+
+    .btn-supplier-register:hover {
+      background: hsl(var(--primary) / 0.1);
+    }
+
+    @media (max-width: 768px) {
+      .login-container {
+        grid-template-columns: 1fr;
+        min-height: auto;
+      }
+
+      .login-content h1 {
+        font-size: 1.5rem;
+      }
+
+      .login-form {
+        padding: 1.5rem;
+      }
+
+      .supplier-buttons {
+        flex-direction: row;
+      }
+
+      .supplier-buttons a {
+        flex: 1;
+      }
+    }
   </style>
 </head>
 
@@ -142,39 +298,66 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["acao"]) && $_POST["ac
   </header>
   <main>
     <section class="page-content" style="padding-top: 6rem">
-      <div class="container" style="max-width: 400px; margin: auto">
-        <div class="page-header" style="text-align: center">
-          <h1 class="page-title">Login</h1>
-          <p class="page-description">
-            Entre na sua conta para gerenciar seus eventos e casamento.
-          </p>
-        </div>
-
-        <?php if ($mensagem) echo $mensagem; ?>
-
-        <form method="POST">
-          <input type="hidden" name="acao" value="login">
-
-          <div class="card form-section" style="margin-bottom: 1rem">
-
-            <div class="input-group">
-              <input type="text" name="email" placeholder="E-mail ou Nome de Usuário" required />
+      <div class="container">
+        <div class="login-container">
+          <!-- Left side - Content -->
+          <div class="login-content">
+            <h1>Bem-vindo!</h1>
+            <p>Faça login para gerenciar seus eventos e casamento com facilidade. Acesse seu calendário, orçamento, fornecedores e muito mais.</p>
+            
+            <div style="background: hsl(var(--muted)); border-radius: 0.75rem; padding: 1.5rem; margin-top: 2rem;">
+              <h3 style="margin-top: 0; color: hsl(var(--foreground));">Novo por aqui?</h3>
+              <p style="color: hsl(var(--muted-foreground)); margin-bottom: 1rem;">Crie sua conta para começar a organizar o casamento dos seus sonhos.</p>
+              <a href="cadastro.php" class="btn-primary" style="display: inline-block; padding: 0.75rem 1.5rem;">Criar Conta</a>
             </div>
-
-            <div class="input-group">
-              <input type="password" name="senha" placeholder="Senha" required />
-            </div>
-
-            <button type="submit" class="btn-primary" style="margin-top: 1rem; width: 100%; text-align: center">
-              Entrar
-            </button>
           </div>
 
-          <p style="text-align: center; margin-top: 1rem; font-size: 0.875rem">
-            Não tem uma conta?
-            <a href="cadastro.php" style="color: hsl(var(--primary)); text-decoration: underline">Cadastre-se aqui</a>.
-          </p>
-        </form>
+          <!-- Right side - Login Form -->
+          <div class="login-form">
+            <h2>Login de Cliente</h2>
+
+            <?php if ($mensagem) echo $mensagem; ?>
+
+            <form method="POST">
+              <input type="hidden" name="acao" value="login">
+
+              <div class="input-group">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                </svg>
+                <input type="text" name="email" placeholder="E-mail ou Nome de Usuário" required />
+              </div>
+
+              <div class="input-group">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                </svg>
+                <input type="password" name="senha" placeholder="Senha" required />
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="btn-primary">Entrar</button>
+              </div>
+
+              <p style="text-align: center; margin-top: 1rem; font-size: 0.875rem">
+                Não tem uma conta?
+                <a href="cadastro.php" style="color: hsl(var(--primary)); text-decoration: underline">Cadastre-se aqui</a>.
+              </p>
+            </form>
+
+            <!-- Added supplier login section -->
+            <div class="divider">Ou</div>
+
+            <div class="supplier-section">
+              <h3>Sou Fornecedor</h3>
+              <p>Gerencie seus serviços e pacotes</p>
+              <div class="supplier-buttons">
+                <a href="../supplier/login.php" class="btn-supplier-login">Login de Fornecedor</a>
+                <a href="../supplier/register.php" class="btn-supplier-register">Cadastrar-se</a>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   </main>

@@ -344,6 +344,7 @@ if (isset($_SESSION["usuario_id"])) {
               <div class="dropdown-menu">
                 <a href="pages/calendario.php">Calendário</a>
                 <a href="pages/orcamento.php">Orçamento</a>
+                <a href="pages/fornecedores.php">Fornecedores</a>
                 <a href="pages/gestao-contratos.php">Gestão de Contratos</a>
                 <a href="pages/tarefas.php">Lista de Tarefas</a>
               </div>
