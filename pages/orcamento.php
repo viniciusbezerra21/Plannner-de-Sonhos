@@ -424,58 +424,6 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </head>
 
 <body>
-  <div class="create-event-modal" id="janela-modal-orcamentos">
-    <div class="modal-content">
-      <div class="card" style="
-      background: linear-gradient(
-        135deg,
-        var(--wedding-rose-white) 0%,
-        rgba(225, 190, 231, 0.2) 50%,
-        rgba(186, 104, 200, 0.3) 100%
-      );
-    ">
-        <h2 style="margin-bottom: 1rem">Adicionar Item ao Orçamento</h2>
-        <form method="post" action="orcamento.php">
-          <table style="width: 100%; border-collapse: collapse">
-            <tbody>
-              <!-- Linha de inputs -->
-              <tr>
-                <td style="padding: 0.5rem">
-                  <div class="form-group">
-                    <label for="item">Item:</label>
-                    <input type="text" name="item" id="item" placeholder="Nome do item" style="width: 100%" required>
-                  </div>
-                </td>
-                <td style="padding: 0.5rem">
-                  <div class="form-group">
-                    <label for="fornecedor">Fornecedor:</label>
-                    <input type="text" name="fornecedor" id="fornecedor" placeholder="Nome do fornecedor" style="width: 100%">
-                  </div>
-                </td>
-                <td style="padding: 0.5rem">
-                  <div class="form-group">
-                    <label for="quantidade">Quantidade:</label>
-                    <input type="number" name="quantidade" id="quantidade" placeholder="Qtd" style="width: 100%" min="1" value="1" required>
-                  </div>
-                </td>
-                <td style="padding: 0.5rem">
-                  <div class="form-group">
-                    <label for="valor_unitario">Valor Unitário:</label>
-                    <input type="number" name="valor_unitario" id="valor_unitario" placeholder="0,00" style="width: 100%" step="0.01" min="0.01" required>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <div style="margin-top: 1rem; display: flex; gap: 1rem;">
-            <button type="button" id="sair" class="btn-outline">Cancelar</button>
-            <button type="submit" name="add_item" class="btn-primary">Adicionar Item</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
   <!-- Header -->
   <header class="header">
     <div class="container">
@@ -496,6 +444,7 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <div class="dropdown-menu">
               <a href="calendario.php">Calendário</a>
               <a href="orcamento.php">Orçamento</a>
+              <a href="fornecedores.php">Fornecedores</a>
               <a href="gestao-contratos.php">Gestão de Contratos</a>
               <a href="tarefas.php">Lista de Tarefas</a>
             </div>
@@ -648,7 +597,9 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
               </tfoot>
             </table>
           </div>
-          <button class="btn-primary" id="abrirModal">Adicionar Item</button>
+          <a href="fornecedores.php" class="btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
+            Ver Fornecedores
+          </a>
 
           <div class="card" style="margin-top: 2rem">
             <h2 style="margin-bottom: 1rem">Observações</h2>

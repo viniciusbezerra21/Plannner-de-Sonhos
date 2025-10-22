@@ -104,7 +104,7 @@ function abrirEventoDoDia(data) {
                   <span class="event-type meeting ${evento.cor_tag}" id="tagEvento">${evento.descricao}</span>
 
                 </div>
-                <button onclick="removerEvento('${data}', ${index})" class="btn-outline">Excluir</button>
+                <button onclick="removerEvento('${data}', ${index})" class="btn-outline" style="margin-left: 1rem;">Excluir</button>
             `
       lista.appendChild(li)
     })

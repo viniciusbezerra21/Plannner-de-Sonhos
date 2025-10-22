@@ -567,6 +567,7 @@ $tema_cor = $usuario["tema_cor"] ?? "azul";
         <nav class="nav">
           <a href="../index.php" class="nav-link">Início</a>
           <a href="perfil.php" class="nav-link">Perfil</a>
+          <a href="../pages/fornecedores.php">Fornecedores</a>
           <a href="../pages/calendario.php" class="nav-link">Calendario</a>
           <a href="../pages/orcamento.php" class="nav-link">Orçamento</a>
         </nav>
