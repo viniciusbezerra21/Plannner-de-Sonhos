@@ -49,6 +49,24 @@ if (isset($_SESSION['usuario_id'])) {
   }
 }
 
+if (isset($_POST['logout'])) {
+  $cookieName = "lembrar_me";
+  try {
+    if (isset($_SESSION['usuario_id'])) {
+      $stmt = $pdo->prepare("UPDATE usuarios SET remember_token = NULL WHERE id_usuario = ?");
+      $stmt->execute([$_SESSION['usuario_id']]);
+    }
+  } catch (PDOException $e) {
+    error_log("Logout error: " . $e->getMessage());
+  }
+  
+  setcookie($cookieName, "", time() - 3600, "/");
+  session_unset();
+  session_destroy();
+  header("Location: ../index.php");
+  exit;
+}
+
 $idUsuario = (int) $_SESSION['usuario_id'];
 
 /* ------------------------ */
@@ -61,6 +79,12 @@ if (isset($_POST['save_rating'])) {
   if ($rating >= 1 && $rating <= 5) {
     $stmt = $pdo->prepare("UPDATE orcamentos SET avaliacao = ? WHERE id_orcamento = ? AND id_usuario = ?");
     $stmt->execute([$rating, $idOrc, $idUsuario]);
+  }
+  
+  if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
+    header('Content-Type: application/json');
+    echo json_encode(['success' => true]);
+    exit;
   }
   
   header("Location: orcamento.php");
@@ -260,34 +284,30 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
     /* Enhanced star rating styles */
     .estrela-rating {
       display: flex;
-      gap: 2px;
+      gap: 4px; /* Adjusted gap for better spacing */
       align-items: center;
     }
 
     .estrela-icon {
-      width: 18px;
-      height: 18px;
+      width: 20px; /* Increased icon size */
+      height: 20px; /* Increased icon size */
       fill: #ddd;
-      stroke: #ddd;
-      stroke-width: 1;
       cursor: pointer;
       transition: all 0.2s ease-in-out;
     }
 
-    /* Fixed star states to properly show filled stars */
+    /* Simplified star states with better visibility */
     .estrela-icon.active {
-      fill: #ffc107 !important;
-      stroke: #ffc107 !important;
+      fill: #ffc107;
     }
 
     .estrela-icon.hover {
-      fill: #ffb300 !important;
-      stroke: #ffb300 !important;
+      fill: #ffb300;
     }
 
     .estrela-icon.success-feedback {
-      fill:rgb(213, 114, 216) !important;
-      stroke:rgb(213, 114, 216) !important;
+      fill: #d572d8; /* Slightly different color for feedback */
+      transform: scale(1.2); /* Added scale effect for feedback */
     }
 
     .rating-form {
@@ -491,7 +511,8 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     Funcionalidades
                   </a>
                   <form method="post" style="margin:0;">
-                    <button type="submit" name="logout" class="profile-dropdown-item logout" style="width: 100%; text-align: left; background: none; border: none; font-family: inherit; font-size: inherit;">
+                    <!-- <button type="submit" name="logout" class="profile-dropdown-item logout" style="width: 100%; text-align: left; background: none; border: none; font-family: inherit; font-size: inherit;"> -->
+                    <button type="submit" name="logout" class="profile-dropdown-item"> <!-- Removed inline styles, use class -->
                       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                         <polyline points="16 17 21 12 16 7"></polyline>
@@ -564,7 +585,8 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <?php for($star = 1; $star <= 5; $star++): ?>
                               <svg class="estrela-icon <?= ($i['avaliacao'] >= $star) ? 'active' : '' ?>" 
                                    data-rating="<?= $star ?>" 
-                                   viewBox="0 0 24 24">
+                                   viewBox="0 0 24 24"
+                                   xmlns="http://www.w3.org/2000/svg"> <!-- Added xmlns attribute for SVG -->
                                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                               </svg>
                             <?php endfor; ?>
@@ -648,21 +670,25 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
     function toggleMobileMenu() {
       const mobileMenu = document.getElementById("mobileMenu");
       const hamburgerBtn = document.getElementById("hamburgerBtn");
-      mobileMenu.classList.toggle("active");
-      hamburgerBtn.classList.toggle("hamburger-active");
+      if (mobileMenu && hamburgerBtn) { // Added null check for elements
+        mobileMenu.classList.toggle("active");
+        hamburgerBtn.classList.toggle("hamburger-active");
+      }
     }
 
     function toggleProfileDropdown() {
       const dropdown = document.getElementById("profileDropdown");
-      dropdown.classList.toggle("active");
+      if (dropdown) { // Added null check for element
+        dropdown.classList.toggle("active");
+      }
     }
 
     // Fechar dropdown quando clicar fora
     document.addEventListener('click', function(event) {
-      const profile = document.querySelector('.user-profile');
+      const profileWrapper = document.querySelector('.profile-dropdown-wrapper');
       const dropdown = document.getElementById("profileDropdown");
-      if (profile && !profile.contains(event.target)) {
-        dropdown?.classList.remove("active");
+      if (profileWrapper && dropdown && !profileWrapper.contains(event.target)) { // Added null check for elements
+        dropdown.classList.remove("active");
       }
     });
     
@@ -677,19 +703,12 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
           });
           const mobileMenu = document.getElementById("mobileMenu");
           const hamburgerBtn = document.getElementById("hamburgerBtn");
-          mobileMenu.classList.remove("active");
-          hamburgerBtn.classList.remove("hamburger-active");
+          if (mobileMenu && hamburgerBtn) { // Added null check for elements
+            mobileMenu.classList.remove("active");
+            hamburgerBtn.classList.remove("hamburger-active");
+          }
         }
       });
-    });
-
-    document.getElementById('abrirModal').addEventListener('click', function() {
-      document.getElementById('janela-modal-orcamentos').style.display = 'block';
-    });
-
-    document.getElementById('sair').addEventListener('click', function() {
-      document.getElementById('janela-modal-orcamentos').style.display = 'none';
-      document.querySelector('#janela-modal-orcamentos form').reset();
     });
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -706,11 +725,12 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
         // Initialize visual state
         updateStarDisplay(stars, currentRating);
         
-        stars.forEach((star, index) => {
+        stars.forEach((star) => {
           const starRating = parseInt(star.dataset.rating);
           
           star.addEventListener('click', function(e) {
             e.preventDefault();
+            e.stopPropagation(); // Prevent event bubbling up
             console.log('[v0] Star clicked, rating:', starRating);
             
             ratingInput.value = starRating;
@@ -724,7 +744,10 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
             fetch('orcamento.php', {
               method: 'POST',
-              body: formData
+              body: formData,
+              headers: {
+                'X-Requested-With': 'XMLHttpRequest' // Add header for AJAX identification
+              }
             })
             .then(response => {
               if (response.ok) {
@@ -736,7 +759,7 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 setTimeout(() => {
                   stars.forEach(s => s.classList.remove('success-feedback'));
                   updateStarDisplay(stars, starRating);
-                }, 500);
+                }, 400);
               } else {
                 console.error('[v0] Error saving rating');
               }
@@ -759,7 +782,7 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
       });
       
       function updateStarDisplay(stars, rating, isHover = false) {
-        stars.forEach((star, index) => {
+        stars.forEach((star) => {
           const starValue = parseInt(star.dataset.rating);
           star.classList.remove('active', 'hover');
           
@@ -774,7 +797,6 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
       }
     });
   </script>
-  <script src="../js/orcamento.js"></script>
 </body>
 
 </html>

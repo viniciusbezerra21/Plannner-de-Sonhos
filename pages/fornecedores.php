@@ -97,6 +97,21 @@ foreach ($fornecedores as $fornecedor) {
   $fornecedores_com_servicos[] = $fornecedor;
 }
 
+if (isset($_POST['logout'])) {
+  try {
+    $stmt = $pdo->prepare("UPDATE usuarios SET remember_token = NULL WHERE id_usuario = ?");
+    $stmt->execute([$usuario_id]);
+  } catch (PDOException $e) {
+    error_log("Logout error: " . $e->getMessage());
+  }
+  
+  setcookie($cookieName, "", time() - 3600, "/");
+  session_unset();
+  session_destroy();
+  header("Location: ../index.php");
+  exit;
+}
+
 if (isset($_POST['add_to_budget'])) {
   $id_fornecedor = (int)$_POST['id_fornecedor'];
   $id_usuario = (int)$_SESSION['usuario_id'];
@@ -627,12 +642,12 @@ if (isset($_POST['add_to_budget'])) {
                     Funcionalidades
                   </a>
                   <form method="post" style="margin:0;">
-                    <button type="submit" name="logout" class="profile-dropdown-item logout" style="width: 100%; text-align: left; background: none; border: none; font-family: inherit; font-size: inherit;">
-                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                        <polyline points="16 17 21 12 16 7"></polyline>
-                        <line x1="21" y1="12" x2="9" y2="12"></line>
-                      </svg>
+                    <button type="submit" name="logout" class="profile-dropdown-item logout" style="width: 100%; text-align: left; background: none; border: none; font-family: inherit; font-size: inherit; cursor: pointer; display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem;">
+                    <svg fill="hsl(var(--foreground))" width="800px" height="800px" viewBox="0 0 36 36" version="1.1"  preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>logout-line</title>
+    <path d="M7,6H23v9.8h2V6a2,2,0,0,0-2-2H7A2,2,0,0,0,5,6V30a2,2,0,0,0,2,2H23a2,2,0,0,0,2-2H7Z" class="clr-i-outline clr-i-outline-path-1"></path><path d="M28.16,17.28a1,1,0,0,0-1.41,1.41L30.13,22H15.63a1,1,0,0,0-1,1,1,1,0,0,0,1,1h14.5l-3.38,3.46a1,1,0,1,0,1.41,1.41L34,23.07Z" class="clr-i-outline clr-i-outline-path-2"></path>
+    <rect x="0" y="0" width="36" height="36" fill-opacity="0"/>
+</svg>
                       Sair
                     </button>
                   </form>

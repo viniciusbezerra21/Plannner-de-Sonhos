@@ -2,6 +2,8 @@
 session_start();
 require_once "../config/conexao.php";
 
+$cookieName = "lembrar_me_fornecedor";
+
 // Verificar se o fornecedor está logado
 if (!isset($_SESSION['fornecedor_id'])) {
     header("Location: login.php");
@@ -26,6 +28,23 @@ try {
 } catch (PDOException $e) {
     error_log("Profile fetch error: " . $e->getMessage());
     $fornecedor = [];
+}
+
+if (isset($_POST['logout'])) {
+    // Clear remember token from database
+    try {
+        $stmt = $pdo->prepare("UPDATE fornecedores SET remember_token = NULL WHERE id_fornecedor = ?");
+        $stmt->execute([$fornecedor_id]);
+    } catch (PDOException $e) {
+        error_log("Logout error: " . $e->getMessage());
+    }
+    
+    // Clear cookie and session
+    setcookie($cookieName, "", time() - 3600, "/");
+    session_unset();
+    session_destroy();
+    header("Location: login.php");
+    exit;
 }
 
 // Handle profile update
@@ -233,7 +252,7 @@ $categorias = [
   <header class="header">
     <div class="container">
       <div class="header-content">
-        <a href="../dashboard.php" class="logo">
+        <a href="dashboard.php" class="logo">
           <div class="heart-icon">
             <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
