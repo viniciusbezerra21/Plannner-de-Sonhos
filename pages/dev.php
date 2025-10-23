@@ -586,6 +586,34 @@ $orcamentos = $pdo->query("
     }
   </script>
 
+<script>
+function openModal(id) {
+  document.getElementById(id).style.display = 'flex';
+  document.getElementById("pageContent").classList.add("blurred");
+}
+
+function closeModal(id) {
+  document.getElementById(id).style.display = 'none';
+  document.getElementById("pageContent").classList.remove("blurred");
+}
+
+function toggleEditForm(userId) {
+  const form = document.getElementById('editForm' + userId);
+  form.classList.toggle('active');
+}
+
+
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', function(e) {
+    if (e.target === this) {
+      this.style.display = 'none';
+      document.getElementById("pageContent").classList.remove("blurred");
+    }
+  });
+});
+</script>
+
+
 <footer class="footer" style="background: transparent; padding: 20px; margin-top: 90px;">
 
     <div class="container">
