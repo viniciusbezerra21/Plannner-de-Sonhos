@@ -311,121 +311,9 @@ $orcamentos = $pdo->query("
     .footer-description-dev {
    color: white;
   margin: 1rem 0;
-  line-height: 1.6;
+  line-height: 1.6;}
+  
 
-  .footer-dev {
-  background: hsl(var(--card));
-  border-top: 1px solid hsl(var(--border));
-  padding: 3rem 1rem 2rem;
-}
-
-.footer-content-dev {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 2rem;
-  margin-bottom: 2rem;
-}
-
-@media (min-width: 768px) {
-  .footer-content {
-    grid-template-columns: 2fr 1fr 1fr;
-  }
-}
-
-.footer-brand-dev {
-  max-width: 24rem;
-  animation: slideInFromLeft 0.8s ease-out;
-}
-
-.footer-description-dev {
-  color: hsl(var(--muted-foreground));
-  margin: 1rem 0;
-  line-height: 1.6;
-}
-
-.footer-contact-dev {
-  cursor: default;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: hsl(var(--muted-foreground));
-}
-
-.footer-links-dev,
-.footer-modules {
-  animation: slideInFromRight 0.8s ease-out;
-}
-
-.footer-links h3,
-.footer-modules-dev h3 {
-  font-family: "Poppins", sans-serif;
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: hsl(var(--foreground));
-  margin-bottom: 1rem;
-}
-
-.footer-links-dev ul,
-.footer-modules-dev ul {
-  list-style: none;
-}
-
-.footer-links-dev li,
-.footer-modules-dev li {
-  margin-bottom: 0.5rem;
-}
-
-.footer-links-dev a,
-.footer-modules a {
-  color: hsl(var(--muted-foreground));
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-.footer-links-dev a:hover,
-.footer-modules-dev a:hover {
-  color: hsl(var(--primary));
-}
-
-.footer-modules-dev .disabled {
-  color: hsl(var(--muted-foreground));
-  opacity: 0.6;
-}
-
-.footer-bottom-dev {
-  cursor: default;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  align-items: center;
-  padding-top: 2rem;
-  border-top: 1px solid hsl(var(--border));
-  color: hsl(var(--muted-foreground));
-}
-
-@media (min-width: 768px) {
-  .footer-bottom {
-    flex-direction: row;
-    justify-content: space-between;
-  }
-}
-
-.footer-legal-dev {
-  display: flex;
-  gap: 1.5rem;
-}
-
-.footer-legal-dev a {
-  color: hsl(var(--muted-foreground));
-  text-decoration: none;
-  font-size: 0.875rem;
-  transition: color 0.2s;
-}
-
-.footer-legal-dev a:hover {
-  color: hsl(var(--primary));
-}
-}
 
     
   </style>
@@ -489,7 +377,7 @@ $orcamentos = $pdo->query("
         </div>
         <div class="action-card">
           <h3>Mensagens de Contato</h3>
-          <p>Visualizar e responder mensagens enviadas pelos usuários.</p><button class="btn-dev" onclick="openModal('messagesModal')">Acessar</button>
+          <p>Visualizar mensagens enviadas pelos usuários.</p><button class="btn-dev" onclick="openModal('messagesModal')">Acessar</button>
         </div>
         <div class="action-card">
           <h3>Tarefas</h3>
@@ -698,13 +586,14 @@ $orcamentos = $pdo->query("
     }
   </script>
 
-<footer class="footer-dev">
+<footer class="footer" style="background: transparent; padding: 20px; margin-top: 90px;">
+
     <div class="container">
-      <div class="footer-content-dev">
-        <div class="footer-brand-dev">
+      <div class="footer-content">
+        <div class="footer-brand">
           <a href="../index.php" class="logo">
             <div class="heart-icon">
-              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" >
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>
             </div>
@@ -713,30 +602,30 @@ $orcamentos = $pdo->query("
           <p class="footer-description-dev">
             A plataforma mais completa para cerimonialistas organizarem casamentos perfeitos. Simplifique sua gestão e encante seus clientes.
           </p>
-          <div class="footer-contact-dev">
+          <div class="footer-contact">
             <svg style="width: 1rem; height: 1rem" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
               <polyline points="22,6 12,13 2,6" />
             </svg>
-            <span>contato@plannerdesonhos.com</span>
-          </div>
+            <span style="color: white;">contato@plannerdesonhos.com</span>
+          </div>  
         </div>
-        <div class="footer-links-dev">
+        <div class="footer-links">
           <h3>Links Rápidos</h3>
-          <ul>
-            <li><a href="../legal-pages/about.html">Sobre</a></li>
-            <li><a href="../legal-pages/privacity-politics.html">Política de Privacidade</a></li>
-            <li><a href="../legal-pages/uses-terms.html">Termos de Uso</a></li>
+          <ul style="color: white;">
+           <li><a href="../legal-pages/about.html" style="color: white;">Sobre</a></li>
+            <li><a href="../legal-pages/privacity-politics.html" style="color: white;">Política de Privacidade</a></li>
+            <li><a href="../legal-pages/uses-terms.html" style="color: white;">Termos de Uso</a></li>
           </ul>
+
         </div>
       </div>
 
-      <div class="footer-bottom-dev">
+      <div class="footer-bottom">
         <p>&copy; 2025 Planner de Sonhos. Todos os direitos reservados.</p>
       </div>
     </div>
-</footer>
-
+  </footer>
 
 
 </body>
