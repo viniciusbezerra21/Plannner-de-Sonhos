@@ -308,6 +308,14 @@ $orcamentos = $pdo->query("
       font-size: 0.8rem;
       margin: 0.25rem;
     }
+    .footer-description-dev {
+   color: white;
+  margin: 1rem 0;
+  line-height: 1.6;}
+  
+
+
+    
   </style>
 </head>
 
@@ -316,7 +324,17 @@ $orcamentos = $pdo->query("
     <header class="dev-header">
       <div class="dev-container">
         <div class="header-content">
-          <a href="../index.php" class="logo"><span class="logo-text">Planner de Sonhos - DEV</span></a>
+          
+        <a href="../index.php" class="logo" style="display:flex; align-items:center; gap:6px; text-decoration:none;">
+          <div class="heart-icon">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+            </svg>
+          </div>
+          <span class="logo-text">Planner de Sonhos - DEV</span>
+        </a>
+
+          
           <nav style="display:flex; gap:1rem; align-items:center">
             <span style="color: rgba(255,255,255,0.8)">Bem-vindo, <?= htmlspecialchars($_SESSION['nome']); ?></span>
             <form method="post" style="margin:0;">
@@ -359,7 +377,7 @@ $orcamentos = $pdo->query("
         </div>
         <div class="action-card">
           <h3>Mensagens de Contato</h3>
-          <p>Visualizar e responder mensagens enviadas pelos usuários.</p><button class="btn-dev" onclick="openModal('messagesModal')">Acessar</button>
+          <p>Visualizar mensagens enviadas pelos usuários.</p><button class="btn-dev" onclick="openModal('messagesModal')">Acessar</button>
         </div>
         <div class="action-card">
           <h3>Tarefas</h3>
@@ -567,6 +585,77 @@ $orcamentos = $pdo->query("
       form.classList.toggle('active');
     }
   </script>
+
+<script>
+function openModal(id) {
+  document.getElementById(id).style.display = 'flex';
+  document.getElementById("pageContent").classList.add("blurred");
+}
+
+function closeModal(id) {
+  document.getElementById(id).style.display = 'none';
+  document.getElementById("pageContent").classList.remove("blurred");
+}
+
+function toggleEditForm(userId) {
+  const form = document.getElementById('editForm' + userId);
+  form.classList.toggle('active');
+}
+
+
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', function(e) {
+    if (e.target === this) {
+      this.style.display = 'none';
+      document.getElementById("pageContent").classList.remove("blurred");
+    }
+  });
+});
+</script>
+
+
+<footer class="footer" style="background: transparent; padding: 20px; margin-top: 90px;">
+
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <a href="../index.php" class="logo">
+            <div class="heart-icon">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" >
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              </svg>
+            </div>
+            <span class="logo-text">Planner de Sonhos - Dev</span>
+          </a>
+          <p class="footer-description-dev">
+            A plataforma mais completa para cerimonialistas organizarem casamentos perfeitos. Simplifique sua gestão e encante seus clientes.
+          </p>
+          <div class="footer-contact">
+            <svg style="width: 1rem; height: 1rem" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+              <polyline points="22,6 12,13 2,6" />
+            </svg>
+            <span style="color: white;">contato@plannerdesonhos.com</span>
+          </div>  
+        </div>
+        <div class="footer-links">
+          <h3>Links Rápidos</h3>
+          <ul style="color: white;">
+           <li><a href="../legal-pages/about.html" style="color: white;">Sobre</a></li>
+            <li><a href="../legal-pages/privacity-politics.html" style="color: white;">Política de Privacidade</a></li>
+            <li><a href="../legal-pages/uses-terms.html" style="color: white;">Termos de Uso</a></li>
+          </ul>
+
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2025 Planner de Sonhos. Todos os direitos reservados.</p>
+      </div>
+    </div>
+  </footer>
+
+
 </body>
 
 </html>
