@@ -2,7 +2,7 @@
 session_start();
 require_once "../config/conexao.php";
 
-// Verificar se é desenvolvedor
+
 if (!isset($_SESSION['id_usuario']) || $_SESSION['cargo'] !== 'dev') {
   header("Location: ../user/login.php");
   exit;

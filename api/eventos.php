@@ -4,7 +4,7 @@ require_once '../config/conexao.php';
 
 header('Content-Type: application/json');
 
-// Check if user is logged in
+
 if (!isset($_SESSION['usuario_id'])) {
     echo json_encode(['success' => false, 'error' => 'Não autenticado']);
     exit;
@@ -12,7 +12,7 @@ if (!isset($_SESSION['usuario_id'])) {
 
 $idUsuario = (int) $_SESSION['usuario_id'];
 
-// Get JSON input
+
 $input = json_decode(file_get_contents('php://input'), true);
 $action = $input['action'] ?? '';
 
@@ -44,7 +44,7 @@ try {
             break;
             
         case 'delete':
-            // Delete event
+           
             $stmt = $pdo->prepare("DELETE FROM eventos WHERE id_evento = ? AND id_usuario = ?");
             $stmt->execute([$input['id'], $idUsuario]);
             

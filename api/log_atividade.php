@@ -14,7 +14,7 @@ function logAtividade($pdo, $usuario_id, $tipo, $descricao) {
     }
 }
 
-// Example usage when called directly
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tipo']) && isset($_POST['descricao'])) {
     if (!isset($_SESSION['usuario_id'])) {
         http_response_code(401);

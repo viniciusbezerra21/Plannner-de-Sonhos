@@ -9,7 +9,7 @@ const janelaModalView = document.getElementById("janela-modal-view")
 const dataAtual = new Date()
 let dataSelecionada = null
 
-// Atualiza o título do mês
+
 function atualizarTituloMes() {
   const mes = dataAtual.toLocaleString("default", { month: "long" })
   const ano = dataAtual.getFullYear()
@@ -32,12 +32,12 @@ atualizarTituloMes()
 
 const calendarDaysContainer = document.getElementById("calendar-days-container")
 const API_BASE = "../api/eventos.php"
-// Initialize events from PHP
+
 
 const eventos = {};
 
 if (typeof eventosFromDB !== "undefined" && eventosFromDB.length > 0) {
-  // 1️⃣ Preenche o objeto 'eventos' com os dados do banco
+
   eventosFromDB.forEach((evento) => {
     const data = evento.data_evento
     if (!eventos[data]) {
@@ -56,7 +56,7 @@ if (typeof eventosFromDB !== "undefined" && eventosFromDB.length > 0) {
     })
   })
 
-  // 2️⃣ Depois que tudo foi carregado, adiciona na lista e aplica as cores
+  
   Object.keys(eventos).forEach((data) => {
     eventos[data].forEach((evento) => {
       adicionaEventonaListaDeEventos(evento)
@@ -65,7 +65,7 @@ if (typeof eventosFromDB !== "undefined" && eventosFromDB.length > 0) {
   })
 }
 
-// Função para abrir eventos do dia
+
 function abrirEventoDoDia(data) {
   const lista = document.getElementById("eventList")
   lista.innerHTML = ""
@@ -115,7 +115,7 @@ function abrirEventoDoDia(data) {
   janelaModalView.style.display = "flex"
 }
 
-// Função para remover evento
+
 async function removerEvento(data, index) {
   const evento = eventos[data][index]
 
@@ -148,7 +148,7 @@ async function removerEvento(data, index) {
   }
 }
 
-// Função para criar os dias no calendário
+
 function criarDiasDoMes() {
   calendarDaysContainer.innerHTML = ""
 
@@ -159,7 +159,7 @@ function criarDiasDoMes() {
   const diasNoMes = new Date(ano, mes + 1, 0).getDate()
   const diasNoMesAnterior = new Date(ano, mes, 0).getDate()
 
-  // Dias do mês anterior
+ 
   for (let i = primeiroDiaSemana; i > 0; i--) {
     const dia = document.createElement("div")
     dia.classList.add("calendar-day", "other-month")
@@ -167,7 +167,7 @@ function criarDiasDoMes() {
     calendarDaysContainer.appendChild(dia)
   }
 
-  // Dias do mês atual
+ 
   for (let i = 1; i <= diasNoMes; i++) {
     const dia = document.createElement("div")
     dia.classList.add("calendar-day")
@@ -187,7 +187,7 @@ function criarDiasDoMes() {
     calendarDaysContainer.appendChild(dia)
   }
 
-  // Dias do próximo mês
+ 
   const totalDiasCriados = primeiroDiaSemana + diasNoMes
   const diasRestantes = 7 - (totalDiasCriados % 7)
 
@@ -203,7 +203,7 @@ function criarDiasDoMes() {
 
 criarDiasDoMes()
 
-// Fechar modais ao clicar fora
+
 window.onclick = (event) => {
   if (event.target === janelaModalDay) {
     janelaModalDay.style.display = "none"
@@ -219,7 +219,7 @@ window.onclick = (event) => {
   }
 }
 
-// Botões modais
+
 const btnCriarNovoEvento = document.getElementById("criar-novo-evento")
 const btnCancelar = document.getElementById("btnCancelarPrincipal")
 const btnCancelarCalendario = document.getElementById("btnCancelarCalendario")
@@ -241,7 +241,7 @@ btnCancelar.addEventListener("click", fecharModal)
 btnCancelarCalendario.addEventListener("click", fecharModal)
 btnFecharView.addEventListener("click", fecharModal)
 
-// Salvar evento do modal principal
+
 btnSalvarPrincipal.addEventListener("click", async () => {
   const inputNome = document.querySelector("#janela-modal #nome")
   const inputDescricao = document.querySelector("#janela-modal #descricao")
@@ -279,7 +279,7 @@ btnSalvarPrincipal.addEventListener("click", async () => {
   }
 })
 
-// Função para salvar evento no database via AJAX
+
 async function salvarEvento(evento) {
   try {
     const response = await fetch(API_BASE, {
@@ -296,7 +296,7 @@ async function salvarEvento(evento) {
     const result = await response.json()
 
     if (result.success) {
-      // Add to local eventos object
+      
       if (!eventos[evento.data]) {
         eventos[evento.data] = []
       }
@@ -322,7 +322,7 @@ function adicionaEventonaListaDeEventos(evento) {
   div.dataset.cor = evento.cor_tag || "azul"
   div.dataset.status = evento.status || "pendente"
 
-  // Add priority class
+ 
   if (evento.prioridade === "alta") {
     div.classList.add("high-priority")
   } else if (evento.prioridade === "media") {
@@ -368,14 +368,14 @@ function adicionaEventonaListaDeEventos(evento) {
 }
 
 function corDaTag(cor) {
-  // pega a última tag adicionada
+ 
   const tag = document.querySelector(".event-item:last-child .event-type")
   if (!tag) return
 
-  // limpa cores anteriores
+ 
   tag.classList.remove("azul", "vermelho", "verde", "amarelo", "rosa")
 
-  // adiciona a nova cor
+  
   switch (cor.toLowerCase()) {
     case "azul":
       tag.classList.add("azul")
@@ -400,18 +400,18 @@ const modalPrioridades = document.getElementById("janela-modal-prioridade")
 const btnSalvarPrioridade = document.getElementById("btnSalvarPrioridade")
 const selectPrioridade = document.getElementById("prioridadeInput")
 
-let eventoSelecionado = null // aqui guardamos o evento clicado
+let eventoSelecionado = null 
 
-// abrir modal ao clicar num evento
+
 eventosSalvos.addEventListener("click", (e) => {
-  const item = e.target.closest(".event-item") // pega o .event-item mais próximo do clique
-  if (!item) return // se não clicou num evento, não faz nada
+  const item = e.target.closest(".event-item") 
+  if (!item) return 
 
-  eventoSelecionado = item // salva o item clicado
+  eventoSelecionado = item 
   modalPrioridades.style.display = "flex"
 })
 
-// salvar prioridade
+
 btnSalvarPrioridade.addEventListener("click", async (e) => {
   e.preventDefault()
   modalPrioridades.style.display = "none"
@@ -423,7 +423,7 @@ btnSalvarPrioridade.addEventListener("click", async (e) => {
   const prioridadeInput = document.getElementById("prioridadeInput") // Declare prioridadeInput variable here
   const prioridade = prioridadeInput.value
 
-  // Find event in eventos object
+
   if (eventos[dataEvento]) {
     const evento = eventos[dataEvento].find((ev) => ev.nome === nomeEvento)
 
@@ -446,7 +446,7 @@ btnSalvarPrioridade.addEventListener("click", async (e) => {
         if (result.success) {
           evento.prioridade = prioridade
 
-          // Update visual
+          
           eventoSelecionado.classList.remove("high-priority", "medium-priority", "low-priority")
           eventoSelecionado.dataset.prioridade = prioridade
 
