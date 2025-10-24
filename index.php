@@ -3,7 +3,7 @@ session_start();
 
 
 $cookieName = "lembrar_me";
-$cookieTime = time() + (86400 * 30); 
+$cookieTime = time() + (86400 * 30);
 
 
 if (!isset($_SESSION['usuario_id']) && isset($_COOKIE[$cookieName])) {
@@ -29,12 +29,12 @@ $user_data = ['nome' => 'Usuário', 'email' => ''];
 if (isset($_SESSION["usuario_id"])) {
   try {
     $stmt = $pdo->prepare("SELECT nome, email, foto_perfil FROM usuarios WHERE id_usuario = ?");
-    $stmt->execute([(int)$_SESSION['usuario_id']]);
+    $stmt->execute([(int) $_SESSION['usuario_id']]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
     if ($result) {
       $user_data = $result;
-      
+
       if (!empty($result['foto_perfil'])) {
         $_SESSION['foto_perfil'] = $result['foto_perfil'];
       }
@@ -53,7 +53,7 @@ if (isset($_SESSION["usuario_id"])) {
             ORDER BY data_evento ASC 
             LIMIT 2";
     $stmt = $pdo->prepare($sql);
-    $stmt->execute([(int)$_SESSION['usuario_id']]);
+    $stmt->execute([(int) $_SESSION['usuario_id']]);
     $proximos_eventos = $stmt->fetchAll(PDO::FETCH_ASSOC);
   } catch (PDOException $e) {
     error_log("Error fetching events: " . $e->getMessage());
@@ -71,10 +71,7 @@ if (isset($_SESSION["usuario_id"])) {
     href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap"
     rel="stylesheet" />
   <link rel="stylesheet" href="Style/styles.css" />
-  <link
-    rel="shortcut icon"
-    href="Style/assets/icon.png"
-    type="image/x-icon" />
+  <link rel="shortcut icon" href="Style/assets/icon.png" type="image/x-icon" />
   <style>
     .login-modal {
       display: none;
@@ -183,7 +180,7 @@ if (isset($_SESSION["usuario_id"])) {
       }
     }
 
-   
+
     .profile-dropdown-wrapper {
       position: relative;
     }
@@ -326,11 +323,12 @@ if (isset($_SESSION["usuario_id"])) {
   <header class="header">
     <div class="container">
       <div class="header-content">
-       
+
         <a href="index.php" class="logo">
           <div class="heart-icon">
             <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              <path
+                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
             </svg>
           </div>
           <span class="logo-text">Planner de Sonhos</span>
@@ -355,24 +353,17 @@ if (isset($_SESSION["usuario_id"])) {
           <?php endif; ?>
 
           <?php if (isset($_SESSION["usuario_id"])): ?>
-            
+
             <div class="profile-dropdown-wrapper">
-              <img 
-                src="user/fotos/<?php echo htmlspecialchars($_SESSION['foto_perfil'] ?? 'default.png'); ?>"
-                alt="Foto de perfil"
-                class="profile-avatar"
-                onclick="toggleProfileDropdown()"
-              >
+              <img src="user/fotos/<?php echo htmlspecialchars($_SESSION['foto_perfil'] ?? 'default.png'); ?>"
+                alt="Foto de perfil" class="profile-avatar" onclick="toggleProfileDropdown()">
               <div class="profile-dropdown" id="profileDropdown">
                 <div class="profile-dropdown-header">
                   <div class="profile-dropdown-user">
-                    <img 
-                      src="user/fotos/<?php echo htmlspecialchars($_SESSION['foto_perfil'] ?? 'default.png'); ?>" 
-                      alt="Avatar" 
-                      class="profile-dropdown-avatar"
-                    >
+                    <img src="user/fotos/<?php echo htmlspecialchars($_SESSION['foto_perfil'] ?? 'default.png'); ?>"
+                      alt="Avatar" class="profile-dropdown-avatar">
                     <div class="profile-dropdown-info">
-                    
+
                       <div class="profile-dropdown-name">
                         <?php echo htmlspecialchars($user_data['nome']); ?>
                       </div>
@@ -400,12 +391,19 @@ if (isset($_SESSION["usuario_id"])) {
                     Funcionalidades
                   </a>
                   <form method="post" style="margin:0;">
-                    <button type="submit" name="logout" class="profile-dropdown-item logout" style="width: 100%; text-align: left; background: none; border: none; font-family: inherit; font-size: inherit; cursor: pointer; display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem;">
-                    <svg fill="hsl(var(--foreground))" width="800px" height="800px" viewBox="0 0 36 36" version="1.1"  preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <title>logout-line</title>
-    <path d="M7,6H23v9.8h2V6a2,2,0,0,0-2-2H7A2,2,0,0,0,5,6V30a2,2,0,0,0,2,2H23a2,2,0,0,0,2-2H7Z" class="clr-i-outline clr-i-outline-path-1"></path><path d="M28.16,17.28a1,1,0,0,0-1.41,1.41L30.13,22H15.63a1,1,0,0,0-1,1,1,1,0,0,0,1,1h14.5l-3.38,3.46a1,1,0,1,0,1.41,1.41L34,23.07Z" class="clr-i-outline clr-i-outline-path-2"></path>
-    <rect x="0" y="0" width="36" height="36" fill-opacity="0"/>
-</svg>
+                    <button type="submit" name="logout" class="profile-dropdown-item logout"
+                      style="width: 100%; text-align: left; background: none; border: none; font-family: inherit; font-size: inherit; cursor: pointer; display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem;">
+                      <svg fill="hsl(var(--foreground))" width="800px" height="800px" viewBox="0 0 36 36" version="1.1"
+                        preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"
+                        xmlns:xlink="http://www.w3.org/1999/xlink">
+                        <title>logout-line</title>
+                        <path d="M7,6H23v9.8h2V6a2,2,0,0,0-2-2H7A2,2,0,0,0,5,6V30a2,2,0,0,0,2,2H23a2,2,0,0,0,2-2H7Z"
+                          class="clr-i-outline clr-i-outline-path-1"></path>
+                        <path
+                          d="M28.16,17.28a1,1,0,0,0-1.41,1.41L30.13,22H15.63a1,1,0,0,0-1,1,1,1,0,0,0,1,1h14.5l-3.38,3.46a1,1,0,1,0,1.41,1.41L34,23.07Z"
+                          class="clr-i-outline clr-i-outline-path-2"></path>
+                        <rect x="0" y="0" width="36" height="36" fill-opacity="0" />
+                      </svg>
                       Sair
                     </button>
                   </form>
@@ -413,7 +411,7 @@ if (isset($_SESSION["usuario_id"])) {
               </div>
             </div>
           <?php else: ?>
-           
+
             <a href="user/login.php" class="btn-primary" style="align-items: center">Login</a>
           <?php endif; ?>
         </nav>
@@ -430,15 +428,14 @@ if (isset($_SESSION["usuario_id"])) {
     <section class="hero">
       <div class="container">
         <div class="hero-content">
-          
+
           <div class="hero-text">
             <div>
               <h1 class="hero-title">
                 Organize o casamento
                 <span class="text-primary">
                   perfeito
-                  <svg
-                    style="
+                  <svg style="
                           width: 1.5rem;
                           height: 1.5rem;
                           color: hsl(var(--secondary));
@@ -446,9 +443,7 @@ if (isset($_SESSION["usuario_id"])) {
                           top: -0.5rem;
                           right: -2rem;
                           animation: pulse 3s infinite;
-                        "
-                    fill="currentColor"
-                    viewBox="0 0 24 24">
+                        " fill="currentColor" viewBox="0 0 24 24">
                     <path
                       d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09z" />
                   </svg>
@@ -463,19 +458,19 @@ if (isset($_SESSION["usuario_id"])) {
             </div>
 
             <div class="hero-buttons">
-            <?php if (isset($_SESSION["usuario_id"])): ?>
-              <a href="pages/funcionalidades.php" class="btn-primary">
-                Explorar Funcionalidades
-              </a>
+              <?php if (isset($_SESSION["usuario_id"])): ?>
+                <a href="pages/funcionalidades.php" class="btn-primary">
+                  Explorar Funcionalidades
+                </a>
               <?php else: ?>
-              <a href="user/login.php" class="btn-primary">
-                Explorar Funcionalidades
-              </a>
+                <a href="user/login.php" class="btn-primary">
+                  Explorar Funcionalidades
+                </a>
               <?php endif; ?>
               <button class="btn-outline" id="abrirModal">Assistir Demonstração</button>
             </div>
 
-            
+
             <div class="trust-indicators">
               <div class="trust-indicator">
                 <svg fill="currentColor" viewBox="0 0 24 24">
@@ -486,13 +481,7 @@ if (isset($_SESSION["usuario_id"])) {
               </div>
               <div class="trust-indicator">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <rect
-                    x="3"
-                    y="4"
-                    width="18"
-                    height="18"
-                    rx="2"
-                    ry="2"></rect>
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                   <line x1="16" y1="2" x2="16" y2="6"></line>
                   <line x1="8" y1="2" x2="8" y2="6"></line>
                   <line x1="3" y1="10" x2="21" y2="10"></line>
@@ -504,15 +493,12 @@ if (isset($_SESSION["usuario_id"])) {
 
           <div class="hero-visual">
             <div class="hero-visual-card">
-              
+
               <div class="hero-visual-content">
                 <div class="hero-visual-header">
                   <h3 class="hero-visual-title">Próximos Eventos</h3>
-                  <svg
-                    style="width: 1.25rem; height: 1.25rem; color: hsl(var(--primary));"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24">
+                  <svg style="width: 1.25rem; height: 1.25rem; color: hsl(var(--primary));" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
                     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                     <line x1="16" y1="2" x2="16" y2="6"></line>
                     <line x1="8" y1="2" x2="8" y2="6"></line>
@@ -527,9 +513,9 @@ if (isset($_SESSION["usuario_id"])) {
                         <div class="hero-visual-dot"></div>
                         <div class="hero-visual-event-info">
                           <h4><?php echo htmlspecialchars($evento['nome_evento']); ?></h4>
-                          <p><?php 
-                            $data = new DateTime($evento['data_evento']);
-                            echo $data->format('d \d\e F');
+                          <p><?php
+                          $data = new DateTime($evento['data_evento']);
+                          echo $data->format('d \d\e F');
                           ?></p>
                         </div>
                       </div>
@@ -546,8 +532,7 @@ if (isset($_SESSION["usuario_id"])) {
                 </div>
               </div>
 
-              <svg
-                style="
+              <svg style="
                       position: absolute;
                       top: 1.5rem;
                       left: 1.5rem;
@@ -555,14 +540,11 @@ if (isset($_SESSION["usuario_id"])) {
                       height: 1rem;
                       color: hsla(var(--primary), 0.6);
                       animation: pulse 3s infinite;
-                    "
-                fill="currentColor"
-                viewBox="0 0 24 24">
+                    " fill="currentColor" viewBox="0 0 24 24">
                 <path
                   d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>
-              <svg
-                style="
+              <svg style="
                       position: absolute;
                       bottom: 4rem;
                       right: 2rem;
@@ -570,9 +552,7 @@ if (isset($_SESSION["usuario_id"])) {
                       height: 0.75rem;
                       color: hsla(var(--secondary), 0.6);
                       animation: pulse 4s infinite;
-                    "
-                fill="currentColor"
-                viewBox="0 0 24 24">
+                    " fill="currentColor" viewBox="0 0 24 24">
                 <path
                   d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>
@@ -634,8 +614,7 @@ if (isset($_SESSION["usuario_id"])) {
             <div class="feature-icon">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <line x1="12" y1="1" x2="12" y2="23"></line>
-                <path
-                  d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
               </svg>
             </div>
             <h3 class="feature-title">Flexibilidade na gestão de parcelas</h3>
@@ -648,8 +627,7 @@ if (isset($_SESSION["usuario_id"])) {
           <div class="feature-card">
             <div class="feature-icon">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  d="M9 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-4"></path>
+                <path d="M9 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-4"></path>
                 <polyline points="9,11 12,14 15,11"></polyline>
                 <line x1="12" y1="2" x2="12" y2="14"></line>
               </svg>
@@ -703,27 +681,19 @@ if (isset($_SESSION["usuario_id"])) {
             sonhos com o Planner de Sonhos.
           </p>
           <?php if (isset($_SESSION["usuario_id"])): ?>
-          <a href="pages/funcionalidades.php" class="btn-primary">
-            Explorar Funcionalidades
-            <svg
-              style="width: 1rem; height: 1rem"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24">
-              <path d="M5 12h14M12 5l7 7-7 7" />
-            </svg>
-          </a>
+            <a href="pages/funcionalidades.php" class="btn-primary">
+              Explorar Funcionalidades
+              <svg style="width: 1rem; height: 1rem" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </a>
           <?php else: ?>
             <a href="user/login.php" class="btn-primary">
-            Explorar Funcionalidades
-            <svg
-              style="width: 1rem; height: 1rem"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24">
-              <path d="M5 12h14M12 5l7 7-7 7" />
-            </svg>
-          </a>
+              Explorar Funcionalidades
+              <svg style="width: 1rem; height: 1rem" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </a>
           <?php endif; ?>
         </div>
       </div>
@@ -736,11 +706,7 @@ if (isset($_SESSION["usuario_id"])) {
         <div class="footer-brand">
           <a href="index.php" class="logo">
             <div class="heart-icon">
-              <svg
-                width="16"
-                height="16"
-                fill="currentColor"
-                viewBox="0 0 24 24">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
                 <path
                   d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>
@@ -753,13 +719,8 @@ if (isset($_SESSION["usuario_id"])) {
             clientes.
           </p>
           <div class="footer-contact">
-            <svg
-              style="width: 1rem; height: 1rem"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24">
-              <path
-                d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+            <svg style="width: 1rem; height: 1rem" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
               <polyline points="22,6 12,13 2,6" />
             </svg>
             <span>contato@plannerdesonhos.com</span>
@@ -794,9 +755,7 @@ if (isset($_SESSION["usuario_id"])) {
         <div
           style="display: flex; align-items: center; gap: 0.25rem; font-size: 0.875rem; color: hsl(var(--muted-foreground));">
           <span>Feito com</span>
-          <svg
-            style="width: 1rem; height: 1rem; color: hsl(var(--primary)); margin: 0 0.25rem;"
-            fill="currentColor"
+          <svg style="width: 1rem; height: 1rem; color: hsl(var(--primary)); margin: 0 0.25rem;" fill="currentColor"
             viewBox="0 0 24 24">
             <path
               d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
@@ -821,11 +780,11 @@ if (isset($_SESSION["usuario_id"])) {
       dropdown.classList.toggle("active");
     }
 
-    
-    document.addEventListener('click', function(event) {
+
+    document.addEventListener('click', function (event) {
       const dropdown = document.getElementById("profileDropdown");
       const wrapper = document.querySelector('.profile-dropdown-wrapper');
-      
+
       if (dropdown && wrapper && !wrapper.contains(event.target)) {
         dropdown.classList.remove("active");
       }
@@ -839,7 +798,7 @@ if (isset($_SESSION["usuario_id"])) {
       document.getElementById("loginModal").style.display = "none";
     }
 
-    window.onclick = function(event) {
+    window.onclick = function (event) {
       const modal = document.getElementById("loginModal");
       if (event.target === modal) {
         closeLoginModal();

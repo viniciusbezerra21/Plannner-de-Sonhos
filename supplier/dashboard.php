@@ -4,70 +4,70 @@ require_once "../config/conexao.php";
 
 
 if (!isset($_SESSION['fornecedor_id'])) {
-    header("Location: login.php");
-    exit;
+  header("Location: login.php");
+  exit;
 }
 
-$fornecedor_id = (int)$_SESSION['fornecedor_id'];
+$fornecedor_id = (int) $_SESSION['fornecedor_id'];
 
 
 try {
-    $stmt = $pdo->prepare("SELECT * FROM fornecedores WHERE id_fornecedor = ?");
-    $stmt->execute([$fornecedor_id]);
-    $fornecedor = $stmt->fetch(PDO::FETCH_ASSOC);
+  $stmt = $pdo->prepare("SELECT * FROM fornecedores WHERE id_fornecedor = ?");
+  $stmt->execute([$fornecedor_id]);
+  $fornecedor = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if (!$fornecedor) {
-        session_destroy();
-        header("Location: login.php");
-        exit;
-    }
+  if (!$fornecedor) {
+    session_destroy();
+    header("Location: login.php");
+    exit;
+  }
 
- 
-    $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM itens WHERE id_fornecedor = ?");
-    $stmt->execute([$fornecedor_id]);
-    $total_itens = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
- 
-    $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM pacotes WHERE id_fornecedor = ?");
-    $stmt->execute([$fornecedor_id]);
-    $total_pacotes = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+  $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM itens WHERE id_fornecedor = ?");
+  $stmt->execute([$fornecedor_id]);
+  $total_itens = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
-    $stmt = $pdo->prepare("
+
+  $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM pacotes WHERE id_fornecedor = ?");
+  $stmt->execute([$fornecedor_id]);
+  $total_pacotes = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+
+  $stmt = $pdo->prepare("
         SELECT AVG(o.avaliacao) as media_avaliacao
         FROM orcamentos o
         INNER JOIN itens i ON o.item = i.nome_item
         WHERE i.id_fornecedor = ? AND o.avaliacao > 0
     ");
-    $stmt->execute([$fornecedor_id]);
-    $rating_result = $stmt->fetch(PDO::FETCH_ASSOC);
-    $avaliacao_media = $rating_result['media_avaliacao'] ? number_format($rating_result['media_avaliacao'], 1) : 'N/A';
+  $stmt->execute([$fornecedor_id]);
+  $rating_result = $stmt->fetch(PDO::FETCH_ASSOC);
+  $avaliacao_media = $rating_result['media_avaliacao'] ? number_format($rating_result['media_avaliacao'], 1) : 'N/A';
 
-  
-    $stmt = $pdo->prepare("SELECT * FROM itens WHERE id_fornecedor = ? ORDER BY id_item DESC LIMIT 5");
-    $stmt->execute([$fornecedor_id]);
-    $itens_recentes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
- 
-    $stmt = $pdo->prepare("SELECT * FROM pacotes WHERE id_fornecedor = ? ORDER BY id_pacote DESC LIMIT 5");
-    $stmt->execute([$fornecedor_id]);
-    $pacotes_recentes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+  $stmt = $pdo->prepare("SELECT * FROM itens WHERE id_fornecedor = ? ORDER BY id_item DESC LIMIT 5");
+  $stmt->execute([$fornecedor_id]);
+  $itens_recentes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+
+  $stmt = $pdo->prepare("SELECT * FROM pacotes WHERE id_fornecedor = ? ORDER BY id_pacote DESC LIMIT 5");
+  $stmt->execute([$fornecedor_id]);
+  $pacotes_recentes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 } catch (PDOException $e) {
-    error_log("Dashboard error: " . $e->getMessage());
-    $total_itens = 0;
-    $total_pacotes = 0;
-    $avaliacao_media = 'N/A';
-    $itens_recentes = [];
-    $pacotes_recentes = [];
+  error_log("Dashboard error: " . $e->getMessage());
+  $total_itens = 0;
+  $total_pacotes = 0;
+  $avaliacao_media = 'N/A';
+  $itens_recentes = [];
+  $pacotes_recentes = [];
 }
 
 
 if (isset($_POST['logout'])) {
-    setcookie("lembrar_me_fornecedor", "", time() - 3600, "/");
-    session_unset();
-    session_destroy();
-    header("Location: login.php");
-    exit;
+  setcookie("lembrar_me_fornecedor", "", time() - 3600, "/");
+  session_unset();
+  session_destroy();
+  header("Location: login.php");
+  exit;
 }
 ?>
 <!DOCTYPE html>
@@ -79,7 +79,9 @@ if (isset($_POST['logout'])) {
   <title>Dashboard - Planner de Sonhos</title>
   <link rel="stylesheet" href="../Style/styles.css">
   <link rel="shortcut icon" href="../Style/assets/icon.png" type="image/x-icon">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto:wght@300;400;500&display=swap"
+    rel="stylesheet" />
   <style>
     .dashboard-container {
       display: grid;
@@ -349,7 +351,8 @@ if (isset($_POST['logout'])) {
         <a href="" class="logo">
           <div class="heart-icon">
             <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              <path
+                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
             </svg>
           </div>
           <span class="logo-text">Planner de Sonhos</span>
@@ -401,7 +404,9 @@ if (isset($_POST['logout'])) {
               <a href="packages.php" class="sidebar-item">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line>
-                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                  <path
+                    d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+                  </path>
                   <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
                   <line x1="12" y1="22.08" x2="12" y2="12"></line>
                 </svg>
@@ -410,14 +415,14 @@ if (isset($_POST['logout'])) {
             </div>
           </aside>
 
-          
+
           <div class="main-content">
             <div class="welcome-card">
               <h1>Bem-vindo, <?php echo htmlspecialchars($fornecedor['nome_fornecedor']); ?>!</h1>
               <p>Gerencie seus serviços, itens e pacotes de forma eficiente.</p>
             </div>
 
-          
+
             <div class="stats-grid">
               <div class="stat-card">
                 <div class="stat-icon">
@@ -433,18 +438,21 @@ if (isset($_POST['logout'])) {
                 <div class="stat-icon">
                   <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line>
-                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                    <path
+                      d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+                    </path>
                   </svg>
                 </div>
                 <div class="stat-number"><?php echo $total_pacotes; ?></div>
                 <div class="stat-label">Pacotes</div>
               </div>
 
-              
+
               <div class="stat-card">
                 <div class="stat-icon">
                   <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    <path
+                      d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                   </svg>
                 </div>
                 <div class="stat-number"><?php echo $avaliacao_media; ?></div>
@@ -452,96 +460,102 @@ if (isset($_POST['logout'])) {
               </div>
             </div>
 
-          
+
             <?php if (!empty($itens_recentes)): ?>
-            <div class="section">
-              <h2>
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path d="M9 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-4"></path>
-                </svg>
-                Itens/Serviços Recentes
-              </h2>
-              <table class="items-table">
-                <thead>
-                  <tr>
-                    <th>Nome</th>
-                    <th>Valor Unitário</th>
-                    <th>Data de Criação</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <?php foreach ($itens_recentes as $item): ?>
-                  <tr>
-                    <td><?php echo htmlspecialchars($item['nome_item']); ?></td>
-                    <td class="item-price">R$ <?php echo number_format($item['valor_unitario'], 2, ',', '.'); ?></td>
-                    <td><?php echo date('d/m/Y', strtotime($item['data_criacao'] ?? 'now')); ?></td>
-                  </tr>
-                  <?php endforeach; ?>
-                </tbody>
-              </table>
-              <div class="action-buttons">
-                <a href="items.php" class="btn-primary">Ver Todos os Itens</a>
-                <a href="items.php?action=add" class="btn-outline">Adicionar Novo Item</a>
+              <div class="section">
+                <h2>
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M9 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-4"></path>
+                  </svg>
+                  Itens/Serviços Recentes
+                </h2>
+                <table class="items-table">
+                  <thead>
+                    <tr>
+                      <th>Nome</th>
+                      <th>Valor Unitário</th>
+                      <th>Data de Criação</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <?php foreach ($itens_recentes as $item): ?>
+                      <tr>
+                        <td><?php echo htmlspecialchars($item['nome_item']); ?></td>
+                        <td class="item-price">R$ <?php echo number_format($item['valor_unitario'], 2, ',', '.'); ?></td>
+                        <td><?php echo date('d/m/Y', strtotime($item['data_criacao'] ?? 'now')); ?></td>
+                      </tr>
+                    <?php endforeach; ?>
+                  </tbody>
+                </table>
+                <div class="action-buttons">
+                  <a href="items.php" class="btn-primary">Ver Todos os Itens</a>
+                  <a href="items.php?action=add" class="btn-outline">Adicionar Novo Item</a>
+                </div>
               </div>
-            </div>
             <?php else: ?>
-            <div class="section">
-              <div class="empty-state">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path d="M9 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-4"></path>
-                </svg>
-                <h3>Nenhum item cadastrado</h3>
-                <p>Comece adicionando seus primeiros itens/serviços</p>
-                <a href="items.php?action=add" class="btn-primary" style="display: inline-block; margin-top: 1rem;">Adicionar Item</a>
+              <div class="section">
+                <div class="empty-state">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M9 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-4"></path>
+                  </svg>
+                  <h3>Nenhum item cadastrado</h3>
+                  <p>Comece adicionando seus primeiros itens/serviços</p>
+                  <a href="items.php?action=add" class="btn-primary"
+                    style="display: inline-block; margin-top: 1rem;">Adicionar Item</a>
+                </div>
               </div>
-            </div>
             <?php endif; ?>
 
-         
+
             <?php if (!empty($pacotes_recentes)): ?>
-            <div class="section">
-              <h2>
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line>
-                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-                </svg>
-                Pacotes Recentes
-              </h2>
-              <table class="items-table">
-                <thead>
-                  <tr>
-                    <th>Nome do Pacote</th>
-                    <th>Valor Total</th>
-                    <th>Itens</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <?php foreach ($pacotes_recentes as $pacote): ?>
-                  <tr>
-                    <td><?php echo htmlspecialchars($pacote['nome_pacote']); ?></td>
-                    <td class="item-price">R$ <?php echo number_format($pacote['valor_total'], 2, ',', '.'); ?></td>
-                    <td><?php echo $pacote['quantidade_itens'] ?? 0; ?></td>
-                  </tr>
-                  <?php endforeach; ?>
-                </tbody>
-              </table>
-              <div class="action-buttons">
-                <a href="packages.php" class="btn-primary">Ver Todos os Pacotes</a>
-                <a href="packages.php?action=add" class="btn-outline">Criar Novo Pacote</a>
+              <div class="section">
+                <h2>
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line>
+                    <path
+                      d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+                    </path>
+                  </svg>
+                  Pacotes Recentes
+                </h2>
+                <table class="items-table">
+                  <thead>
+                    <tr>
+                      <th>Nome do Pacote</th>
+                      <th>Valor Total</th>
+                      <th>Itens</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <?php foreach ($pacotes_recentes as $pacote): ?>
+                      <tr>
+                        <td><?php echo htmlspecialchars($pacote['nome_pacote']); ?></td>
+                        <td class="item-price">R$ <?php echo number_format($pacote['valor_total'], 2, ',', '.'); ?></td>
+                        <td><?php echo $pacote['quantidade_itens'] ?? 0; ?></td>
+                      </tr>
+                    <?php endforeach; ?>
+                  </tbody>
+                </table>
+                <div class="action-buttons">
+                  <a href="packages.php" class="btn-primary">Ver Todos os Pacotes</a>
+                  <a href="packages.php?action=add" class="btn-outline">Criar Novo Pacote</a>
+                </div>
               </div>
-            </div>
             <?php else: ?>
-            <div class="section">
-              <div class="empty-state">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line>
-                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-                </svg>
-                <h3>Nenhum pacote cadastrado</h3>
-                <p>Crie pacotes combinando seus itens/serviços</p>
-                <a href="packages.php?action=add" class="btn-primary" style="display: inline-block; margin-top: 1rem;">Criar Pacote</a>
+              <div class="section">
+                <div class="empty-state">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line>
+                    <path
+                      d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+                    </path>
+                  </svg>
+                  <h3>Nenhum pacote cadastrado</h3>
+                  <p>Crie pacotes combinando seus itens/serviços</p>
+                  <a href="packages.php?action=add" class="btn-primary"
+                    style="display: inline-block; margin-top: 1rem;">Criar Pacote</a>
+                </div>
               </div>
-            </div>
             <?php endif; ?>
           </div>
         </div>
@@ -556,7 +570,8 @@ if (isset($_POST['logout'])) {
           <a href="" class="logo">
             <div class="heart-icon">
               <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                <path
+                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>
             </div>
             <span class="logo-text">Planner de Sonhos</span>

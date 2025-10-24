@@ -12,11 +12,11 @@ if (!isset($_SESSION['usuario_id']) && isset($_COOKIE[$cookieName])) {
     $chk->execute([$cookieUserId]);
     $u = $chk->fetch(PDO::FETCH_ASSOC);
     if ($u) {
-      $_SESSION['usuario_id'] = (int)$u['id_usuario'];
+      $_SESSION['usuario_id'] = (int) $u['id_usuario'];
       $_SESSION['nome'] = $u['nome'];
       $_SESSION['cargo'] = $u['cargo'] ?? 'cliente';
     } else {
-      
+
       setcookie($cookieName, "", time() - 3600, "/");
     }
   }
@@ -28,16 +28,16 @@ $user_data = ['nome' => 'Usuário', 'email' => '', 'foto_perfil' => 'default.png
 if (isset($_SESSION['usuario_id'])) {
   try {
     $stmt = $pdo->prepare("SELECT nome, email, foto_perfil FROM usuarios WHERE id_usuario = ?");
-    $stmt->execute([(int)$_SESSION['usuario_id']]);
+    $stmt->execute([(int) $_SESSION['usuario_id']]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
     if ($result) {
       $user_data = [
         'nome' => $result['nome'] ?? 'Usuário',
         'email' => $result['email'] ?? '',
         'foto_perfil' => !empty($result['foto_perfil']) ? $result['foto_perfil'] : 'default.png'
       ];
-      
+
       if (!empty($result['foto_perfil'])) {
         $_SESSION['foto_perfil'] = $result['foto_perfil'];
       } else {
@@ -64,7 +64,7 @@ if (isset($_POST['logout'])) {
   } catch (PDOException $e) {
     error_log("Logout error: " . $e->getMessage());
   }
-  
+
   setcookie($cookieName, "", time() - 3600, "/");
   session_unset();
   session_destroy();
@@ -80,14 +80,14 @@ if (isset($_POST['add_contract'])) {
   $data_validade = $_POST['data_validade'];
   $valor = $_POST['valor'] ? floatval($_POST['valor']) : null;
   $observacoes = trim($_POST['observacoes']);
-  
-  
+
+
   $arquivo_pdf = '';
   if (isset($_FILES['arquivo_pdf']) && $_FILES['arquivo_pdf']['error'] === UPLOAD_ERR_OK) {
     $uploadDir = '../Docs/';
     $fileName = time() . '_' . basename($_FILES['arquivo_pdf']['name']);
     $uploadPath = $uploadDir . $fileName;
-    
+
     if (move_uploaded_file($_FILES['arquivo_pdf']['tmp_name'], $uploadPath)) {
       $arquivo_pdf = $fileName;
     }
@@ -105,22 +105,22 @@ if (isset($_POST['add_contract'])) {
 
 if (isset($_POST['delete_contract'])) {
   $id_contrato = (int) $_POST['id_contrato'];
-  
+
 
   $stmt = $pdo->prepare("SELECT arquivo_pdf FROM contratos WHERE id_contrato = ? AND id_usuario = ?");
   $stmt->execute([$id_contrato, $idUsuario]);
   $contrato = $stmt->fetch(PDO::FETCH_ASSOC);
-  
+
   if ($contrato && $contrato['arquivo_pdf']) {
     $filePath = '../Docs/' . $contrato['arquivo_pdf'];
     if (file_exists($filePath)) {
       unlink($filePath);
     }
   }
-  
+
   $stmt = $pdo->prepare("DELETE FROM contratos WHERE id_contrato = ? AND id_usuario = ?");
   $stmt->execute([$id_contrato, $idUsuario]);
-  
+
   header("Location: gestao-contratos.php");
   exit;
 }
@@ -135,10 +135,10 @@ if (isset($_POST['edit_contract'])) {
   $valor = $_POST['valor'] ? floatval($_POST['valor']) : null;
   $status = $_POST['status'];
   $observacoes = trim($_POST['observacoes']);
-  
+
   $stmt = $pdo->prepare("UPDATE contratos SET nome_fornecedor = ?, categoria = ?, data_assinatura = ?, data_validade = ?, valor = ?, status = ?, observacoes = ? WHERE id_contrato = ? AND id_usuario = ?");
   $stmt->execute([$nome_fornecedor, $categoria, $data_assinatura, $data_validade, $valor, $status, $observacoes, $id_contrato, $idUsuario]);
-  
+
   header("Location: gestao-contratos.php");
   exit;
 }
@@ -161,8 +161,6 @@ $contratos = $stmt->fetchAll(PDO::FETCH_ASSOC);
     href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto:wght@300;400;500&display=swap"
     rel="stylesheet" />
   <style>
-    
-   
     .modal-overlay {
       display: none;
       position: fixed;
@@ -404,7 +402,7 @@ $contratos = $stmt->fetchAll(PDO::FETCH_ASSOC);
   <header class="header">
     <div class="container">
       <div class="header-content">
-       
+
         <a href="../index.php" class="logo">
           <div class="heart-icon">
             <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
@@ -431,22 +429,15 @@ $contratos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
           <?php if (isset($_SESSION["usuario_id"])): ?>
             <div class="profile-dropdown-wrapper">
-              <img 
-                src="../user/fotos/<?php echo htmlspecialchars($user_data['foto_perfil'] ?? 'default.png'); ?>"
-                alt="Foto de perfil"
-                class="profile-avatar"
-                onclick="toggleProfileDropdown()"
-              >
+              <img src="../user/fotos/<?php echo htmlspecialchars($user_data['foto_perfil'] ?? 'default.png'); ?>"
+                alt="Foto de perfil" class="profile-avatar" onclick="toggleProfileDropdown()">
               <div class="profile-dropdown" id="profileDropdown">
                 <div class="profile-dropdown-header">
                   <div class="profile-dropdown-user">
-                    <img 
-                      src="../user/fotos/<?php echo htmlspecialchars($user_data['foto_perfil'] ?? 'default.png'); ?>"
-                      alt="Avatar" 
-                      class="profile-dropdown-avatar"
-                    >
+                    <img src="../user/fotos/<?php echo htmlspecialchars($user_data['foto_perfil'] ?? 'default.png'); ?>"
+                      alt="Avatar" class="profile-dropdown-avatar">
                     <div class="profile-dropdown-info">
-                      
+
                       <div class="profile-dropdown-name">
                         <?php echo htmlspecialchars($user_data['nome']); ?>
                       </div>
@@ -474,19 +465,26 @@ $contratos = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     Funcionalidades
                   </a>
                   <form method="post" style="margin:0;">
-                    <button type="submit" name="logout" class="profile-dropdown-item logout" style="width: 100%; text-align: left; background: none; border: none; font-family: inherit; font-size: inherit; cursor: pointer; display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem;">
-                    <svg fill="hsl(var(--foreground))" width="800px" height="800px" viewBox="0 0 36 36" version="1.1"  preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <title>logout-line</title>
-    <path d="M7,6H23v9.8h2V6a2,2,0,0,0-2-2H7A2,2,0,0,0,5,6V30a2,2,0,0,0,2,2H23a2,2,0,0,0,2-2H7Z" class="clr-i-outline clr-i-outline-path-1"></path><path d="M28.16,17.28a1,1,0,0,0-1.41,1.41L30.13,22H15.63a1,1,0,0,0-1,1,1,1,0,0,0,1,1h14.5l-3.38,3.46a1,1,0,1,0,1.41,1.41L34,23.07Z" class="clr-i-outline clr-i-outline-path-2"></path>
-    <rect x="0" y="0" width="36" height="36" fill-opacity="0"/>
-</svg>
+                    <button type="submit" name="logout" class="profile-dropdown-item logout"
+                      style="width: 100%; text-align: left; background: none; border: none; font-family: inherit; font-size: inherit; cursor: pointer; display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem;">
+                      <svg fill="hsl(var(--foreground))" width="800px" height="800px" viewBox="0 0 36 36" version="1.1"
+                        preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"
+                        xmlns:xlink="http://www.w3.org/1999/xlink">
+                        <title>logout-line</title>
+                        <path d="M7,6H23v9.8h2V6a2,2,0,0,0-2-2H7A2,2,0,0,0,5,6V30a2,2,0,0,0,2,2H23a2,2,0,0,0,2-2H7Z"
+                          class="clr-i-outline clr-i-outline-path-1"></path>
+                        <path
+                          d="M28.16,17.28a1,1,0,0,0-1.41,1.41L30.13,22H15.63a1,1,0,0,0-1,1,1,1,0,0,0,1,1h14.5l-3.38,3.46a1,1,0,1,0,1.41,1.41L34,23.07Z"
+                          class="clr-i-outline clr-i-outline-path-2"></path>
+                        <rect x="0" y="0" width="36" height="36" fill-opacity="0" />
+                      </svg>
                       Sair
                     </button>
                   </form>
                 </div>
               </div>
             </div>
-               
+
           <?php else: ?>
             <a href="../user/login.php" class="btn-primary" style="align-items: center">Login</a>
           <?php endif; ?>
@@ -518,7 +516,8 @@ $contratos = $stmt->fetchAll(PDO::FETCH_ASSOC);
           <button class="btn-primary" onclick="openAddModal()">+ Novo Contrato</button>
         </div>
 
-        <div class="contracts-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem;">
+        <div class="contracts-grid"
+          style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem;">
           <?php if (empty($contratos)): ?>
             <div class="card" style="grid-column: 1 / -1; text-align: center; padding: 2rem;">
               <p>Você ainda não tem contratos cadastrados.</p>
@@ -527,18 +526,18 @@ $contratos = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <?php foreach ($contratos as $contrato): ?>
               <div class="card" style="display: flex; flex-direction: column; text-align: center; padding: 1rem;">
                 <?php if ($contrato['arquivo_pdf']): ?>
-                  <iframe
-                    src="../Docs/<?php echo htmlspecialchars($contrato['arquivo_pdf']); ?>"
+                  <iframe src="../Docs/<?php echo htmlspecialchars($contrato['arquivo_pdf']); ?>"
                     style="width: 100%; height: 200px; border-radius: 0.5rem; margin-bottom: 1rem; border: 1px solid hsl(var(--border));">
                   </iframe>
                 <?php else: ?>
-                  <div style="width: 100%; height: 200px; border-radius: 0.5rem; margin-bottom: 1rem; border: 1px solid hsl(var(--border)); display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
+                  <div
+                    style="width: 100%; height: 200px; border-radius: 0.5rem; margin-bottom: 1rem; border: 1px solid hsl(var(--border)); display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
                     <span>📄 Sem arquivo</span>
                   </div>
                 <?php endif; ?>
 
                 <h3 style="margin-bottom: 0.5rem"><?php echo htmlspecialchars($contrato['nome_fornecedor']); ?></h3>
-                
+
                 <div style="display: flex; justify-content: center; margin-bottom: 0.5rem;">
                   <span class="status-badge status-<?php echo $contrato['status']; ?>">
                     <?php echo ucfirst($contrato['status']); ?>
@@ -546,8 +545,8 @@ $contratos = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
 
                 <p style="color: hsl(var(--muted-foreground)); font-size: 0.9rem; margin-bottom: 1rem;">
-                  <?php echo htmlspecialchars($contrato['categoria']); ?> | 
-                  Assinado: <?php echo date("d/m/Y", strtotime($contrato['data_assinatura'])); ?> | 
+                  <?php echo htmlspecialchars($contrato['categoria']); ?> |
+                  Assinado: <?php echo date("d/m/Y", strtotime($contrato['data_assinatura'])); ?> |
                   Válido até: <?php echo date("d/m/Y", strtotime($contrato['data_validade'])); ?>
                   <?php if ($contrato['valor']): ?>
                     <br>Valor: R$ <?php echo number_format($contrato['valor'], 2, ',', '.'); ?>
@@ -556,15 +555,17 @@ $contratos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                 <div class="contract-actions">
                   <?php if ($contrato['arquivo_pdf']): ?>
-                    <a href="../Docs/<?php echo htmlspecialchars($contrato['arquivo_pdf']); ?>" 
-                       download class="btn-small" style="background: hsl(var(--primary)); color: white;">
+                    <a href="../Docs/<?php echo htmlspecialchars($contrato['arquivo_pdf']); ?>" download class="btn-small"
+                      style="background: hsl(var(--primary)); color: white;">
                       📄 Baixar
                     </a>
                   <?php endif; ?>
-                  <button class="btn-small btn-edit" onclick="openEditModal(<?php echo htmlspecialchars(json_encode($contrato)); ?>)">
+                  <button class="btn-small btn-edit"
+                    onclick="openEditModal(<?php echo htmlspecialchars(json_encode($contrato)); ?>)">
                     ✏️ Editar
                   </button>
-                  <form method="post" style="display: inline;" onsubmit="return confirm('Tem certeza que deseja excluir este contrato?')">
+                  <form method="post" style="display: inline;"
+                    onsubmit="return confirm('Tem certeza que deseja excluir este contrato?')">
                     <input type="hidden" name="id_contrato" value="<?php echo $contrato['id_contrato']; ?>">
                     <button type="submit" name="delete_contract" class="btn-small btn-delete">
                       🗑️ Excluir
@@ -584,7 +585,7 @@ $contratos = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="contract-modal">
       <form method="post" enctype="multipart/form-data">
         <h2 style="margin-bottom: 1.5rem; color: hsl(var(--primary));">Adicionar Novo Contrato</h2>
-        
+
         <div class="form-group">
           <label for="nome_fornecedor">Nome do Fornecedor *</label>
           <input type="text" id="nome_fornecedor" name="nome_fornecedor" required>
@@ -629,7 +630,8 @@ $contratos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         <div class="form-group">
           <label for="observacoes">Observações</label>
-          <textarea id="observacoes" name="observacoes" placeholder="Observações adicionais sobre o contrato..."></textarea>
+          <textarea id="observacoes" name="observacoes"
+            placeholder="Observações adicionais sobre o contrato..."></textarea>
         </div>
 
         <div class="form-row">
@@ -640,14 +642,14 @@ $contratos = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
   </div>
 
-  
+
   <div class="modal-overlay" id="editModal">
     <div class="contract-modal">
       <form method="post">
         <h2 style="margin-bottom: 1.5rem; color: hsl(var(--primary));">Editar Contrato</h2>
-        
+
         <input type="hidden" id="edit_id_contrato" name="id_contrato">
-        
+
         <div class="form-group">
           <label for="edit_nome_fornecedor">Nome do Fornecedor *</label>
           <input type="text" id="edit_nome_fornecedor" name="nome_fornecedor" required>
@@ -698,7 +700,8 @@ $contratos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         <div class="form-group">
           <label for="edit_observacoes">Observações</label>
-          <textarea id="edit_observacoes" name="observacoes" placeholder="Observações adicionais sobre o contrato..."></textarea>
+          <textarea id="edit_observacoes" name="observacoes"
+            placeholder="Observações adicionais sobre o contrato..."></textarea>
         </div>
 
         <div class="form-row">
@@ -726,7 +729,7 @@ $contratos = $stmt->fetchAll(PDO::FETCH_ASSOC);
       document.getElementById("edit_valor").value = contrato.valor || '';
       document.getElementById("edit_status").value = contrato.status;
       document.getElementById("edit_observacoes").value = contrato.observacoes || '';
-      
+
       document.getElementById("editModal").classList.add("active");
     }
 
@@ -734,8 +737,8 @@ $contratos = $stmt->fetchAll(PDO::FETCH_ASSOC);
       document.getElementById(modalId).classList.remove("active");
     }
 
-   
-    document.addEventListener("click", function(event) {
+
+    document.addEventListener("click", function (event) {
       const modals = document.querySelectorAll(".modal-overlay");
       modals.forEach(modal => {
         if (modal.classList.contains("active") && !event.target.closest(".contract-modal") && !event.target.closest("button[onclick*='Modal']")) {
@@ -751,9 +754,9 @@ $contratos = $stmt->fetchAll(PDO::FETCH_ASSOC);
       hamburgerBtn.classList.toggle("hamburger-active");
     }
 
-    
+
     document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-      anchor.addEventListener("click", function(e) {
+      anchor.addEventListener("click", function (e) {
         e.preventDefault();
         const target = document.querySelector(this.getAttribute("href"));
         if (target) {

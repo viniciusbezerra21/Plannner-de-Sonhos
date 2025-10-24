@@ -12,11 +12,11 @@ if (!isset($_SESSION['usuario_id']) && isset($_COOKIE[$cookieName])) {
     $chk->execute([$cookieUserId]);
     $u = $chk->fetch(PDO::FETCH_ASSOC);
     if ($u) {
-      $_SESSION['usuario_id'] = (int)$u['id_usuario'];
+      $_SESSION['usuario_id'] = (int) $u['id_usuario'];
       $_SESSION['nome'] = $u['nome'];
       $_SESSION['cargo'] = $u['cargo'] ?? 'cliente';
     } else {
-      
+
       setcookie($cookieName, "", time() - 3600, "/");
     }
   }
@@ -28,7 +28,7 @@ $user_data = ['nome' => 'Usuário', 'email' => '', 'foto_perfil' => 'default.png
 if (isset($_SESSION['usuario_id'])) {
   try {
     $stmt = $pdo->prepare("SELECT nome, email, foto_perfil FROM usuarios WHERE id_usuario = ?");
-    $stmt->execute([(int)$_SESSION['usuario_id']]);
+    $stmt->execute([(int) $_SESSION['usuario_id']]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($result) {
@@ -37,7 +37,7 @@ if (isset($_SESSION['usuario_id'])) {
         'email' => $result['email'] ?? '',
         'foto_perfil' => !empty($result['foto_perfil']) ? $result['foto_perfil'] : 'default.png'
       ];
-    
+
       if (!empty($result['foto_perfil'])) {
         $_SESSION['foto_perfil'] = $result['foto_perfil'];
       } else {
@@ -102,10 +102,11 @@ $tarefas = $stmt->fetchAll(PDO::FETCH_ASSOC);
   <title>Planner de Sonhos</title>
   <link rel="stylesheet" href="../Style/styles.css" />
   <link rel="shortcut icon" href="../Style/assets/icon.png" type="image/x-icon" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto:wght@300;400;500&display=swap"
+    rel="stylesheet" />
 
   <style>
-  
     body {
       display: flex;
       flex-direction: column;
@@ -118,7 +119,7 @@ $tarefas = $stmt->fetchAll(PDO::FETCH_ASSOC);
       flex: 1;
     }
 
-   
+
     footer {
       margin-top: auto;
       background: hsl(var(--card));
@@ -148,7 +149,7 @@ $tarefas = $stmt->fetchAll(PDO::FETCH_ASSOC);
       max-width: 500px;
     }
 
- 
+
     .custom-select {
       position: relative;
       user-select: none;
@@ -329,15 +330,16 @@ $tarefas = $stmt->fetchAll(PDO::FETCH_ASSOC);
   <header class="header">
     <div class="container">
       <div class="header-content">
-      <a href="../index.php" class="logo">
+        <a href="../index.php" class="logo">
           <div class="heart-icon">
             <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              <path
+                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
             </svg>
           </div>
           <span class="logo-text">Planner de Sonhos</span>
         </a>
-        
+
         <nav class="nav">
           <a href="../index.php" class="nav-link">Início</a>
           <div class="dropdown">
@@ -354,20 +356,15 @@ $tarefas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
           <?php if (isset($_SESSION["usuario_id"])): ?>
             <div class="profile-dropdown-wrapper">
-              <img
-                src="../user/fotos/<?php echo htmlspecialchars($user_data['foto_perfil'] ?? 'default.png'); ?>"
-                alt="Foto de perfil"
-                class="profile-avatar"
-                onclick="toggleProfileDropdown()">
+              <img src="../user/fotos/<?php echo htmlspecialchars($user_data['foto_perfil'] ?? 'default.png'); ?>"
+                alt="Foto de perfil" class="profile-avatar" onclick="toggleProfileDropdown()">
               <div class="profile-dropdown" id="profileDropdown">
                 <div class="profile-dropdown-header">
                   <div class="profile-dropdown-user">
-                    <img
-                      src="../user/fotos/<?php echo htmlspecialchars($user_data['foto_perfil'] ?? 'default.png'); ?>"
-                      alt="Avatar"
-                      class="profile-dropdown-avatar">
+                    <img src="../user/fotos/<?php echo htmlspecialchars($user_data['foto_perfil'] ?? 'default.png'); ?>"
+                      alt="Avatar" class="profile-dropdown-avatar">
                     <div class="profile-dropdown-info">
-                     
+
                       <div class="profile-dropdown-name">
                         <?php echo htmlspecialchars($user_data['nome']); ?>
                       </div>
@@ -395,12 +392,19 @@ $tarefas = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     Funcionalidades
                   </a>
                   <form method="post" style="margin:0;">
-                    <button type="submit" name="logout" class="profile-dropdown-item logout" style="width: 100%; text-align: left; background: none; border: none; font-family: inherit; font-size: inherit; cursor: pointer; display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem;">
-                    <svg fill="hsl(var(--foreground))" width="800px" height="800px" viewBox="0 0 36 36" version="1.1"  preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <title>logout-line</title>
-    <path d="M7,6H23v9.8h2V6a2,2,0,0,0-2-2H7A2,2,0,0,0,5,6V30a2,2,0,0,0,2,2H23a2,2,0,0,0,2-2H7Z" class="clr-i-outline clr-i-outline-path-1"></path><path d="M28.16,17.28a1,1,0,0,0-1.41,1.41L30.13,22H15.63a1,1,0,0,0-1,1,1,1,0,0,0,1,1h14.5l-3.38,3.46a1,1,0,1,0,1.41,1.41L34,23.07Z" class="clr-i-outline clr-i-outline-path-2"></path>
-    <rect x="0" y="0" width="36" height="36" fill-opacity="0"/>
-</svg>
+                    <button type="submit" name="logout" class="profile-dropdown-item logout"
+                      style="width: 100%; text-align: left; background: none; border: none; font-family: inherit; font-size: inherit; cursor: pointer; display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem;">
+                      <svg fill="hsl(var(--foreground))" width="800px" height="800px" viewBox="0 0 36 36" version="1.1"
+                        preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"
+                        xmlns:xlink="http://www.w3.org/1999/xlink">
+                        <title>logout-line</title>
+                        <path d="M7,6H23v9.8h2V6a2,2,0,0,0-2-2H7A2,2,0,0,0,5,6V30a2,2,0,0,0,2,2H23a2,2,0,0,0,2-2H7Z"
+                          class="clr-i-outline clr-i-outline-path-1"></path>
+                        <path
+                          d="M28.16,17.28a1,1,0,0,0-1.41,1.41L30.13,22H15.63a1,1,0,0,0-1,1,1,1,0,0,0,1,1h14.5l-3.38,3.46a1,1,0,1,0,1.41,1.41L34,23.07Z"
+                          class="clr-i-outline clr-i-outline-path-2"></path>
+                        <rect x="0" y="0" width="36" height="36" fill-opacity="0" />
+                      </svg>
                       Sair
                     </button>
                   </form>
@@ -424,7 +428,8 @@ $tarefas = $stmt->fetchAll(PDO::FETCH_ASSOC);
           <button class="btn-primary" onclick="openModal()">+ Nova Tarefa</button>
         </div>
 
-        <div class="tasks-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;">
+        <div class="tasks-grid"
+          style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;">
           <?php if (empty($tarefas)): ?>
             <p>Você ainda não tem tarefas cadastradas.</p>
           <?php else: ?>
@@ -443,8 +448,9 @@ $tarefas = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 $cor = "green";
                 $statusTxt = "Concluído";
               }
-            ?>
-              <div class="task-card" style="display:flex;border:1px solid hsl(var(--border));border-radius:0.5rem;overflow:hidden;">
+              ?>
+              <div class="task-card"
+                style="display:flex;border:1px solid hsl(var(--border));border-radius:0.5rem;overflow:hidden;">
                 <div style="width:6px;background-color:<?php echo $cor; ?>"></div>
                 <div style="padding:1rem;flex:1">
                   <h3><?php echo htmlspecialchars($t['titulo']); ?></h3>
@@ -504,13 +510,15 @@ $tarefas = $stmt->fetchAll(PDO::FETCH_ASSOC);
           <a href="../index.php" class="logo">
             <div class="heart-icon">
               <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                <path
+                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>
             </div>
             <span class="logo-text">Planner de Sonhos</span>
           </a>
           <p class="footer-description">
-            A plataforma mais completa para cerimonialistas organizarem casamentos perfeitos. Simplifique sua gestão e encante seus clientes.
+            A plataforma mais completa para cerimonialistas organizarem casamentos perfeitos. Simplifique sua gestão e
+            encante seus clientes.
           </p>
           <div class="footer-contact">
             <svg style="width: 1rem; height: 1rem" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -544,14 +552,14 @@ $tarefas = $stmt->fetchAll(PDO::FETCH_ASSOC);
     function closeModal() {
       document.getElementById("modalTask").classList.remove("active");
     }
-    document.addEventListener("click", function(event) {
+    document.addEventListener("click", function (event) {
       const modal = document.getElementById("modalTask");
       if (modal.classList.contains("active") && !event.target.closest(".create-task-modal") && !event.target.closest("button[onclick='openModal()']")) {
         closeModal();
       }
     });
 
-   
+
     document.querySelectorAll(".custom-select").forEach(select => {
       const selected = select.querySelector(".selected");
       const options = select.querySelector(".options");

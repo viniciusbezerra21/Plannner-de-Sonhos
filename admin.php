@@ -1,77 +1,77 @@
 <?php
 session_start();
-require_once "config/conexao.php"; 
+require_once "config/conexao.php";
 
 $cookieName = "lembrar_me";
-$cookieTime = time() + (86400 * 30); 
+$cookieTime = time() + (86400 * 30);
 
 
 if (isset($_COOKIE[$cookieName]) && !isset($_SESSION['id_usuario'])) {
-    $token = $_COOKIE[$cookieName];
-    $stmt = $pdo->prepare("SELECT id_usuario, nome, cargo FROM usuarios WHERE remember_token = ?");
-    $stmt->execute([$token]);
-    $usuario = $stmt->fetch();
+  $token = $_COOKIE[$cookieName];
+  $stmt = $pdo->prepare("SELECT id_usuario, nome, cargo FROM usuarios WHERE remember_token = ?");
+  $stmt->execute([$token]);
+  $usuario = $stmt->fetch();
 
-    if ($usuario) {
-        $_SESSION['id_usuario'] = $usuario['id_usuario'];
-        $_SESSION['nome']       = $usuario['nome'];
-        $_SESSION['cargo']      = $usuario['cargo'];
+  if ($usuario) {
+    $_SESSION['id_usuario'] = $usuario['id_usuario'];
+    $_SESSION['nome'] = $usuario['nome'];
+    $_SESSION['cargo'] = $usuario['cargo'];
 
-        
-        if ($usuario['cargo'] === 'dev') {
-            header("Location: pages/dev.php");
-            exit;
-        } else {
-            header("Location: index.php");
-            exit;
-        }
+
+    if ($usuario['cargo'] === 'dev') {
+      header("Location: pages/dev.php");
+      exit;
+    } else {
+      header("Location: index.php");
+      exit;
     }
+  }
 }
 
 
 if (isset($_SESSION['id_usuario']) && isset($_SESSION['cargo'])) {
-    if ($_SESSION['cargo'] === 'dev') {
-        header("Location: pages/dev.php");
-        exit;
-    } else {
-        header("Location: index.php");
-        exit;
-    }
+  if ($_SESSION['cargo'] === 'dev') {
+    header("Location: pages/dev.php");
+    exit;
+  } else {
+    header("Location: index.php");
+    exit;
+  }
 }
 
 
 $erro = "";
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao']) && $_POST['acao'] === 'login') {
-    $email_usuario = $_POST['email'];
-    $senha_usuario = $_POST['senha'];
+  $email_usuario = $_POST['email'];
+  $senha_usuario = $_POST['senha'];
 
-    $stmt = $pdo->prepare("SELECT id_usuario, nome, senha, cargo FROM usuarios WHERE email = ? OR nome = ?");
-    $stmt->execute([$email_usuario, $email_usuario]);
-    $usuario = $stmt->fetch();
+  $stmt = $pdo->prepare("SELECT id_usuario, nome, senha, cargo FROM usuarios WHERE email = ? OR nome = ?");
+  $stmt->execute([$email_usuario, $email_usuario]);
+  $usuario = $stmt->fetch();
 
-    if ($usuario && password_verify($senha_usuario, $usuario['senha'])) {
-       
-        $_SESSION['id_usuario'] = $usuario['id_usuario'];
-        $_SESSION['nome']       = $usuario['nome'];
-        $_SESSION['cargo']      = $usuario['cargo'];
+  if ($usuario && password_verify($senha_usuario, $usuario['senha'])) {
 
-        
-        $token = bin2hex(random_bytes(16));
-        setcookie($cookieName, $token, $cookieTime, "/");
-        $stmt = $pdo->prepare("UPDATE usuarios SET remember_token = ? WHERE id_usuario = ?");
-        $stmt->execute([$token, $usuario['id_usuario']]);
+    $_SESSION['id_usuario'] = $usuario['id_usuario'];
+    $_SESSION['nome'] = $usuario['nome'];
+    $_SESSION['cargo'] = $usuario['cargo'];
 
-        
-        if ($usuario['cargo'] === 'dev') {
-            header("Location: pages/dev.php");
-            exit;
-        } else {
-            header("Location: index.php");
-            exit;
-        }
+
+    $token = bin2hex(random_bytes(16));
+    setcookie($cookieName, $token, $cookieTime, "/");
+    $stmt = $pdo->prepare("UPDATE usuarios SET remember_token = ? WHERE id_usuario = ?");
+    $stmt->execute([$token, $usuario['id_usuario']]);
+
+
+    if ($usuario['cargo'] === 'dev') {
+      header("Location: pages/dev.php");
+      exit;
     } else {
-        $erro = "<div class='mensagem-erro'>E-mail/usuário ou senha inválidos.</div>";
+      header("Location: index.php");
+      exit;
     }
+  } else {
+    $erro = "<div class='mensagem-erro'>E-mail/usuário ou senha inválidos.</div>";
+  }
 }
 ?>
 <!DOCTYPE html>
@@ -207,11 +207,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao']) && $_POST['ac
       <div class="header-content">
         <a href="index.php" class="logo">
           <div class="heart-icon">
-            <svg
-              width="16"
-              height="16"
-              fill="currentColor"
-              viewBox="0 0 24 24">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
               <path
                 d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
             </svg>
@@ -230,65 +226,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao']) && $_POST['ac
             Insira seus dados para acessar o painel de gestão.
           </p>
         </div>
-       
+
         <form action="admin.php" method="POST">
           <input type="hidden" name="acao" value="login" />
 
           <div class="card form-section" style="margin-bottom: 1rem">
-            <div
-              class="input-group"
-              style="fill: hsl(var(--primary-foreground))">
+            <div class="input-group" style="fill: hsl(var(--primary-foreground))">
               <svg viewBox="0 0 24 24">
                 <path
                   d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
               </svg>
-              <input
-                type="text"
-                name="email"
-                placeholder="E-mail ou Nome de Usuário"
-                required />
+              <input type="text" name="email" placeholder="E-mail ou Nome de Usuário" required />
             </div>
 
-            <div
-              class="input-group"
-              style="fill: hsl(var(--primary-foreground))">
+            <div class="input-group" style="fill: hsl(var(--primary-foreground))">
               <svg viewBox="0 0 24 24">
                 <path
                   d="M12 17a2 2 0 0 0 2-2v-3a2 2 0 1 0-4 0v3a2 2 0 0 0 2 2zm6-6v3a6 6 0 0 1-12 0v-3a6 6 0 0 1 12 0z" />
               </svg>
-              <input
-                type="password"
-                name="senha"
-                placeholder="Senha"
-                required />
+              <input type="password" name="senha" placeholder="Senha" required />
             </div>
 
-            <label
-              style="
+            <label style="
                   display: flex;
                   justify-content: flex-end;
                   font-size: 0.875rem;
                   margin-top: 0.5rem;
                 ">
-              <a
-                href="recuperar_senha.html"
-                style="color: hsl(var(--primary)); text-decoration: underline">Esqueceu a senha?</a>
+              <a href="recuperar_senha.html" style="color: hsl(var(--primary)); text-decoration: underline">Esqueceu a
+                senha?</a>
             </label>
 
-            <button
-              type="submit"
-              class="btn-primary"
-              style="margin-top: 1rem; width: 100%; text-align: center">
+            <button type="submit" class="btn-primary" style="margin-top: 1rem; width: 100%; text-align: center">
               Entrar
             </button>
           </div>
 
-          <p
-            style="text-align: center; margin-top: 1rem; font-size: 0.875rem">
+          <p style="text-align: center; margin-top: 1rem; font-size: 0.875rem">
             Não tem uma conta?
-            <a
-              href="user/cadastro.php"
-              style="color: hsl(var(--primary)); text-decoration: underline">Cadastre-se aqui</a>.
+            <a href="user/cadastro.php" style="color: hsl(var(--primary)); text-decoration: underline">Cadastre-se
+              aqui</a>.
           </p>
         </form>
       </div>

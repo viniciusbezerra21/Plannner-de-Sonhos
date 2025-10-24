@@ -6,114 +6,114 @@ $cookieName = "lembrar_me_fornecedor";
 
 
 if (!isset($_SESSION['fornecedor_id'])) {
-    header("Location: login.php");
-    exit;
+  header("Location: login.php");
+  exit;
 }
 
-$fornecedor_id = (int)$_SESSION['fornecedor_id'];
+$fornecedor_id = (int) $_SESSION['fornecedor_id'];
 $mensagem = "";
 $tipo_mensagem = "";
 
 
 try {
-    $stmt = $pdo->prepare("SELECT * FROM fornecedores WHERE id_fornecedor = ?");
-    $stmt->execute([$fornecedor_id]);
-    $fornecedor = $stmt->fetch(PDO::FETCH_ASSOC);
+  $stmt = $pdo->prepare("SELECT * FROM fornecedores WHERE id_fornecedor = ?");
+  $stmt->execute([$fornecedor_id]);
+  $fornecedor = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if (!$fornecedor) {
-        session_destroy();
-        header("Location: login.php");
-        exit;
-    }
-} catch (PDOException $e) {
-    error_log("Profile fetch error: " . $e->getMessage());
-    $fornecedor = [];
-}
-
-if (isset($_POST['logout'])) {
-   
-    try {
-        $stmt = $pdo->prepare("UPDATE fornecedores SET remember_token = NULL WHERE id_fornecedor = ?");
-        $stmt->execute([$fornecedor_id]);
-    } catch (PDOException $e) {
-        error_log("Logout error: " . $e->getMessage());
-    }
-    
-    
-    setcookie($cookieName, "", time() - 3600, "/");
-    session_unset();
+  if (!$fornecedor) {
     session_destroy();
     header("Location: login.php");
     exit;
+  }
+} catch (PDOException $e) {
+  error_log("Profile fetch error: " . $e->getMessage());
+  $fornecedor = [];
+}
+
+if (isset($_POST['logout'])) {
+
+  try {
+    $stmt = $pdo->prepare("UPDATE fornecedores SET remember_token = NULL WHERE id_fornecedor = ?");
+    $stmt->execute([$fornecedor_id]);
+  } catch (PDOException $e) {
+    error_log("Logout error: " . $e->getMessage());
+  }
+
+
+  setcookie($cookieName, "", time() - 3600, "/");
+  session_unset();
+  session_destroy();
+  header("Location: login.php");
+  exit;
 }
 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_profile') {
-    $nome = trim($_POST['nome_fornecedor'] ?? '');
-    $email = trim($_POST['email'] ?? '');
-    $telefone = trim($_POST['telefone'] ?? '');
-    $descricao = trim($_POST['descricao'] ?? '');
-    $categoria = trim($_POST['categoria'] ?? '');
+  $nome = trim($_POST['nome_fornecedor'] ?? '');
+  $email = trim($_POST['email'] ?? '');
+  $telefone = trim($_POST['telefone'] ?? '');
+  $descricao = trim($_POST['descricao'] ?? '');
+  $categoria = trim($_POST['categoria'] ?? '');
 
-    if (empty($nome) || empty($email) || empty($categoria)) {
-        $mensagem = 'Por favor, preencha todos os campos obrigatórios.';
-        $tipo_mensagem = 'erro';
-    } else {
-        try {
-            $sql = "UPDATE fornecedores SET nome_fornecedor = ?, email = ?, telefone = ?, descricao = ?, categoria = ? WHERE id_fornecedor = ?";
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([$nome, $email, $telefone, $descricao, $categoria, $fornecedor_id]);
-            
-            $_SESSION['fornecedor_nome'] = $nome;
-            $_SESSION['fornecedor_email'] = $email;
-            
-            $mensagem = 'Perfil atualizado com sucesso!';
-            $tipo_mensagem = 'sucesso';
-            
-            
-            $stmt = $pdo->prepare("SELECT * FROM fornecedores WHERE id_fornecedor = ?");
-            $stmt->execute([$fornecedor_id]);
-            $fornecedor = $stmt->fetch(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            $mensagem = 'Erro ao atualizar perfil. Tente novamente.';
-            $tipo_mensagem = 'erro';
-            error_log("Profile update error: " . $e->getMessage());
-        }
+  if (empty($nome) || empty($email) || empty($categoria)) {
+    $mensagem = 'Por favor, preencha todos os campos obrigatórios.';
+    $tipo_mensagem = 'erro';
+  } else {
+    try {
+      $sql = "UPDATE fornecedores SET nome_fornecedor = ?, email = ?, telefone = ?, descricao = ?, categoria = ? WHERE id_fornecedor = ?";
+      $stmt = $pdo->prepare($sql);
+      $stmt->execute([$nome, $email, $telefone, $descricao, $categoria, $fornecedor_id]);
+
+      $_SESSION['fornecedor_nome'] = $nome;
+      $_SESSION['fornecedor_email'] = $email;
+
+      $mensagem = 'Perfil atualizado com sucesso!';
+      $tipo_mensagem = 'sucesso';
+
+
+      $stmt = $pdo->prepare("SELECT * FROM fornecedores WHERE id_fornecedor = ?");
+      $stmt->execute([$fornecedor_id]);
+      $fornecedor = $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+      $mensagem = 'Erro ao atualizar perfil. Tente novamente.';
+      $tipo_mensagem = 'erro';
+      error_log("Profile update error: " . $e->getMessage());
     }
+  }
 }
 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'change_password') {
-    $senha_atual = trim($_POST['senha_atual'] ?? '');
-    $senha_nova = trim($_POST['senha_nova'] ?? '');
-    $confirmar_senha = trim($_POST['confirmar_senha'] ?? '');
+  $senha_atual = trim($_POST['senha_atual'] ?? '');
+  $senha_nova = trim($_POST['senha_nova'] ?? '');
+  $confirmar_senha = trim($_POST['confirmar_senha'] ?? '');
 
-    if (empty($senha_atual) || empty($senha_nova) || empty($confirmar_senha)) {
-        $mensagem = 'Por favor, preencha todos os campos de senha.';
-        $tipo_mensagem = 'erro';
-    } elseif ($senha_nova !== $confirmar_senha) {
-        $mensagem = 'As senhas não coincidem.';
-        $tipo_mensagem = 'erro';
-    } elseif (strlen($senha_nova) < 6) {
-        $mensagem = 'A nova senha deve ter no mínimo 6 caracteres.';
-        $tipo_mensagem = 'erro';
-    } elseif (!password_verify($senha_atual, $fornecedor['senha'])) {
-        $mensagem = 'Senha atual incorreta.';
-        $tipo_mensagem = 'erro';
-    } else {
-        try {
-            $senha_hash = password_hash($senha_nova, PASSWORD_DEFAULT);
-            $stmt = $pdo->prepare("UPDATE fornecedores SET senha = ? WHERE id_fornecedor = ?");
-            $stmt->execute([$senha_hash, $fornecedor_id]);
-            
-            $mensagem = 'Senha alterada com sucesso!';
-            $tipo_mensagem = 'sucesso';
-        } catch (PDOException $e) {
-            $mensagem = 'Erro ao alterar senha. Tente novamente.';
-            $tipo_mensagem = 'erro';
-            error_log("Password change error: " . $e->getMessage());
-        }
+  if (empty($senha_atual) || empty($senha_nova) || empty($confirmar_senha)) {
+    $mensagem = 'Por favor, preencha todos os campos de senha.';
+    $tipo_mensagem = 'erro';
+  } elseif ($senha_nova !== $confirmar_senha) {
+    $mensagem = 'As senhas não coincidem.';
+    $tipo_mensagem = 'erro';
+  } elseif (strlen($senha_nova) < 6) {
+    $mensagem = 'A nova senha deve ter no mínimo 6 caracteres.';
+    $tipo_mensagem = 'erro';
+  } elseif (!password_verify($senha_atual, $fornecedor['senha'])) {
+    $mensagem = 'Senha atual incorreta.';
+    $tipo_mensagem = 'erro';
+  } else {
+    try {
+      $senha_hash = password_hash($senha_nova, PASSWORD_DEFAULT);
+      $stmt = $pdo->prepare("UPDATE fornecedores SET senha = ? WHERE id_fornecedor = ?");
+      $stmt->execute([$senha_hash, $fornecedor_id]);
+
+      $mensagem = 'Senha alterada com sucesso!';
+      $tipo_mensagem = 'sucesso';
+    } catch (PDOException $e) {
+      $mensagem = 'Erro ao alterar senha. Tente novamente.';
+      $tipo_mensagem = 'erro';
+      error_log("Password change error: " . $e->getMessage());
     }
+  }
 }
 
 $categorias = [
@@ -136,7 +136,9 @@ $categorias = [
   <title>Meu Perfil - Planner de Sonhos</title>
   <link rel="stylesheet" href="../Style/styles.css">
   <link rel="shortcut icon" href="../Style/assets/icon.png" type="image/x-icon">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto:wght@300;400;500&display=swap"
+    rel="stylesheet" />
   <style>
     .profile-container {
       display: grid;
@@ -255,7 +257,8 @@ $categorias = [
         <a href="dashboard.php" class="logo">
           <div class="heart-icon">
             <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              <path
+                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
             </svg>
           </div>
           <span class="logo-text">Planner de Sonhos</span>
@@ -286,7 +289,7 @@ $categorias = [
         <?php endif; ?>
 
         <div class="profile-container">
-        
+
           <div class="profile-section">
             <h2>Informações da Empresa</h2>
 
@@ -295,7 +298,8 @@ $categorias = [
 
               <div class="form-group">
                 <label for="nome_fornecedor">Nome da Empresa *</label>
-                <input type="text" id="nome_fornecedor" name="nome_fornecedor" value="<?php echo htmlspecialchars($fornecedor['nome_fornecedor'] ?? ''); ?>" required>
+                <input type="text" id="nome_fornecedor" name="nome_fornecedor"
+                  value="<?php echo htmlspecialchars($fornecedor['nome_fornecedor'] ?? ''); ?>" required>
               </div>
 
               <div class="form-group">
@@ -312,17 +316,20 @@ $categorias = [
 
               <div class="form-group">
                 <label for="email">Email *</label>
-                <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($fornecedor['email'] ?? ''); ?>" required>
+                <input type="email" id="email" name="email"
+                  value="<?php echo htmlspecialchars($fornecedor['email'] ?? ''); ?>" required>
               </div>
 
               <div class="form-group">
                 <label for="telefone">Telefone</label>
-                <input type="tel" id="telefone" name="telefone" value="<?php echo htmlspecialchars($fornecedor['telefone'] ?? ''); ?>">
+                <input type="tel" id="telefone" name="telefone"
+                  value="<?php echo htmlspecialchars($fornecedor['telefone'] ?? ''); ?>">
               </div>
 
               <div class="form-group">
                 <label for="descricao">Descrição da Empresa</label>
-                <textarea id="descricao" name="descricao"><?php echo htmlspecialchars($fornecedor['descricao'] ?? ''); ?></textarea>
+                <textarea id="descricao"
+                  name="descricao"><?php echo htmlspecialchars($fornecedor['descricao'] ?? ''); ?></textarea>
               </div>
 
               <div class="form-actions">
@@ -331,7 +338,7 @@ $categorias = [
             </form>
           </div>
 
-          
+
           <div class="profile-section">
             <h2>Alterar Senha</h2>
 
@@ -370,7 +377,8 @@ $categorias = [
           <a href="../index.php" class="logo">
             <div class="heart-icon">
               <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                <path
+                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>
             </div>
             <span class="logo-text">Planner de Sonhos</span>

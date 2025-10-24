@@ -4,13 +4,13 @@ require_once "../config/conexao.php";
 
 $cookieName = "lembrar_me";
 
-// Verifica se o usuário está logado
+
 if (!isset($_SESSION["usuario_id"])) {
   header("Location: login.php");
   exit;
 }
 
-$usuario_id = (int)$_SESSION["usuario_id"];
+$usuario_id = (int) $_SESSION["usuario_id"];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'atualizar_notificacoes') {
   $notificacoes_email = isset($_POST['notificacoes_email']) ? 1 : 0;
@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'atualizar_tema') {
-  $tema_cor = 'azul'; // Always set to blue tones
+  $tema_cor = 'azul';
 
   try {
     $sql = "UPDATE usuarios SET tema_cor = ? WHERE id_usuario = ?";
@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
   $telefone = trim($_POST['telefone']);
   $senha = trim($_POST['senha']);
 
-  // Handle photo upload
+
   $foto_perfil = $_SESSION['foto_perfil'] ?? 'default.png';
   if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
     $allowed = ['jpg', 'jpeg', 'png', 'gif'];
@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
   }
 
-  // Update database
+
   try {
     if (!empty($senha)) {
       $senha_hash = password_hash($senha, PASSWORD_DEFAULT);
@@ -139,7 +139,7 @@ if (isset($_POST['logout'])) {
   } catch (PDOException $e) {
     error_log("Logout error: " . $e->getMessage());
   }
-  
+
   setcookie($cookieName, "", time() - 3600, "/");
   session_unset();
   session_destroy();
@@ -157,7 +157,9 @@ if (isset($_POST['logout'])) {
   <title>Planner de Sonhos</title>
   <link rel="stylesheet" href="../Style/styles.css">
   <link rel="shortcut icon" href="../Style/assets/icon.png" type="image/x-icon">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto:wght@300;400;500&display=swap"
+    rel="stylesheet" />
   <style>
     .profile-card {
       display: flex;
@@ -231,7 +233,7 @@ if (isset($_POST['logout'])) {
       box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
     }
 
-    /* Adicionando estilos para o modal */
+
     .modal {
       display: none;
       position: fixed;
@@ -420,7 +422,7 @@ if (isset($_POST['logout'])) {
       stroke: currentColor;
     }
 
-    /* Enhanced card styles for interactive preferences */
+
     .preference-card {
       background: hsl(var(--card-background, 0, 0%, 100%));
       border-radius: 1rem;
@@ -460,7 +462,7 @@ if (isset($_POST['logout'])) {
       stroke: hsl(var(--primary));
     }
 
-    /* Toggle switch styles */
+
     .toggle-switch {
       position: relative;
       width: 50px;
@@ -505,7 +507,7 @@ if (isset($_POST['logout'])) {
       transform: translateX(24px);
     }
 
-    /* Theme button */
+
     .theme-button {
       padding: 0.75rem 1.5rem;
       background: linear-gradient(135deg, #3b82f6, #1d4ed8);
@@ -522,7 +524,7 @@ if (isset($_POST['logout'])) {
       box-shadow: 0 6px 15px rgba(59, 130, 246, 0.4);
     }
 
-    /* Activity card styles */
+
     .activity-item {
       display: flex;
       align-items: flex-start;
@@ -570,14 +572,15 @@ if (isset($_POST['logout'])) {
 </head>
 
 <body>
-  <!-- Header -->
+
   <header class="header">
     <div class="container">
       <div class="header-content">
         <a href="../index.php" class="logo">
           <div class="heart-icon">
             <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              <path
+                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
             </svg>
           </div>
           <span class="logo-text">Planner de Sonhos</span>
@@ -596,7 +599,7 @@ if (isset($_POST['logout'])) {
             </div>
           </div>
           <form method="post" style="margin:0; display: inline-block;">
-            <button class="btn-outline" type="submit" name="logout" >
+            <button class="btn-outline" type="submit" name="logout">
               Sair
             </button>
           </form>
@@ -616,7 +619,7 @@ if (isset($_POST['logout'])) {
     </div>
   </header>
 
-  <!-- Conteúdo -->
+
   <main class="page-content container" style="margin-top:5rem;">
     <div class="page-header">
       <h1 class="page-title">Meu Perfil</h1>
@@ -640,13 +643,13 @@ if (isset($_POST['logout'])) {
 
     <?php if ($usuario): ?>
       <div class="features-detailed-grid">
-        <!-- Card Perfil -->
+
         <div class="profile-card">
           <div class="profile-photo">
             <img src="fotos/<?php echo htmlspecialchars($foto_perfil); ?>" alt="Foto de perfil">
           </div>
           <div class="profile-info">
-            <!-- Display user data with proper fallbacks -->
+
             <h2><?php echo htmlspecialchars($usuario['nome'] ?? 'Nome não disponível'); ?></h2>
             <p>E-mail: <?php echo htmlspecialchars($usuario['email'] ?? 'Não informado'); ?></p>
             <p>Telefone: <?php echo htmlspecialchars($usuario['telefone'] ?? 'Não informado'); ?></p>
@@ -655,7 +658,7 @@ if (isset($_POST['logout'])) {
           </div>
         </div>
 
-        <!-- Card Preferências -->
+
         <div class="preference-card">
           <div class="feature-detailed-header">
             <div class="feature-icon">
@@ -678,16 +681,14 @@ if (isset($_POST['logout'])) {
                 Notificações por email
               </div>
               <label class="toggle-switch">
-                <input type="checkbox" name="notificacoes_email"
-                  <?php echo ($usuario['notificacoes_email'] ?? 1) ? 'checked' : ''; ?>
-                  onchange="document.getElementById('notificationForm').submit()">
+                <input type="checkbox" name="notificacoes_email" <?php echo ($usuario['notificacoes_email'] ?? 1) ? 'checked' : ''; ?> onchange="document.getElementById('notificationForm').submit()">
                 <span class="toggle-slider"></span>
               </label>
             </div>
           </form>
         </div>
 
-        <!-- Card Atividades -->
+
         <div class="preference-card">
           <div class="feature-detailed-header">
             <div class="feature-icon">
@@ -740,7 +741,7 @@ if (isset($_POST['logout'])) {
     <?php endif; ?>
   </main>
 
-  <!-- Adicionando modal de edição de perfil -->
+
   <?php if ($usuario): ?>
     <div id="editModal" style="animation: staticFadeIn 0.3s ease-out;" class="modal">
       <div style="animation: slideInFromBottom 0.3s ease-out forwards;" class="modal-content">
@@ -748,37 +749,42 @@ if (isset($_POST['logout'])) {
         <h2 style="text-align: center; margin-bottom: 0.5rem;">Editar Perfil</h2>
 
         <div class="modal-profile-photo" style="text-align: center; margin-bottom: 0.5rem;">
-          <img src="fotos/<?php echo htmlspecialchars($foto_perfil); ?>" alt="Foto de perfil" class="modal-profile-photo" id="modalFotoPreview">
+          <img src="fotos/<?php echo htmlspecialchars($foto_perfil); ?>" alt="Foto de perfil" class="modal-profile-photo"
+            id="modalFotoPreview">
           <div class="custom-file">
             <input type="file" id="modalFoto" name="foto" accept="image/*" onchange="previewModalFoto(event)">
             <label for="modalFoto">Trocar Foto de Perfil</label>
           </div>
         </div>
 
-        <!-- Fixed form to properly submit with file upload -->
+
         <form method="POST" enctype="multipart/form-data" id="editForm" action="perfil.php">
           <input type="hidden" name="action" value="editar_perfil">
-          <!-- Hidden input to handle file upload -->
+
           <input type="file" id="hiddenFoto" name="foto" style="display: none;">
 
           <div class="form-group">
             <label for="modalNome">Nome Completo</label>
-            <input type="text" id="modalNome" name="nome" value="<?php echo htmlspecialchars($usuario['nome']); ?>" required>
+            <input type="text" id="modalNome" name="nome" value="<?php echo htmlspecialchars($usuario['nome']); ?>"
+              required>
           </div>
 
           <div class="form-group">
             <label for="modalNomeConj">Nome do Cônjuge</label>
-            <input type="text" id="modalNomeConj" name="nome_conj" value="<?php echo htmlspecialchars($usuario['nome_conjuge']); ?>" required>
+            <input type="text" id="modalNomeConj" name="nome_conj"
+              value="<?php echo htmlspecialchars($usuario['nome_conjuge']); ?>" required>
           </div>
 
           <div class="form-group">
             <label for="modalEmail">E-mail</label>
-            <input type="email" id="modalEmail" name="email" value="<?php echo htmlspecialchars($usuario['email']); ?>" required>
+            <input type="email" id="modalEmail" name="email" value="<?php echo htmlspecialchars($usuario['email']); ?>"
+              required>
           </div>
 
           <div class="form-group">
             <label for="modalTelefone">Telefone</label>
-            <input type="text" id="modalTelefone" name="telefone" value="<?php echo htmlspecialchars($usuario['telefone']); ?>" required>
+            <input type="text" id="modalTelefone" name="telefone"
+              value="<?php echo htmlspecialchars($usuario['telefone']); ?>" required>
           </div>
 
           <div class="form-group">
@@ -792,14 +798,15 @@ if (isset($_POST['logout'])) {
     </div>
   <?php endif; ?>
 
-  <!-- Footer -->
+
   <footer class="footer">
     <div class="container footer-content">
       <div class="footer-brand">
         <a href="../index.php" class="logo">
           <div class="heart-icon">
             <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              <path
+                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
             </svg>
           </div>
           <span class="logo-text">Planner de Sonhos</span>
@@ -864,8 +871,8 @@ if (isset($_POST['logout'])) {
       }
     }
 
-    // Fechar modal ao clicar fora dele
-    window.onclick = function(event) {
+
+    window.onclick = function (event) {
       const modal = document.getElementById('editModal');
       if (event.target === modal) {
         closeEditModal();

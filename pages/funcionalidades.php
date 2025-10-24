@@ -12,11 +12,11 @@ if (!isset($_SESSION['usuario_id']) && isset($_COOKIE[$cookieName])) {
     $chk->execute([$cookieUserId]);
     $u = $chk->fetch(PDO::FETCH_ASSOC);
     if ($u) {
-      $_SESSION['usuario_id'] = (int)$u['id_usuario'];
+      $_SESSION['usuario_id'] = (int) $u['id_usuario'];
       $_SESSION['nome'] = $u['nome'];
       $_SESSION['cargo'] = $u['cargo'] ?? 'cliente';
     } else {
-      
+
       setcookie($cookieName, "", time() - 3600, "/");
     }
   }
@@ -31,7 +31,7 @@ if (isset($_POST['logout'])) {
   } catch (PDOException $e) {
     error_log("Logout error: " . $e->getMessage());
   }
-  
+
   setcookie($cookieName, "", time() - 3600, "/");
   session_unset();
   session_destroy();
@@ -43,16 +43,16 @@ if (isset($_POST['logout'])) {
 if (isset($_SESSION['usuario_id'])) {
   try {
     $stmt = $pdo->prepare("SELECT nome, email, foto_perfil FROM usuarios WHERE id_usuario = ?");
-    $stmt->execute([(int)$_SESSION['usuario_id']]);
+    $stmt->execute([(int) $_SESSION['usuario_id']]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
     if ($result) {
       $user_data = [
         'nome' => $result['nome'] ?? 'Usuário',
         'email' => $result['email'] ?? '',
         'foto_perfil' => !empty($result['foto_perfil']) ? $result['foto_perfil'] : 'default.png'
       ];
-  
+
       if (!empty($result['foto_perfil'])) {
         $_SESSION['foto_perfil'] = $result['foto_perfil'];
       } else {
@@ -186,6 +186,7 @@ $idUsuario = (int) $_SESSION['usuario_id'] ?? 0;
         right: -1rem;
       }
     }
+
     .profile-dropdown-wrapper {
       position: relative;
     }
@@ -340,22 +341,15 @@ $idUsuario = (int) $_SESSION['usuario_id'] ?? 0;
 
           <?php if (isset($_SESSION["usuario_id"])): ?>
             <div class="profile-dropdown-wrapper">
-              <img 
-                src="../user/fotos/<?php echo htmlspecialchars($_SESSION['foto_perfil'] ?? 'default.png'); ?>"
-                alt="Foto de perfil"
-                class="profile-avatar"
-                onclick="toggleProfileDropdown()"
-              >
+              <img src="../user/fotos/<?php echo htmlspecialchars($_SESSION['foto_perfil'] ?? 'default.png'); ?>"
+                alt="Foto de perfil" class="profile-avatar" onclick="toggleProfileDropdown()">
               <div class="profile-dropdown" id="profileDropdown">
                 <div class="profile-dropdown-header">
                   <div class="profile-dropdown-user">
-                    <img 
-                      src="../user/fotos/<?php echo htmlspecialchars($_SESSION['foto_perfil'] ?? 'default.png'); ?>" 
-                      alt="Avatar" 
-                      class="profile-dropdown-avatar"
-                    >
+                    <img src="../user/fotos/<?php echo htmlspecialchars($_SESSION['foto_perfil'] ?? 'default.png'); ?>"
+                      alt="Avatar" class="profile-dropdown-avatar">
                     <div class="profile-dropdown-info">
-                      
+
                       <div class="profile-dropdown-name">
                         <?php echo htmlspecialchars($user_data['nome']); ?>
                       </div>
@@ -383,12 +377,19 @@ $idUsuario = (int) $_SESSION['usuario_id'] ?? 0;
                     Funcionalidades
                   </a>
                   <form method="post" style="margin:0;">
-                    <button type="submit" name="logout" class="profile-dropdown-item logout" style="width: 100%; text-align: left; background: none; border: none; font-family: inherit; font-size: inherit; cursor: pointer; display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem;">
-                    <svg fill="hsl(var(--foreground))" width="800px" height="800px" viewBox="0 0 36 36" version="1.1"  preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <title>logout-line</title>
-    <path d="M7,6H23v9.8h2V6a2,2,0,0,0-2-2H7A2,2,0,0,0,5,6V30a2,2,0,0,0,2,2H23a2,2,0,0,0,2-2H7Z" class="clr-i-outline clr-i-outline-path-1"></path><path d="M28.16,17.28a1,1,0,0,0-1.41,1.41L30.13,22H15.63a1,1,0,0,0-1,1,1,1,0,0,0,1,1h14.5l-3.38,3.46a1,1,0,1,0,1.41,1.41L34,23.07Z" class="clr-i-outline clr-i-outline-path-2"></path>
-    <rect x="0" y="0" width="36" height="36" fill-opacity="0"/>
-</svg>
+                    <button type="submit" name="logout" class="profile-dropdown-item logout"
+                      style="width: 100%; text-align: left; background: none; border: none; font-family: inherit; font-size: inherit; cursor: pointer; display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem;">
+                      <svg fill="hsl(var(--foreground))" width="800px" height="800px" viewBox="0 0 36 36" version="1.1"
+                        preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"
+                        xmlns:xlink="http://www.w3.org/1999/xlink">
+                        <title>logout-line</title>
+                        <path d="M7,6H23v9.8h2V6a2,2,0,0,0-2-2H7A2,2,0,0,0,5,6V30a2,2,0,0,0,2,2H23a2,2,0,0,0,2-2H7Z"
+                          class="clr-i-outline clr-i-outline-path-1"></path>
+                        <path
+                          d="M28.16,17.28a1,1,0,0,0-1.41,1.41L30.13,22H15.63a1,1,0,0,0-1,1,1,1,0,0,0,1,1h14.5l-3.38,3.46a1,1,0,1,0,1.41,1.41L34,23.07Z"
+                          class="clr-i-outline clr-i-outline-path-2"></path>
+                        <rect x="0" y="0" width="36" height="36" fill-opacity="0" />
+                      </svg>
                       Sair
                     </button>
                   </form>
@@ -611,8 +612,10 @@ $idUsuario = (int) $_SESSION['usuario_id'] ?? 0;
               <p>Reduza em 70% o tempo gasto no planejamento</p>
             </div>
             <div class="benefit-item">
-              <svg class="star-icon" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--foreground))" color="hsl(var(--foreground))">
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.06L12 2z" />
+              <svg class="star-icon" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--foreground))"
+                color="hsl(var(--foreground))">
+                <path
+                  d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.06L12 2z" />
               </svg>
               <h3>Qualidade Garantida</h3>
               <p>98% de satisfação dos nossos usuários</p>
@@ -739,7 +742,7 @@ $idUsuario = (int) $_SESSION['usuario_id'] ?? 0;
       const dropdown = document.getElementById("profileDropdown");
       dropdown.classList.toggle("active");
     }
-    document.addEventListener('click', function(event) {
+    document.addEventListener('click', function (event) {
       const profile = document.querySelector('.user-profile');
       const dropdown = document.getElementById("profileDropdown");
       if (profile && !profile.contains(event.target)) {
@@ -747,7 +750,7 @@ $idUsuario = (int) $_SESSION['usuario_id'] ?? 0;
       }
     });
     document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-      anchor.addEventListener("click", function(e) {
+      anchor.addEventListener("click", function (e) {
         e.preventDefault();
         const target = document.querySelector(this.getAttribute("href"));
         if (target) {
@@ -771,7 +774,7 @@ $idUsuario = (int) $_SESSION['usuario_id'] ?? 0;
     function closeLoginModal() {
       document.getElementById("loginModal").style.display = "none";
     }
-    window.onclick = function(event) {
+    window.onclick = function (event) {
       const modal = document.getElementById("loginModal");
       if (event.target === modal) {
         closeLoginModal();

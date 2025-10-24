@@ -1,20 +1,20 @@
 <?php
 session_start();
 
-// inclui conexão
+
 require_once "../config/conexao.php";
 
-// Verifica se veio POST
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-  $nome       = $_POST["nome"];
-  $nome_conj  = $_POST["nome_conj"];
-  $genero     = $_POST["genero"];
-  $idade      = $_POST["idade"];
-  $telefone   = $_POST["num_telefone"];
-  $email      = $_POST["email"];
-  $senha      = password_hash($_POST["senha"], PASSWORD_DEFAULT);
 
-  // Foto padrão de perfil
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+  $nome = $_POST["nome"];
+  $nome_conj = $_POST["nome_conj"];
+  $genero = $_POST["genero"];
+  $idade = $_POST["idade"];
+  $telefone = $_POST["num_telefone"];
+  $email = $_POST["email"];
+  $senha = password_hash($_POST["senha"], PASSWORD_DEFAULT);
+
+
   $foto_perfil = "default.png";
 
   $sql = "INSERT INTO usuarios (nome, nome_conjuge, genero, idade, telefone, email, senha, cargo, foto_perfil) 
@@ -24,13 +24,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
   try {
     $stmt->execute([$nome, $nome_conj, $genero, $idade, $telefone, $email, $senha, $foto_perfil]);
 
-    // pega ID do usuário inserido
+
     $id_usuario = $pdo->lastInsertId();
 
-    // cria sessão
-    $_SESSION["usuario_id"]   = $id_usuario;
-    $_SESSION["nome"]         = $nome;
-    $_SESSION["foto_perfil"]  = $foto_perfil;
+
+    $_SESSION["usuario_id"] = $id_usuario;
+    $_SESSION["nome"] = $nome;
+    $_SESSION["foto_perfil"] = $foto_perfil;
 
     header("Location: ../index.php");
     exit;
@@ -116,11 +116,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       <div class="header-content">
         <a href="../index.php" class="logo">
           <div class="heart-icon">
-            <svg
-              width="16"
-              height="16"
-              fill="currentColor"
-              viewBox="0 0 24 24">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
               <path
                 d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
             </svg>
@@ -131,10 +127,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
           <a href="../index.php" class="nav-link">Início</a>
           <a href="login.php" class="btn-primary" style="align-items: center">Login</a>
         </nav>
-        <button
-          id="hamburgerBtn"
-          class="mobile-menu-btn"
-          onclick="toggleMobileMenu()">
+        <button id="hamburgerBtn" class="mobile-menu-btn" onclick="toggleMobileMenu()">
           <span class="hamburger-line"></span>
           <span class="hamburger-line"></span>
           <span class="hamburger-line"></span>
@@ -166,22 +159,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <path
                   d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zM12 14c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z" />
               </svg>
-              <input
-                type="text"
-                name="nome"
-                placeholder="Seu nome"
-                required />
+              <input type="text" name="nome" placeholder="Seu nome" required />
             </div>
             <div class="input-group">
               <svg viewBox="0 0 24 24">
                 <path
                   d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zM12 14c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z" />
               </svg>
-              <input
-                type="text"
-                name="nome_conj"
-                placeholder="Nome do cônjuge"
-                required />
+              <input type="text" name="nome_conj" placeholder="Nome do cônjuge" required />
             </div>
             <div class="input-group">
               <svg viewBox="0 0 24 24">
@@ -198,12 +183,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <path
                   d="M19 3h-1V1h-2v2H8V1H6v2H5C3.9 3 3 3.9 3 5v16c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H5V8h14v13z" />
               </svg>
-              <input
-                type="number"
-                name="idade"
-                placeholder="Idade"
-                min="0"
-                required />
+              <input type="number" name="idade" placeholder="Idade" min="0" required />
             </div>
           </div>
           <div class="card form-section" style="margin-bottom: 1rem">
@@ -214,22 +194,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <path
                   d="M6.62 10.79a15.05 15.05 0 0 0 6.59 6.59l2.2-2.2a1 1 0 0 1 1.11-.21 11.36 11.36 0 0 0 3.54.57 1 1 0 0 1 1 1v3.5a1 1 0 0 1-1 1C7.83 21.5 2.5 16.17 2.5 10a1 1 0 0 1 1-1H7a1 1 0 0 1 1 1c0 1.23.21 2.42.62 3.5z" />
               </svg>
-              <input
-                type="text"
-                name="num_telefone"
-                placeholder="Número de telefone"
-                required />
+              <input type="text" name="num_telefone" placeholder="Número de telefone" required />
             </div>
             <div class="input-group">
               <svg viewBox="0 0 24 24">
                 <path
                   d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
               </svg>
-              <input
-                type="email"
-                name="email"
-                placeholder="E-mail"
-                required />
+              <input type="email" name="email" placeholder="E-mail" required />
             </div>
           </div>
           <div class="card form-section" style="margin-bottom: 1rem">
@@ -238,11 +210,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
               <svg viewBox="0 0 24 24">
                 <path d="M12 1L3 5v6c0 5 9 11 9 11s9-6 9-11V5l-9-4z" />
               </svg>
-              <input
-                type="password"
-                name="senha"
-                placeholder="Senha"
-                required />
+              <input type="password" name="senha" placeholder="Senha" required />
             </div>
           </div>
           <button type="submit" class="btn-primary" style="margin-top: 1rem; width: 100%">

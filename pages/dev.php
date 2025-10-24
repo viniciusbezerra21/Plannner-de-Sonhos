@@ -52,7 +52,7 @@ if (isset($_POST['edit_user'])) {
   $userId = (int) $_POST['user_id'];
   $nome = trim($_POST['nome']);
   $email = trim($_POST['email']);
-  
+
   if ($nome && $email) {
     $stmt = $pdo->prepare("UPDATE usuarios SET nome = ?, email = ? WHERE id_usuario = ?");
     $stmt->execute([$nome, $email, $userId]);
@@ -308,14 +308,12 @@ $orcamentos = $pdo->query("
       font-size: 0.8rem;
       margin: 0.25rem;
     }
+
     .footer-description-dev {
-   color: white;
-  margin: 1rem 0;
-  line-height: 1.6;}
-  
-
-
-    
+      color: white;
+      margin: 1rem 0;
+      line-height: 1.6;
+    }
   </style>
 </head>
 
@@ -324,17 +322,18 @@ $orcamentos = $pdo->query("
     <header class="dev-header">
       <div class="dev-container">
         <div class="header-content">
-          
-        <a href="../index.php" class="logo" style="display:flex; align-items:center; gap:6px; text-decoration:none;">
-          <div class="heart-icon">
-            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-            </svg>
-          </div>
-          <span class="logo-text">Planner de Sonhos - DEV</span>
-        </a>
 
-          
+          <a href="../index.php" class="logo" style="display:flex; align-items:center; gap:6px; text-decoration:none;">
+            <div class="heart-icon">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                <path
+                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              </svg>
+            </div>
+            <span class="logo-text">Planner de Sonhos - DEV</span>
+          </a>
+
+
           <nav style="display:flex; gap:1rem; align-items:center">
             <span style="color: rgba(255,255,255,0.8)">Bem-vindo, <?= htmlspecialchars($_SESSION['nome']); ?></span>
             <form method="post" style="margin:0;">
@@ -369,15 +368,18 @@ $orcamentos = $pdo->query("
       <div class="dev-actions">
         <div class="action-card">
           <h3>Gerenciar Usuários</h3>
-          <p>Visualizar, editar e gerenciar contas de usuários do sistema.</p><button class="btn-dev" onclick="openModal('userModal')">Acessar</button>
+          <p>Visualizar, editar e gerenciar contas de usuários do sistema.</p><button class="btn-dev"
+            onclick="openModal('userModal')">Acessar</button>
         </div>
         <div class="action-card">
           <h3>Eventos do Sistema</h3>
-          <p>Monitorar e gerenciar todos os eventos criados pelos usuários.</p><button class="btn-dev" onclick="openModal('eventsModal')">Acessar</button>
+          <p>Monitorar e gerenciar todos os eventos criados pelos usuários.</p><button class="btn-dev"
+            onclick="openModal('eventsModal')">Acessar</button>
         </div>
         <div class="action-card">
           <h3>Mensagens de Contato</h3>
-          <p>Visualizar mensagens enviadas pelos usuários.</p><button class="btn-dev" onclick="openModal('messagesModal')">Acessar</button>
+          <p>Visualizar mensagens enviadas pelos usuários.</p><button class="btn-dev"
+            onclick="openModal('messagesModal')">Acessar</button>
         </div>
         <div class="action-card">
           <h3>Tarefas</h3>
@@ -393,7 +395,7 @@ $orcamentos = $pdo->query("
     </main>
   </div>
 
-  
+
   <div class="modal-overlay" id="userModal">
     <div class="modal">
       <button class="close-modal" onclick="closeModal('userModal')">&times;</button>
@@ -417,7 +419,8 @@ $orcamentos = $pdo->query("
                 <button class="btn-dev btn-small" onclick="toggleEditForm(<?= $u['id_usuario'] ?>)">Editar</button>
                 <form method="post" style="display: inline;">
                   <input type="hidden" name="user_id" value="<?= $u['id_usuario'] ?>">
-                  <button type="submit" name="delete_user" class="btn-dev btn-small" style="background: #ef4444;" onclick="return confirm('Tem certeza que deseja excluir este usuário?')">Excluir</button>
+                  <button type="submit" name="delete_user" class="btn-dev btn-small" style="background: #ef4444;"
+                    onclick="return confirm('Tem certeza que deseja excluir este usuário?')">Excluir</button>
                 </form>
               </td>
             </tr>
@@ -426,10 +429,13 @@ $orcamentos = $pdo->query("
                 <div class="edit-form" id="editForm<?= $u['id_usuario'] ?>">
                   <form method="post">
                     <input type="hidden" name="user_id" value="<?= $u['id_usuario'] ?>">
-                    <input type="text" name="nome" value="<?= htmlspecialchars($u['nome']) ?>" placeholder="Nome" required>
-                    <input type="email" name="email" value="<?= htmlspecialchars($u['email']) ?>" placeholder="Email" required>
+                    <input type="text" name="nome" value="<?= htmlspecialchars($u['nome']) ?>" placeholder="Nome"
+                      required>
+                    <input type="email" name="email" value="<?= htmlspecialchars($u['email']) ?>" placeholder="Email"
+                      required>
                     <button type="submit" name="edit_user" class="btn-dev btn-small">Salvar</button>
-                    <button type="button" class="btn-dev btn-small" onclick="toggleEditForm(<?= $u['id_usuario'] ?>)">Cancelar</button>
+                    <button type="button" class="btn-dev btn-small"
+                      onclick="toggleEditForm(<?= $u['id_usuario'] ?>)">Cancelar</button>
                   </form>
                 </div>
               </td>
@@ -440,7 +446,7 @@ $orcamentos = $pdo->query("
     </div>
   </div>
 
- 
+
   <div class="modal-overlay" id="eventsModal">
     <div class="modal">
       <button class="close-modal" onclick="closeModal('eventsModal')">&times;</button>
@@ -466,7 +472,7 @@ $orcamentos = $pdo->query("
     </div>
   </div>
 
-  
+
   <div class="modal-overlay" id="messagesModal">
     <div class="modal">
       <button class="close-modal" onclick="closeModal('messagesModal')">&times;</button>
@@ -493,7 +499,7 @@ $orcamentos = $pdo->query("
       </table>
     </div>
   </div>
- 
+
   <div class="modal-overlay" id="tasksModal">
     <div class="modal">
       <button class="close-modal" onclick="closeModal('tasksModal')">&times;</button>
@@ -521,7 +527,9 @@ $orcamentos = $pdo->query("
               <td><?= htmlspecialchars($t['usuario']) ?></td>
               <td>
                 <form method="post" style="display: inline;">
-                  <button type="submit" name="delete_task" value="<?= $t['id_tarefa'] ?>" class="btn-dev btn-small" style="background: #ef4444;" onclick="return confirm('Tem certeza que deseja excluir esta tarefa?')">Excluir</button>
+                  <button type="submit" name="delete_task" value="<?= $t['id_tarefa'] ?>" class="btn-dev btn-small"
+                    style="background: #ef4444;"
+                    onclick="return confirm('Tem certeza que deseja excluir esta tarefa?')">Excluir</button>
                 </form>
               </td>
             </tr>
@@ -531,7 +539,7 @@ $orcamentos = $pdo->query("
     </div>
   </div>
 
-  
+
   <div class="modal-overlay" id="budgetModal">
     <div class="modal">
       <button class="close-modal" onclick="closeModal('budgetModal')">&times;</button>
@@ -557,7 +565,7 @@ $orcamentos = $pdo->query("
               <td><?= $o['quantidade'] ?></td>
               <td>R$ <?= number_format($o['valor_unitario'], 2, ',', '.') ?></td>
               <td>
-                <?php for($i = 1; $i <= 5; $i++): ?>
+                <?php for ($i = 1; $i <= 5; $i++): ?>
                   <span style="color: <?= ($o['avaliacao'] >= $i) ? '#ffc107' : '#ddd' ?>">★</span>
                 <?php endfor; ?>
               </td>
@@ -586,49 +594,51 @@ $orcamentos = $pdo->query("
     }
   </script>
 
-<script>
-function openModal(id) {
-  document.getElementById(id).style.display = 'flex';
-  document.getElementById("pageContent").classList.add("blurred");
-}
+  <script>
+    function openModal(id) {
+      document.getElementById(id).style.display = 'flex';
+      document.getElementById("pageContent").classList.add("blurred");
+    }
 
-function closeModal(id) {
-  document.getElementById(id).style.display = 'none';
-  document.getElementById("pageContent").classList.remove("blurred");
-}
-
-function toggleEditForm(userId) {
-  const form = document.getElementById('editForm' + userId);
-  form.classList.toggle('active');
-}
-
-
-document.querySelectorAll('.modal-overlay').forEach(overlay => {
-  overlay.addEventListener('click', function(e) {
-    if (e.target === this) {
-      this.style.display = 'none';
+    function closeModal(id) {
+      document.getElementById(id).style.display = 'none';
       document.getElementById("pageContent").classList.remove("blurred");
     }
-  });
-});
-</script>
+
+    function toggleEditForm(userId) {
+      const form = document.getElementById('editForm' + userId);
+      form.classList.toggle('active');
+    }
 
 
-<footer class="footer" style="background: transparent; padding: 20px; margin-top: 90px;">
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', function (e) {
+        if (e.target === this) {
+          this.style.display = 'none';
+          document.getElementById("pageContent").classList.remove("blurred");
+        }
+      });
+    });
+  </script>
+
+
+  <footer class="footer" style="background: transparent; padding: 20px; margin-top: 90px;">
 
     <div class="container">
       <div class="footer-content">
         <div class="footer-brand">
           <a href="../index.php" class="logo">
             <div class="heart-icon">
-              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" >
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                <path
+                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>
             </div>
             <span class="logo-text">Planner de Sonhos - Dev</span>
           </a>
           <p class="footer-description-dev">
-            A plataforma mais completa para cerimonialistas organizarem casamentos perfeitos. Simplifique sua gestão e encante seus clientes.
+            A plataforma mais completa para cerimonialistas organizarem casamentos perfeitos. Simplifique sua gestão e
+            encante seus clientes.
           </p>
           <div class="footer-contact">
             <svg style="width: 1rem; height: 1rem" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -636,12 +646,12 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
               <polyline points="22,6 12,13 2,6" />
             </svg>
             <span style="color: white;">contato@plannerdesonhos.com</span>
-          </div>  
+          </div>
         </div>
         <div class="footer-links">
           <h3>Links Rápidos</h3>
           <ul style="color: white;">
-           <li><a href="../legal-pages/about.html" style="color: white;">Sobre</a></li>
+            <li><a href="../legal-pages/about.html" style="color: white;">Sobre</a></li>
             <li><a href="../legal-pages/privacity-politics.html" style="color: white;">Política de Privacidade</a></li>
             <li><a href="../legal-pages/uses-terms.html" style="color: white;">Termos de Uso</a></li>
           </ul>

@@ -23,62 +23,62 @@ $telefone = '';
 $descricao = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register_supplier'])) {
-    $nome_fornecedor = trim($_POST['nome_fornecedor'] ?? '');
-    $categoria = trim($_POST['categoria'] ?? '');
-    $email = trim($_POST['email'] ?? '');
-    $telefone = trim($_POST['telefone'] ?? '');
-    $senha = trim($_POST['senha'] ?? '');
-    $confirmar_senha = trim($_POST['confirmar_senha'] ?? '');
-    $descricao = trim($_POST['descricao'] ?? '');
+  $nome_fornecedor = trim($_POST['nome_fornecedor'] ?? '');
+  $categoria = trim($_POST['categoria'] ?? '');
+  $email = trim($_POST['email'] ?? '');
+  $telefone = trim($_POST['telefone'] ?? '');
+  $senha = trim($_POST['senha'] ?? '');
+  $confirmar_senha = trim($_POST['confirmar_senha'] ?? '');
+  $descricao = trim($_POST['descricao'] ?? '');
 
-    if (empty($nome_fornecedor) || empty($categoria) || empty($email) || empty($senha)) {
-        $mensagem = 'Por favor, preencha todos os campos obrigatórios.';
+  if (empty($nome_fornecedor) || empty($categoria) || empty($email) || empty($senha)) {
+    $mensagem = 'Por favor, preencha todos os campos obrigatórios.';
+    $tipo_mensagem = 'erro';
+  } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    $mensagem = 'Por favor, insira um email válido.';
+    $tipo_mensagem = 'erro';
+  } elseif ($senha !== $confirmar_senha) {
+    $mensagem = 'As senhas não coincidem.';
+    $tipo_mensagem = 'erro';
+  } elseif (strlen($senha) < 6) {
+    $mensagem = 'A senha deve ter no mínimo 6 caracteres.';
+    $tipo_mensagem = 'erro';
+  } elseif (!array_key_exists($categoria, $categorias)) {
+    $mensagem = 'Categoria inválida selecionada.';
+    $tipo_mensagem = 'erro';
+  } else {
+    try {
+
+      $stmt = $pdo->prepare("SELECT id_fornecedor FROM fornecedores WHERE email = ?");
+      $stmt->execute([$email]);
+      if ($stmt->fetch()) {
+        $mensagem = 'Este email já está cadastrado.';
         $tipo_mensagem = 'erro';
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $mensagem = 'Por favor, insira um email válido.';
-        $tipo_mensagem = 'erro';
-    } elseif ($senha !== $confirmar_senha) {
-        $mensagem = 'As senhas não coincidem.';
-        $tipo_mensagem = 'erro';
-    } elseif (strlen($senha) < 6) {
-        $mensagem = 'A senha deve ter no mínimo 6 caracteres.';
-        $tipo_mensagem = 'erro';
-    } elseif (!array_key_exists($categoria, $categorias)) {
-        $mensagem = 'Categoria inválida selecionada.';
-        $tipo_mensagem = 'erro';
-    } else {
-        try {
-            
-            $stmt = $pdo->prepare("SELECT id_fornecedor FROM fornecedores WHERE email = ?");
-            $stmt->execute([$email]);
-            if ($stmt->fetch()) {
-                $mensagem = 'Este email já está cadastrado.';
-                $tipo_mensagem = 'erro';
-            } else {
-                $senha_hash = password_hash($senha, PASSWORD_DEFAULT);
-                $stmt = $pdo->prepare("
+      } else {
+        $senha_hash = password_hash($senha, PASSWORD_DEFAULT);
+        $stmt = $pdo->prepare("
                     INSERT INTO fornecedores (nome_fornecedor, categoria, email, telefone, descricao, senha, apenas_pacotes)
                     VALUES (?, ?, ?, ?, ?, ?, 0)
                 ");
-                $stmt->execute([$nome_fornecedor, $categoria, $email, $telefone, $descricao, $senha_hash]);
-                
-                $fornecedor_id = $pdo->lastInsertId();
-                $mensagem = 'Fornecedor cadastrado com sucesso! Faça login para continuar.';
-                $tipo_mensagem = 'sucesso';
-                
-               
-                $nome_fornecedor = '';
-                $categoria = '';
-                $email = '';
-                $telefone = '';
-                $descricao = '';
-            }
-        } catch (PDOException $e) {
-            $mensagem = 'Erro ao cadastrar fornecedor. Tente novamente.';
-            $tipo_mensagem = 'erro';
-            error_log("Error registering supplier: " . $e->getMessage());
-        }
+        $stmt->execute([$nome_fornecedor, $categoria, $email, $telefone, $descricao, $senha_hash]);
+
+        $fornecedor_id = $pdo->lastInsertId();
+        $mensagem = 'Fornecedor cadastrado com sucesso! Faça login para continuar.';
+        $tipo_mensagem = 'sucesso';
+
+
+        $nome_fornecedor = '';
+        $categoria = '';
+        $email = '';
+        $telefone = '';
+        $descricao = '';
+      }
+    } catch (PDOException $e) {
+      $mensagem = 'Erro ao cadastrar fornecedor. Tente novamente.';
+      $tipo_mensagem = 'erro';
+      error_log("Error registering supplier: " . $e->getMessage());
     }
+  }
 }
 ?>
 <!DOCTYPE html>
@@ -89,7 +89,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register_supplier']))
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cadastro de Fornecedor - Planner de Sonhos</title>
   <link rel="stylesheet" href="../Style/styles.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto:wght@300;400;500&display=swap"
+    rel="stylesheet" />
   <link rel="shortcut icon" href="../Style/assets/icon.png" type="image/x-icon">
   <style>
     .registration-container {
@@ -241,7 +243,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register_supplier']))
         <a href="../index.php" class="logo">
           <div class="heart-icon">
             <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              <path
+                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
             </svg>
           </div>
           <span class="logo-text">Planner de Sonhos</span>
@@ -281,7 +284,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register_supplier']))
           <form method="post" class="registration-form" id="registrationForm">
             <div class="form-group">
               <label for="nome_fornecedor">Nome da Empresa *</label>
-              <input type="text" id="nome_fornecedor" name="nome_fornecedor" value="<?php echo htmlspecialchars($nome_fornecedor ?? ''); ?>" required placeholder="Ex: Buffet Delícias">
+              <input type="text" id="nome_fornecedor" name="nome_fornecedor"
+                value="<?php echo htmlspecialchars($nome_fornecedor ?? ''); ?>" required
+                placeholder="Ex: Buffet Delícias">
             </div>
 
             <div class="form-group">
@@ -298,12 +303,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register_supplier']))
 
             <div class="form-group">
               <label for="email">Email *</label>
-              <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($email ?? ''); ?>" required placeholder="seu@email.com">
+              <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($email ?? ''); ?>" required
+                placeholder="seu@email.com">
             </div>
 
             <div class="form-group">
               <label for="telefone">Telefone</label>
-              <input type="tel" id="telefone" name="telefone" value="<?php echo htmlspecialchars($telefone ?? ''); ?>" placeholder="(11) 99999-9999">
+              <input type="tel" id="telefone" name="telefone" value="<?php echo htmlspecialchars($telefone ?? ''); ?>"
+                placeholder="(11) 99999-9999">
             </div>
 
             <div class="password-group">
@@ -313,13 +320,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register_supplier']))
               </div>
               <div class="form-group">
                 <label for="confirmar_senha">Confirmar Senha *</label>
-                <input type="password" id="confirmar_senha" name="confirmar_senha" required placeholder="Confirme sua senha">
+                <input type="password" id="confirmar_senha" name="confirmar_senha" required
+                  placeholder="Confirme sua senha">
               </div>
             </div>
 
             <div class="form-group">
               <label for="descricao">Descrição do Serviço</label>
-              <textarea id="descricao" name="descricao" placeholder="Descreva seus serviços, experiência e diferenciais..."><?php echo htmlspecialchars($descricao ?? ''); ?></textarea>
+              <textarea id="descricao" name="descricao"
+                placeholder="Descreva seus serviços, experiência e diferenciais..."><?php echo htmlspecialchars($descricao ?? ''); ?></textarea>
             </div>
 
             <div class="form-actions">
@@ -328,7 +337,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register_supplier']))
             </div>
 
             <p style="text-align: center; margin-top: 1rem; font-size: 0.875rem; color: hsl(var(--muted-foreground));">
-              Já tem uma conta? <a href="login.php" style="color: hsl(var(--primary)); text-decoration: underline;">Faça login aqui</a>.
+              Já tem uma conta? <a href="login.php" style="color: hsl(var(--primary)); text-decoration: underline;">Faça
+                login aqui</a>.
             </p>
           </form>
         </div>
@@ -337,7 +347,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register_supplier']))
   </main>
 
   <script>
-    document.getElementById('registrationForm').addEventListener('submit', function(e) {
+    document.getElementById('registrationForm').addEventListener('submit', function (e) {
       const senha = document.getElementById('senha').value;
       const confirmarSenha = document.getElementById('confirmar_senha').value;
       const email = document.getElementById('email').value;
@@ -361,11 +371,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register_supplier']))
       }
     });
 
-    
-    document.getElementById('confirmar_senha').addEventListener('input', function() {
+
+    document.getElementById('confirmar_senha').addEventListener('input', function () {
       const senha = document.getElementById('senha').value;
       const confirmarSenha = this.value;
-      
+
       if (confirmarSenha.length > 0) {
         if (senha === confirmarSenha) {
           this.classList.remove('error');
@@ -387,7 +397,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register_supplier']))
           <a href="../index.php" class="logo">
             <div class="heart-icon">
               <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                <path
+                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>
             </div>
             <span class="logo-text">Planner de Sonhos</span>

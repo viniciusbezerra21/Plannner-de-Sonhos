@@ -4,152 +4,152 @@ require_once "../config/conexao.php";
 
 
 if (!isset($_SESSION['fornecedor_id'])) {
-    header("Location: login.php");
-    exit;
+  header("Location: login.php");
+  exit;
 }
 
-$fornecedor_id = (int)$_SESSION['fornecedor_id'];
+$fornecedor_id = (int) $_SESSION['fornecedor_id'];
 $mensagem = "";
 $tipo_mensagem = "";
 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
-    $action = $_POST['action'];
-    $nome_pacote = trim($_POST['nome_pacote'] ?? '');
-    $descricao = trim($_POST['descricao'] ?? '');
-    $valor_total = floatval($_POST['valor_total'] ?? 0);
-    $itens_selecionados = isset($_POST['itens']) ? $_POST['itens'] : [];
-    $id_pacote = isset($_POST['id_pacote']) ? (int)$_POST['id_pacote'] : null;
+  $action = $_POST['action'];
+  $nome_pacote = trim($_POST['nome_pacote'] ?? '');
+  $descricao = trim($_POST['descricao'] ?? '');
+  $valor_total = floatval($_POST['valor_total'] ?? 0);
+  $itens_selecionados = isset($_POST['itens']) ? $_POST['itens'] : [];
+  $id_pacote = isset($_POST['id_pacote']) ? (int) $_POST['id_pacote'] : null;
 
-    if (empty($nome_pacote) || $valor_total <= 0 || empty($itens_selecionados)) {
-        $mensagem = 'Por favor, preencha todos os campos e selecione pelo menos um item.';
+  if (empty($nome_pacote) || $valor_total <= 0 || empty($itens_selecionados)) {
+    $mensagem = 'Por favor, preencha todos os campos e selecione pelo menos um item.';
+    $tipo_mensagem = 'erro';
+  } else {
+    try {
+      $stmt = $pdo->prepare("SHOW TABLES LIKE 'pacotes'");
+      $stmt->execute();
+      $table_exists = $stmt->rowCount() > 0;
+
+      if (!$table_exists) {
+        $mensagem = 'Erro: Tabela de pacotes não existe. Execute o script SQL: scripts/create_items_and_packages_tables.sql';
         $tipo_mensagem = 'erro';
-    } else {
-        try {
-            $stmt = $pdo->prepare("SHOW TABLES LIKE 'pacotes'");
-            $stmt->execute();
-            $table_exists = $stmt->rowCount() > 0;
-
-            if (!$table_exists) {
-                $mensagem = 'Erro: Tabela de pacotes não existe. Execute o script SQL: scripts/create_items_and_packages_tables.sql';
-                $tipo_mensagem = 'erro';
-            } else {
-                if ($action === 'add') {
-                    $stmt = $pdo->prepare("
+      } else {
+        if ($action === 'add') {
+          $stmt = $pdo->prepare("
                         INSERT INTO pacotes (id_fornecedor, nome_pacote, descricao, valor_total, quantidade_itens, data_criacao)
                         VALUES (?, ?, ?, ?, ?, NOW())
                     ");
-                    $stmt->execute([$fornecedor_id, $nome_pacote, $descricao, $valor_total, count($itens_selecionados)]);
-                    $id_pacote = $pdo->lastInsertId();
+          $stmt->execute([$fornecedor_id, $nome_pacote, $descricao, $valor_total, count($itens_selecionados)]);
+          $id_pacote = $pdo->lastInsertId();
 
-                   
-                    foreach ($itens_selecionados as $id_item) {
-                        $stmt = $pdo->prepare("
+
+          foreach ($itens_selecionados as $id_item) {
+            $stmt = $pdo->prepare("
                             INSERT INTO pacote_itens (id_pacote, id_item)
                             VALUES (?, ?)
                         ");
-                        $stmt->execute([$id_pacote, (int)$id_item]);
-                    }
+            $stmt->execute([$id_pacote, (int) $id_item]);
+          }
 
-                    $mensagem = 'Pacote criado com sucesso!';
-                    $tipo_mensagem = 'sucesso';
-                } elseif ($action === 'edit' && $id_pacote) {
-                    $stmt = $pdo->prepare("
+          $mensagem = 'Pacote criado com sucesso!';
+          $tipo_mensagem = 'sucesso';
+        } elseif ($action === 'edit' && $id_pacote) {
+          $stmt = $pdo->prepare("
                         UPDATE pacotes SET nome_pacote = ?, descricao = ?, valor_total = ?, quantidade_itens = ?
                         WHERE id_pacote = ? AND id_fornecedor = ?
                     ");
-                    $stmt->execute([$nome_pacote, $descricao, $valor_total, count($itens_selecionados), $id_pacote, $fornecedor_id]);
+          $stmt->execute([$nome_pacote, $descricao, $valor_total, count($itens_selecionados), $id_pacote, $fornecedor_id]);
 
-                    
-                    $stmt = $pdo->prepare("DELETE FROM pacote_itens WHERE id_pacote = ?");
-                    $stmt->execute([$id_pacote]);
 
-                    foreach ($itens_selecionados as $id_item) {
-                        $stmt = $pdo->prepare("
+          $stmt = $pdo->prepare("DELETE FROM pacote_itens WHERE id_pacote = ?");
+          $stmt->execute([$id_pacote]);
+
+          foreach ($itens_selecionados as $id_item) {
+            $stmt = $pdo->prepare("
                             INSERT INTO pacote_itens (id_pacote, id_item)
                             VALUES (?, ?)
                         ");
-                        $stmt->execute([$id_pacote, (int)$id_item]);
-                    }
+            $stmt->execute([$id_pacote, (int) $id_item]);
+          }
 
-                    $mensagem = 'Pacote atualizado com sucesso!';
-                    $tipo_mensagem = 'sucesso';
-                }
-            }
-        } catch (PDOException $e) {
-            if (strpos($e->getMessage(), "Table") !== false && strpos($e->getMessage(), "doesn't exist") !== false) {
-                $mensagem = 'Erro: Tabelas não existem. Execute o script SQL: scripts/create_items_and_packages_tables.sql';
-            } else {
-                $mensagem = 'Erro ao salvar pacote. Tente novamente.';
-            }
-            $tipo_mensagem = 'erro';
-            error_log("Package error: " . $e->getMessage());
+          $mensagem = 'Pacote atualizado com sucesso!';
+          $tipo_mensagem = 'sucesso';
         }
+      }
+    } catch (PDOException $e) {
+      if (strpos($e->getMessage(), "Table") !== false && strpos($e->getMessage(), "doesn't exist") !== false) {
+        $mensagem = 'Erro: Tabelas não existem. Execute o script SQL: scripts/create_items_and_packages_tables.sql';
+      } else {
+        $mensagem = 'Erro ao salvar pacote. Tente novamente.';
+      }
+      $tipo_mensagem = 'erro';
+      error_log("Package error: " . $e->getMessage());
     }
+  }
 }
 
 
 if (isset($_GET['delete']) && isset($_GET['id'])) {
-    $id_pacote = (int)$_GET['id'];
-    try {
-        $stmt = $pdo->prepare("DELETE FROM pacote_itens WHERE id_pacote = ?");
-        $stmt->execute([$id_pacote]);
-        $stmt = $pdo->prepare("DELETE FROM pacotes WHERE id_pacote = ? AND id_fornecedor = ?");
-        $stmt->execute([$id_pacote, $fornecedor_id]);
-        $mensagem = 'Pacote deletado com sucesso!';
-        $tipo_mensagem = 'sucesso';
-    } catch (PDOException $e) {
-        $mensagem = 'Erro ao deletar pacote.';
-        $tipo_mensagem = 'erro';
-    }
+  $id_pacote = (int) $_GET['id'];
+  try {
+    $stmt = $pdo->prepare("DELETE FROM pacote_itens WHERE id_pacote = ?");
+    $stmt->execute([$id_pacote]);
+    $stmt = $pdo->prepare("DELETE FROM pacotes WHERE id_pacote = ? AND id_fornecedor = ?");
+    $stmt->execute([$id_pacote, $fornecedor_id]);
+    $mensagem = 'Pacote deletado com sucesso!';
+    $tipo_mensagem = 'sucesso';
+  } catch (PDOException $e) {
+    $mensagem = 'Erro ao deletar pacote.';
+    $tipo_mensagem = 'erro';
+  }
 }
 
 
 try {
-    $stmt = $pdo->prepare("SHOW TABLES LIKE 'pacotes'");
-    $stmt->execute();
-    $table_exists = $stmt->rowCount() > 0;
+  $stmt = $pdo->prepare("SHOW TABLES LIKE 'pacotes'");
+  $stmt->execute();
+  $table_exists = $stmt->rowCount() > 0;
 
-    if ($table_exists) {
-        $stmt = $pdo->prepare("SELECT * FROM pacotes WHERE id_fornecedor = ? ORDER BY data_criacao DESC");
-        $stmt->execute([$fornecedor_id]);
-        $pacotes = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } else {
-        $pacotes = [];
-    }
-} catch (PDOException $e) {
-    $pacotes = [];
-    error_log("Packages fetch error: " . $e->getMessage());
-}
-
-
-try {
-    $stmt = $pdo->prepare("SELECT * FROM itens WHERE id_fornecedor = ? ORDER BY nome_item ASC");
+  if ($table_exists) {
+    $stmt = $pdo->prepare("SELECT * FROM pacotes WHERE id_fornecedor = ? ORDER BY data_criacao DESC");
     $stmt->execute([$fornecedor_id]);
-    $todos_itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $pacotes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+  } else {
+    $pacotes = [];
+  }
 } catch (PDOException $e) {
-    $todos_itens = [];
-    error_log("Items fetch error: " . $e->getMessage());
+  $pacotes = [];
+  error_log("Packages fetch error: " . $e->getMessage());
+}
+
+
+try {
+  $stmt = $pdo->prepare("SELECT * FROM itens WHERE id_fornecedor = ? ORDER BY nome_item ASC");
+  $stmt->execute([$fornecedor_id]);
+  $todos_itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+  $todos_itens = [];
+  error_log("Items fetch error: " . $e->getMessage());
 }
 
 
 $pacote_edit = null;
 $itens_pacote = [];
 if (isset($_GET['edit']) && isset($_GET['id'])) {
-    $id_pacote = (int)$_GET['id'];
-    try {
-        $stmt = $pdo->prepare("SELECT * FROM pacotes WHERE id_pacote = ? AND id_fornecedor = ?");
-        $stmt->execute([$id_pacote, $fornecedor_id]);
-        $pacote_edit = $stmt->fetch(PDO::FETCH_ASSOC);
+  $id_pacote = (int) $_GET['id'];
+  try {
+    $stmt = $pdo->prepare("SELECT * FROM pacotes WHERE id_pacote = ? AND id_fornecedor = ?");
+    $stmt->execute([$id_pacote, $fornecedor_id]);
+    $pacote_edit = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($pacote_edit) {
-            $stmt = $pdo->prepare("SELECT id_item FROM pacote_itens WHERE id_pacote = ?");
-            $stmt->execute([$id_pacote]);
-            $itens_pacote = $stmt->fetchAll(PDO::FETCH_COLUMN);
-        }
-    } catch (PDOException $e) {
-        error_log("Package edit fetch error: " . $e->getMessage());
+    if ($pacote_edit) {
+      $stmt = $pdo->prepare("SELECT id_item FROM pacote_itens WHERE id_pacote = ?");
+      $stmt->execute([$id_pacote]);
+      $itens_pacote = $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
+  } catch (PDOException $e) {
+    error_log("Package edit fetch error: " . $e->getMessage());
+  }
 }
 ?>
 <!DOCTYPE html>
@@ -161,7 +161,9 @@ if (isset($_GET['edit']) && isset($_GET['id'])) {
   <title>Gerenciar Pacotes - Planner de Sonhos</title>
   <link rel="stylesheet" href="../Style/styles.css">
   <link rel="shortcut icon" href="../Style/assets/icon.png" type="image/x-icon">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto:wght@300;400;500&display=swap"
+    rel="stylesheet" />
   <style>
     .packages-container {
       display: grid;
@@ -440,7 +442,8 @@ if (isset($_GET['edit']) && isset($_GET['id'])) {
         <a href="dashboard.php" class="logo">
           <div class="heart-icon">
             <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              <path
+                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
             </svg>
           </div>
           <span class="logo-text">Planner de Sonhos</span>
@@ -471,7 +474,7 @@ if (isset($_GET['edit']) && isset($_GET['id'])) {
         <?php endif; ?>
 
         <div class="packages-container">
-        
+
           <div class="form-section">
             <h2><?php echo $pacote_edit ? 'Editar Pacote' : 'Criar Novo Pacote'; ?></h2>
 
@@ -483,33 +486,41 @@ if (isset($_GET['edit']) && isset($_GET['id'])) {
 
               <div class="form-group">
                 <label for="nome_pacote">Nome do Pacote *</label>
-                <input type="text" id="nome_pacote" name="nome_pacote" value="<?php echo htmlspecialchars($pacote_edit['nome_pacote'] ?? ''); ?>" required placeholder="Ex: Pacote Completo Premium">
+                <input type="text" id="nome_pacote" name="nome_pacote"
+                  value="<?php echo htmlspecialchars($pacote_edit['nome_pacote'] ?? ''); ?>" required
+                  placeholder="Ex: Pacote Completo Premium">
               </div>
 
               <div class="form-group">
                 <label for="descricao">Descrição</label>
-                <textarea id="descricao" name="descricao" placeholder="Descreva o pacote..."><?php echo htmlspecialchars($pacote_edit['descricao'] ?? ''); ?></textarea>
+                <textarea id="descricao" name="descricao"
+                  placeholder="Descreva o pacote..."><?php echo htmlspecialchars($pacote_edit['descricao'] ?? ''); ?></textarea>
               </div>
 
               <div class="form-group">
                 <label for="valor_total">Valor Total do Pacote (R$) *</label>
-                <input type="number" id="valor_total" name="valor_total" value="<?php echo htmlspecialchars($pacote_edit['valor_total'] ?? ''); ?>" required step="0.01" min="0" placeholder="0.00">
+                <input type="number" id="valor_total" name="valor_total"
+                  value="<?php echo htmlspecialchars($pacote_edit['valor_total'] ?? ''); ?>" required step="0.01"
+                  min="0" placeholder="0.00">
               </div>
 
               <div class="form-group">
                 <label>Selecione os Itens/Serviços *</label>
                 <div class="items-selection">
                   <?php if (empty($todos_itens)): ?>
-                    <p style="color: hsl(var(--muted-foreground)); text-align: center; margin: 0;">Nenhum item cadastrado. <a href="items.php">Adicione itens primeiro</a>.</p>
+                    <p style="color: hsl(var(--muted-foreground)); text-align: center; margin: 0;">Nenhum item cadastrado.
+                      <a href="items.php">Adicione itens primeiro</a>.</p>
                   <?php else: ?>
                     <?php foreach ($todos_itens as $item): ?>
-                    <div class="item-checkbox">
-                      <input type="checkbox" id="item_<?php echo $item['id_item']; ?>" name="itens[]" value="<?php echo $item['id_item']; ?>" <?php echo in_array($item['id_item'], $itens_pacote) ? 'checked' : ''; ?>>
-                      <label for="item_<?php echo $item['id_item']; ?>">
-                        <span><?php echo htmlspecialchars($item['nome_item']); ?></span>
-                        <span class="item-price-small">R$ <?php echo number_format($item['valor_unitario'], 2, ',', '.'); ?></span>
-                      </label>
-                    </div>
+                      <div class="item-checkbox">
+                        <input type="checkbox" id="item_<?php echo $item['id_item']; ?>" name="itens[]"
+                          value="<?php echo $item['id_item']; ?>" <?php echo in_array($item['id_item'], $itens_pacote) ? 'checked' : ''; ?>>
+                        <label for="item_<?php echo $item['id_item']; ?>">
+                          <span><?php echo htmlspecialchars($item['nome_item']); ?></span>
+                          <span class="item-price-small">R$
+                            <?php echo number_format($item['valor_unitario'], 2, ',', '.'); ?></span>
+                        </label>
+                      </div>
                     <?php endforeach; ?>
                   <?php endif; ?>
                 </div>
@@ -526,7 +537,7 @@ if (isset($_GET['edit']) && isset($_GET['id'])) {
             </form>
           </div>
 
-         
+
           <div class="packages-list">
             <h2>Seus Pacotes</h2>
 
@@ -534,32 +545,35 @@ if (isset($_GET['edit']) && isset($_GET['id'])) {
               <div class="empty-state">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line>
-                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                  <path
+                    d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+                  </path>
                 </svg>
                 <h3>Nenhum pacote cadastrado</h3>
                 <p>Crie pacotes combinando seus itens e serviços</p>
               </div>
             <?php else: ?>
               <?php foreach ($pacotes as $pacote): ?>
-              <div class="package-card">
-                <div class="package-header">
-                  <h3 class="package-name"><?php echo htmlspecialchars($pacote['nome_pacote']); ?></h3>
-                  <div class="package-price">R$ <?php echo number_format($pacote['valor_total'], 2, ',', '.'); ?></div>
-                </div>
+                <div class="package-card">
+                  <div class="package-header">
+                    <h3 class="package-name"><?php echo htmlspecialchars($pacote['nome_pacote']); ?></h3>
+                    <div class="package-price">R$ <?php echo number_format($pacote['valor_total'], 2, ',', '.'); ?></div>
+                  </div>
 
-                <?php if (!empty($pacote['descricao'])): ?>
-                  <p class="package-description"><?php echo htmlspecialchars($pacote['descricao']); ?></p>
-                <?php endif; ?>
+                  <?php if (!empty($pacote['descricao'])): ?>
+                    <p class="package-description"><?php echo htmlspecialchars($pacote['descricao']); ?></p>
+                  <?php endif; ?>
 
-                <div class="package-items">
-                  <strong><?php echo $pacote['quantidade_itens']; ?></strong> item(ns) incluído(s)
-                </div>
+                  <div class="package-items">
+                    <strong><?php echo $pacote['quantidade_itens']; ?></strong> item(ns) incluído(s)
+                  </div>
 
-                <div class="package-actions">
-                  <a href="packages.php?edit=1&id=<?php echo $pacote['id_pacote']; ?>" class="btn-edit">Editar</a>
-                  <a href="packages.php?delete=1&id=<?php echo $pacote['id_pacote']; ?>" class="btn-delete" onclick="return confirm('Tem certeza que deseja deletar este pacote?');">Deletar</a>
+                  <div class="package-actions">
+                    <a href="packages.php?edit=1&id=<?php echo $pacote['id_pacote']; ?>" class="btn-edit">Editar</a>
+                    <a href="packages.php?delete=1&id=<?php echo $pacote['id_pacote']; ?>" class="btn-delete"
+                      onclick="return confirm('Tem certeza que deseja deletar este pacote?');">Deletar</a>
+                  </div>
                 </div>
-              </div>
               <?php endforeach; ?>
             <?php endif; ?>
           </div>
@@ -575,7 +589,8 @@ if (isset($_GET['edit']) && isset($_GET['id'])) {
           <a href="../index.php" class="logo">
             <div class="heart-icon">
               <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                <path
+                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>
             </div>
             <span class="logo-text">Planner de Sonhos</span>

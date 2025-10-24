@@ -27,16 +27,16 @@ $user_data = ['nome' => 'Usuário', 'email' => '', 'foto_perfil' => 'default.png
 if (isset($_SESSION['usuario_id'])) {
   try {
     $stmt = $pdo->prepare("SELECT nome, email, foto_perfil FROM usuarios WHERE id_usuario = ?");
-    $stmt->execute([(int)$_SESSION['usuario_id']]);
+    $stmt->execute([(int) $_SESSION['usuario_id']]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
     if ($result) {
       $user_data = [
         'nome' => $result['nome'] ?? 'Usuário',
         'email' => $result['email'] ?? '',
         'foto_perfil' => !empty($result['foto_perfil']) ? $result['foto_perfil'] : 'default.png'
       ];
-     
+
       if (!empty($result['foto_perfil'])) {
         $_SESSION['foto_perfil'] = $result['foto_perfil'];
       } else {
@@ -68,7 +68,7 @@ if (isset($_POST['logout'])) {
   } catch (PDOException $e) {
     error_log("Logout error: " . $e->getMessage());
   }
-  
+
   setcookie($cookieName, "", time() - 3600, "/");
   session_unset();
   session_destroy();
@@ -99,7 +99,7 @@ try {
   $stmt = $pdo->prepare("SELECT * FROM eventos WHERE id_usuario = ? ORDER BY data_evento ASC, horario ASC");
   $stmt->execute([$idUsuario]);
   $eventos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-  
+
   foreach ($eventos as &$evento) {
     if (!isset($evento['prioridade'])) {
       $evento['prioridade'] = 'media';
@@ -351,14 +351,14 @@ $eventosJson = json_encode($eventos);
       background: hsl(var(--accent));
     }
 
-   
+
     .search-container {
       position: relative;
       display: flex;
       align-items: center;
       transition: all 0.3s ease;
     }
-    
+
     .search-input {
       width: 0;
       opacity: 0;
@@ -367,7 +367,7 @@ $eventosJson = json_encode($eventos);
       transition: all 0.3s ease;
       overflow: hidden;
     }
-    
+
     .search-input.expanded {
       width: 200px;
       opacity: 1;
@@ -376,7 +376,7 @@ $eventosJson = json_encode($eventos);
       border-radius: 0.5rem;
       margin-right: 0.5rem;
     }
-    
+
     .action-btn {
       background: none;
       border: none;
@@ -385,11 +385,11 @@ $eventosJson = json_encode($eventos);
       border-radius: 0.5rem;
       transition: background-color 0.2s;
     }
-    
+
     .action-btn:hover {
       background: hsl(var(--accent));
     }
-    
+
 
     .filter-modal {
       display: none;
@@ -403,11 +403,11 @@ $eventosJson = json_encode($eventos);
       justify-content: center;
       align-items: center;
     }
-    
+
     .filter-modal.active {
       display: flex;
     }
-    
+
     .filter-content {
       background: white;
       border-radius: 1rem;
@@ -417,24 +417,24 @@ $eventosJson = json_encode($eventos);
       max-height: 80vh;
       overflow-y: auto;
     }
-    
+
     .filter-group {
       margin-bottom: 1.5rem;
     }
-    
+
     .filter-group label {
       display: block;
       font-weight: 600;
       margin-bottom: 0.5rem;
       color: hsl(var(--foreground));
     }
-    
+
     .filter-options {
       display: flex;
       flex-wrap: wrap;
       gap: 0.5rem;
     }
-    
+
     .filter-chip {
       padding: 0.5rem 1rem;
       border: 1px solid hsl(var(--border));
@@ -443,17 +443,17 @@ $eventosJson = json_encode($eventos);
       transition: all 0.2s;
       background: white;
     }
-    
+
     .filter-chip:hover {
       background: hsl(var(--accent));
     }
-    
+
     .filter-chip.active {
       background: hsl(var(--primary));
       color: white;
       border-color: hsl(var(--primary));
     }
-    
+
     .color-chip {
       width: 30px;
       height: 30px;
@@ -462,17 +462,31 @@ $eventosJson = json_encode($eventos);
       border: 2px solid transparent;
       transition: all 0.2s;
     }
-    
+
     .color-chip.active {
       border-color: #000;
       transform: scale(1.2);
     }
-    
-    .color-chip.azul { background-color: #3b82f6; }
-    .color-chip.vermelho { background-color: #ef4444; }
-    .color-chip.verde { background-color: #10b981; }
-    .color-chip.amarelo { background-color: #f59e0b; }
-    .color-chip.rosa { background-color: #ec4899; }
+
+    .color-chip.azul {
+      background-color: #3b82f6;
+    }
+
+    .color-chip.vermelho {
+      background-color: #ef4444;
+    }
+
+    .color-chip.verde {
+      background-color: #10b981;
+    }
+
+    .color-chip.amarelo {
+      background-color: #f59e0b;
+    }
+
+    .color-chip.rosa {
+      background-color: #ec4899;
+    }
 
     @media (max-width: 768px) {
       .user-profile {
@@ -619,7 +633,7 @@ $eventosJson = json_encode($eventos);
   <div class="filter-modal" id="filter-modal">
     <div class="filter-content card-modal">
       <h2 class="text-primary">Filtrar Eventos</h2>
-      
+
       <div class="filter-group">
         <label>Prioridade</label>
         <div class="filter-options">
@@ -628,7 +642,7 @@ $eventosJson = json_encode($eventos);
           <div class="filter-chip" data-filter="prioridade" data-value="baixa">Baixa</div>
         </div>
       </div>
-      
+
       <div class="filter-group">
         <label>Cor da Tag</label>
         <div class="filter-options">
@@ -639,7 +653,7 @@ $eventosJson = json_encode($eventos);
           <div class="color-chip rosa" data-filter="cor" data-value="rosa" title="Rosa"></div>
         </div>
       </div>
-      
+
       <div class="filter-group">
         <label>Status</label>
         <div class="filter-options">
@@ -647,7 +661,7 @@ $eventosJson = json_encode($eventos);
           <div class="filter-chip" data-filter="status" data-value="concluido">Concluído</div>
         </div>
       </div>
-      
+
       <div class="form-row" style="margin-top: 2rem;">
         <button class="btn-primary" id="apply-filters">Aplicar Filtros</button>
         <button class="btn-outline" id="clear-filters">Limpar Filtros</button>
@@ -667,15 +681,15 @@ $eventosJson = json_encode($eventos);
           <option value="baixa" id="baixa">Baixa</option>
         </select>
       </div>
-      
-      
+
+
       <div class="form-group">
         <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
           <input type="checkbox" id="statusConcluidoInput" style="width: 18px; height: 18px; cursor: pointer;">
           <span>Marcar como concluído</span>
         </label>
       </div>
-      
+
       <div class="form-row">
         <button type="button" class="btn-primary" id="btnSalvarPrioridade">Salvar</button>
       </div>
@@ -761,10 +775,11 @@ $eventosJson = json_encode($eventos);
   <header class="header">
     <div class="container">
       <div class="header-content">
-      <a href="../index.php" class="logo">
+        <a href="../index.php" class="logo">
           <div class="heart-icon">
             <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              <path
+                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
             </svg>
           </div>
           <span class="logo-text">Planner de Sonhos</span>
@@ -786,22 +801,15 @@ $eventosJson = json_encode($eventos);
 
           <?php if (isset($_SESSION["usuario_id"])): ?>
             <div class="profile-dropdown-wrapper">
-              <img 
-                src="../user/fotos/<?php echo htmlspecialchars($user_data['foto_perfil'] ?? 'default.png'); ?>"
-                alt="Foto de perfil"
-                class="profile-avatar"
-                onclick="toggleProfileDropdown()"
-              >
+              <img src="../user/fotos/<?php echo htmlspecialchars($user_data['foto_perfil'] ?? 'default.png'); ?>"
+                alt="Foto de perfil" class="profile-avatar" onclick="toggleProfileDropdown()">
               <div class="profile-dropdown" id="profileDropdown">
                 <div class="profile-dropdown-header">
                   <div class="profile-dropdown-user">
-                    <img 
-                      src="../user/fotos/<?php echo htmlspecialchars($user_data['foto_perfil'] ?? 'default.png'); ?>"
-                      alt="Avatar" 
-                      class="profile-dropdown-avatar"
-                    >
+                    <img src="../user/fotos/<?php echo htmlspecialchars($user_data['foto_perfil'] ?? 'default.png'); ?>"
+                      alt="Avatar" class="profile-dropdown-avatar">
                     <div class="profile-dropdown-info">
-                     
+
                       <div class="profile-dropdown-name">
                         <?php echo htmlspecialchars($user_data['nome']); ?>
                       </div>
@@ -829,12 +837,19 @@ $eventosJson = json_encode($eventos);
                     Funcionalidades
                   </a>
                   <form method="post" style="margin:0;">
-                    <button type="submit" name="logout" class="profile-dropdown-item logout" style="width: 100%; text-align: left; background: none; border: none; font-family: inherit; font-size: inherit; cursor: pointer; display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem;">
-                    <svg fill="hsl(var(--foreground))" width="800px" height="800px" viewBox="0 0 36 36" version="1.1"  preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <title>logout-line</title>
-    <path d="M7,6H23v9.8h2V6a2,2,0,0,0-2-2H7A2,2,0,0,0,5,6V30a2,2,0,0,0,2,2H23a2,2,0,0,0,2-2H7Z" class="clr-i-outline clr-i-outline-path-1"></path><path d="M28.16,17.28a1,1,0,0,0-1.41,1.41L30.13,22H15.63a1,1,0,0,0-1,1,1,1,0,0,0,1,1h14.5l-3.38,3.46a1,1,0,1,0,1.41,1.41L34,23.07Z" class="clr-i-outline clr-i-outline-path-2"></path>
-    <rect x="0" y="0" width="36" height="36" fill-opacity="0"/>
-</svg>
+                    <button type="submit" name="logout" class="profile-dropdown-item logout"
+                      style="width: 100%; text-align: left; background: none; border: none; font-family: inherit; font-size: inherit; cursor: pointer; display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem;">
+                      <svg fill="hsl(var(--foreground))" width="800px" height="800px" viewBox="0 0 36 36" version="1.1"
+                        preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"
+                        xmlns:xlink="http://www.w3.org/1999/xlink">
+                        <title>logout-line</title>
+                        <path d="M7,6H23v9.8h2V6a2,2,0,0,0-2-2H7A2,2,0,0,0,5,6V30a2,2,0,0,0,2,2H23a2,2,0,0,0,2-2H7Z"
+                          class="clr-i-outline clr-i-outline-path-1"></path>
+                        <path
+                          d="M28.16,17.28a1,1,0,0,0-1.41,1.41L30.13,22H15.63a1,1,0,0,0-1,1,1,1,0,0,0,1,1h14.5l-3.38,3.46a1,1,0,1,0,1.41,1.41L34,23.07Z"
+                          class="clr-i-outline clr-i-outline-path-2"></path>
+                        <rect x="0" y="0" width="36" height="36" fill-opacity="0" />
+                      </svg>
                       Sair
                     </button>
                   </form>
@@ -909,7 +924,8 @@ $eventosJson = json_encode($eventos);
                 </div>
               </div>
               <div id="view-week" class="calendar-view" style="display: none">
-                <div class="calendar-week-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); border-top: 1px solid #eee;">
+                <div class="calendar-week-grid"
+                  style="display: grid; grid-template-columns: repeat(7, 1fr); border-top: 1px solid #eee;">
                   <div class="calendar-week-day">
                     Dom<br /><small>04/08</small>
                   </div>
@@ -935,16 +951,24 @@ $eventosJson = json_encode($eventos);
                 </div>
               </div>
               <div id="view-day" class="calendar-view" style="display: none">
-                <div class="calendar-day-view" style="display: flex; flex-direction: column; border: 1px solid #f3f4f6;">
-                  <div class="calendar-hour-slot" style="padding: 0.75rem; border-bottom: 1px solid #f3f4f6; display: flex; justify-content: space-between;">
+                <div class="calendar-day-view"
+                  style="display: flex; flex-direction: column; border: 1px solid #f3f4f6;">
+                  <div class="calendar-hour-slot"
+                    style="padding: 0.75rem; border-bottom: 1px solid #f3f4f6; display: flex; justify-content: space-between;">
                     <span class="hour-label" style="font-weight: 500; color: #6b7280">09:00</span>
-                    <span class="hour-event" style="background: hsl(var(--primary)); color: white; padding: 0.25rem 0.5rem; border-radius: 15px; font-size: 0.875rem;">Reunião com fotógrafo</span>
+                    <span class="hour-event"
+                      style="background: hsl(var(--primary)); color: white; padding: 0.25rem 0.5rem; border-radius: 15px; font-size: 0.875rem;">Reunião
+                      com fotógrafo</span>
                   </div>
-                  <div class="calendar-hour-slot" style="padding: 0.75rem; border-bottom: 1px solid #f3f4f6; display: flex; justify-content: space-between;">
+                  <div class="calendar-hour-slot"
+                    style="padding: 0.75rem; border-bottom: 1px solid #f3f4f6; display: flex; justify-content: space-between;">
                     <span class="hour-label" style="font-weight: 500; color: #6b7280">14:00</span>
-                    <span class="hour-event" style="background: hsl(var(--primary)); color: white; padding: 0.25rem 0.5rem; border-radius: 15px; font-size: 0.875rem;">Visita ao local</span>
+                    <span class="hour-event"
+                      style="background: hsl(var(--primary)); color: white; padding: 0.25rem 0.5rem; border-radius: 15px; font-size: 0.875rem;">Visita
+                      ao local</span>
                   </div>
-                  <div class="calendar-hour-slot" style="padding: 0.75rem; border-bottom: 1px solid #f3f4f6; display: flex; justify-content: space-between;">
+                  <div class="calendar-hour-slot"
+                    style="padding: 0.75rem; border-bottom: 1px solid #f3f4f6; display: flex; justify-content: space-between;">
                     <span class="hour-label" style="font-weight: 500; color: #6b7280">18:00</span>
                   </div>
                 </div>
@@ -959,7 +983,7 @@ $eventosJson = json_encode($eventos);
                       <polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46 22,3" />
                     </svg>
                   </button>
-                  
+
                   <div class="search-container">
                     <input type="text" class="search-input" id="search-input" placeholder="Buscar eventos..." />
                     <button type="button" class="action-btn" id="search-btn">
@@ -1091,7 +1115,8 @@ $eventosJson = json_encode($eventos);
           <a href="../index.php" class="logo">
             <div class="heart-icon">
               <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                <path
+                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>
             </div>
             <span class="logo-text">Planner de Sonhos</span>
@@ -1184,13 +1209,13 @@ $eventosJson = json_encode($eventos);
         const options = select.querySelector(".options");
         const hiddenInput = select.querySelector("input[type=hidden]");
 
-       
+
         selected.addEventListener("click", () => {
           options.style.display =
             options.style.display === "block" ? "none" : "block";
         });
 
-      
+
         options.querySelectorAll("li").forEach((option) => {
           option.addEventListener("click", () => {
             selected.textContent = option.textContent;
@@ -1199,7 +1224,7 @@ $eventosJson = json_encode($eventos);
           });
         });
 
-        
+
         document.addEventListener("click", (e) => {
           if (!select.contains(e.target)) {
             options.style.display = "none";
@@ -1207,30 +1232,30 @@ $eventosJson = json_encode($eventos);
         });
       });
     });
-    
+
     const searchBtn = document.getElementById('search-btn');
     const searchInput = document.getElementById('search-input');
-    
+
     searchBtn.addEventListener('click', () => {
       searchInput.classList.toggle('expanded');
       if (searchInput.classList.contains('expanded')) {
         searchInput.focus();
       }
     });
-    
-    
+
+
     document.addEventListener('click', (e) => {
       if (!searchBtn.contains(e.target) && !searchInput.contains(e.target)) {
         searchInput.classList.remove('expanded');
       }
     });
-    
+
     const filterBtn = document.getElementById('filter-btn');
     const filterModal = document.getElementById('filter-modal');
     const closeFilterBtn = document.getElementById('close-filter-modal');
     const applyFiltersBtn = document.getElementById('apply-filters');
     const clearFiltersBtn = document.getElementById('clear-filters');
-    
+
     let activeFilters = {
       prioridade: [],
       cor: [],
@@ -1242,41 +1267,41 @@ $eventosJson = json_encode($eventos);
         filterModal.classList.remove('active');
       }
     })
-    
+
     filterBtn.addEventListener('click', () => {
       filterModal.classList.add('active');
     });
-    
+
     closeFilterBtn.addEventListener('click', () => {
       filterModal.classList.remove('active');
     });
-    
-  
+
+
     document.querySelectorAll('.filter-chip, .color-chip').forEach(chip => {
       chip.addEventListener('click', () => {
         chip.classList.toggle('active');
       });
     });
-    
+
     applyFiltersBtn.addEventListener('click', () => {
-    
+
       activeFilters = {
         prioridade: [],
         cor: [],
         status: []
       };
-      
+
       document.querySelectorAll('.filter-chip.active, .color-chip.active').forEach(chip => {
         const filterType = chip.dataset.filter;
         const filterValue = chip.dataset.value;
         activeFilters[filterType].push(filterValue);
       });
-      
-      
+
+
       filtrarEventos(activeFilters);
       filterModal.classList.remove('active');
     });
-    
+
     clearFiltersBtn.addEventListener('click', () => {
       document.querySelectorAll('.filter-chip, .color-chip').forEach(chip => {
         chip.classList.remove('active');
@@ -1284,52 +1309,52 @@ $eventosJson = json_encode($eventos);
       activeFilters = { prioridade: [], cor: [], status: [] };
       filtrarEventos(activeFilters);
     });
-    
-    
+
+
     function filtrarEventos(filters) {
       const eventItems = document.querySelectorAll('.event-item');
-      
+
       eventItems.forEach(item => {
         let shouldShow = true;
-        
-        
+
+
         if (filters.prioridade.length > 0) {
           const itemPrioridade = item.dataset.prioridade;
           if (!filters.prioridade.includes(itemPrioridade)) {
             shouldShow = false;
           }
         }
-        
-        
+
+
         if (filters.cor.length > 0) {
           const itemCor = item.dataset.cor;
           if (!filters.cor.includes(itemCor)) {
             shouldShow = false;
           }
         }
-        
-        
+
+
         if (filters.status.length > 0) {
           const itemStatus = item.dataset.status;
           if (!filters.status.includes(itemStatus)) {
             shouldShow = false;
           }
         }
-        
+
         item.style.display = shouldShow ? 'flex' : 'none';
       });
     }
-    
- 
+
+
     searchInput.addEventListener('input', (e) => {
       const searchTerm = e.target.value.toLowerCase();
       const eventItems = document.querySelectorAll('.event-item');
-      
+
       eventItems.forEach(item => {
         const eventTitle = item.querySelector('#nomeEvento')?.textContent.toLowerCase() || '';
         const eventLocation = item.querySelector('#localEvento')?.textContent.toLowerCase() || '';
         const eventTag = item.querySelector('#tagEvento')?.textContent.toLowerCase() || '';
-        
+
         if (eventTitle.includes(searchTerm) || eventLocation.includes(searchTerm) || eventTag.includes(searchTerm)) {
           item.style.display = 'flex';
         } else {

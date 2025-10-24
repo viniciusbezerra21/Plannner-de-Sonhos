@@ -115,7 +115,7 @@ if (isset($_POST['logout'])) {
 if (isset($_POST['add_to_budget'])) {
   $id_fornecedor = (int) $_POST['id_fornecedor'];
   $id_usuario = (int) $_SESSION['usuario_id'];
-  $tipo = $_POST['tipo'] ?? 'item'; // 'item' ou 'pacote'
+  $tipo = $_POST['tipo'] ?? 'item'; 
   $id_servico = (int) $_POST['id_servico'];
 
 

@@ -12,11 +12,11 @@ if (!isset($_SESSION['usuario_id']) && isset($_COOKIE[$cookieName])) {
     $chk->execute([$cookieUserId]);
     $u = $chk->fetch(PDO::FETCH_ASSOC);
     if ($u) {
-      $_SESSION['usuario_id'] = (int)$u['id_usuario'];
+      $_SESSION['usuario_id'] = (int) $u['id_usuario'];
       $_SESSION['nome'] = $u['nome'];
       $_SESSION['cargo'] = $u['cargo'] ?? 'cliente';
     } else {
-    
+
       setcookie($cookieName, "", time() - 3600, "/");
     }
   }
@@ -28,16 +28,16 @@ $user_data = ['nome' => 'Usuário', 'email' => '', 'foto_perfil' => 'default.png
 if (isset($_SESSION['usuario_id'])) {
   try {
     $stmt = $pdo->prepare("SELECT nome, email, foto_perfil FROM usuarios WHERE id_usuario = ?");
-    $stmt->execute([(int)$_SESSION['usuario_id']]);
+    $stmt->execute([(int) $_SESSION['usuario_id']]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
     if ($result) {
       $user_data = [
         'nome' => $result['nome'] ?? 'Usuário',
         'email' => $result['email'] ?? '',
         'foto_perfil' => !empty($result['foto_perfil']) ? $result['foto_perfil'] : 'default.png'
       ];
-    
+
       if (!empty($result['foto_perfil'])) {
         $_SESSION['foto_perfil'] = $result['foto_perfil'];
       } else {
@@ -59,7 +59,7 @@ if (isset($_POST['logout'])) {
   } catch (PDOException $e) {
     error_log("Logout error: " . $e->getMessage());
   }
-  
+
   setcookie($cookieName, "", time() - 3600, "/");
   session_unset();
   session_destroy();
@@ -73,18 +73,18 @@ $idUsuario = (int) $_SESSION['usuario_id'];
 if (isset($_POST['save_rating'])) {
   $idOrc = (int) $_POST['id_orcamento'];
   $rating = (int) $_POST['rating'];
-  
+
   if ($rating >= 1 && $rating <= 5) {
     $stmt = $pdo->prepare("UPDATE orcamentos SET avaliacao = ? WHERE id_orcamento = ? AND id_usuario = ?");
     $stmt->execute([$rating, $idOrc, $idUsuario]);
   }
-  
+
   if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
     header('Content-Type: application/json');
     echo json_encode(['success' => true]);
     exit;
   }
-  
+
   header("Location: orcamento.php");
   exit;
 }
@@ -94,7 +94,7 @@ if (isset($_POST['add_item'])) {
   $item = trim($_POST['item'] ?? '');
   $fornecedor = trim($_POST['fornecedor'] ?? '');
   $quantidade = (int) ($_POST['quantidade'] ?? 0);
- 
+
   $valor_unitario = (float) str_replace(',', '.', ($_POST['valor_unitario'] ?? 0));
 
   if ($item !== "" && $valor_unitario > 0) {
@@ -273,22 +273,22 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
       }
     }
 
-    
+
     .estrela-rating {
       display: flex;
-      gap: 4px; 
+      gap: 4px;
       align-items: center;
     }
 
     .estrela-icon {
-      width: 20px; 
-      height: 20px; 
+      width: 20px;
+      height: 20px;
       fill: #ddd;
       cursor: pointer;
       transition: all 0.2s ease-in-out;
     }
 
-    
+
     .estrela-icon.active {
       fill: #ffc107;
     }
@@ -298,13 +298,14 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     .estrela-icon.success-feedback {
-      fill: #d572d8; 
+      fill: #d572d8;
       transform: scale(1.2);
     }
 
     .rating-form {
       display: inline-block;
-    } 
+    }
+
     .profile-dropdown-wrapper {
       position: relative;
     }
@@ -436,14 +437,15 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </head>
 
 <body>
-  
+
   <header class="header">
     <div class="container">
       <div class="header-content">
-      <a href="../index.php" class="logo">
+        <a href="../index.php" class="logo">
           <div class="heart-icon">
             <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              <path
+                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
             </svg>
           </div>
           <span class="logo-text">Planner de Sonhos</span>
@@ -465,22 +467,15 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
           <?php if (isset($_SESSION["usuario_id"])): ?>
             <div class="profile-dropdown-wrapper">
-              <img 
-                src="../user/fotos/<?php echo htmlspecialchars($user_data['foto_perfil'] ?? 'default.png'); ?>"
-                alt="Foto de perfil"
-                class="profile-avatar"
-                onclick="toggleProfileDropdown()"
-              >
+              <img src="../user/fotos/<?php echo htmlspecialchars($user_data['foto_perfil'] ?? 'default.png'); ?>"
+                alt="Foto de perfil" class="profile-avatar" onclick="toggleProfileDropdown()">
               <div class="profile-dropdown" id="profileDropdown">
                 <div class="profile-dropdown-header">
                   <div class="profile-dropdown-user">
-                    <img 
-                      src="../user/fotos/<?php echo htmlspecialchars($user_data['foto_perfil'] ?? 'default.png'); ?>" 
-                      alt="Avatar" 
-                      class="profile-dropdown-avatar"
-                    >
+                    <img src="../user/fotos/<?php echo htmlspecialchars($user_data['foto_perfil'] ?? 'default.png'); ?>"
+                      alt="Avatar" class="profile-dropdown-avatar">
                     <div class="profile-dropdown-info">
-                      
+
                       <div class="profile-dropdown-name">
                         <?php echo htmlspecialchars($user_data['nome']); ?>
                       </div>
@@ -508,8 +503,8 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     Funcionalidades
                   </a>
                   <form method="post" style="margin:0;">
-                   
-                    <button type="submit" name="logout" class="profile-dropdown-item"> 
+
+                    <button type="submit" name="logout" class="profile-dropdown-item">
                       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                         <polyline points="16 17 21 12 16 7"></polyline>
@@ -521,7 +516,7 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
               </div>
             </div>
-               
+
           <?php else: ?>
             <a href="../user/login.php" class="btn-primary" style="align-items: center">Login</a>
           <?php endif; ?>
@@ -541,11 +536,13 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
           </p>
         </div>
 
-        <div class="card" style="background: linear-gradient(135deg, var(--wedding-rose-white) 0%, rgba(225, 190, 231, 0.2) 50%, rgba(186, 104, 200, 0.3) 100%);">
+        <div class="card"
+          style="background: linear-gradient(135deg, var(--wedding-rose-white) 0%, rgba(225, 190, 231, 0.2) 50%, rgba(186, 104, 200, 0.3) 100%);">
           <h2 style="margin-bottom: 1rem">Itens do Orçamento</h2>
 
           <div class="tabela-wraper" style="max-height: none; overflow-y: visible;">
-            <input type="text" id="pesquisarItem" placeholder="Pesquisar item..." style="display: none; margin-bottom: 0.5rem; padding: 0.5rem; width: 100%;">
+            <input type="text" id="pesquisarItem" placeholder="Pesquisar item..."
+              style="display: none; margin-bottom: 0.5rem; padding: 0.5rem; width: 100%;">
 
             <table style="width: 100%; border-collapse: collapse">
               <thead>
@@ -570,7 +567,7 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
                   foreach ($itens as $i):
                     $valorTotal = $i['quantidade'] * $i['valor_unitario'];
                     $total += $valorTotal;
-                  ?>
+                    ?>
                     <tr>
                       <td style="padding: 0.75rem"><?= htmlspecialchars($i['item']) ?></td>
                       <td style="padding: 0.75rem"><?= htmlspecialchars($i['fornecedor']) ?></td>
@@ -579,12 +576,11 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
                           <input type="hidden" name="id_orcamento" value="<?= $i['id_orcamento'] ?>">
                           <input type="hidden" name="rating" value="<?= $i['avaliacao'] ?? 0 ?>">
                           <div class="estrela-rating">
-                            <?php for($star = 1; $star <= 5; $star++): ?>
-                              <svg class="estrela-icon <?= ($i['avaliacao'] >= $star) ? 'active' : '' ?>" 
-                                   data-rating="<?= $star ?>" 
-                                   viewBox="0 0 24 24"
-                                   xmlns="http://www.w3.org/2000/svg"> 
-                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            <?php for ($star = 1; $star <= 5; $star++): ?>
+                              <svg class="estrela-icon <?= ($i['avaliacao'] >= $star) ? 'active' : '' ?>"
+                                data-rating="<?= $star ?>" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                  d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                               </svg>
                             <?php endfor; ?>
                           </div>
@@ -595,7 +591,8 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
                       <td style="padding: 0.75rem">R$ <?= number_format($valorTotal, 2, ',', '.') ?></td>
                       <td style="padding: 0.75rem">
                         <form method="post" style="display:inline">
-                          <button type="submit" name="delete_item" value="<?= $i['id_orcamento'] ?>" class="btn-outline" onclick="return confirm('Tem certeza que deseja excluir este item?')">Excluir</button>
+                          <button type="submit" name="delete_item" value="<?= $i['id_orcamento'] ?>" class="btn-outline"
+                            onclick="return confirm('Tem certeza que deseja excluir este item?')">Excluir</button>
                         </form>
                       </td>
                     </tr>
@@ -605,13 +602,15 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
               <tfoot>
                 <tr style="font-weight: bold; border-top: 2px solid hsl(var(--border));">
                   <td colspan="5" style="text-align:right; padding: 0.75rem;">Total Geral:</td>
-                  <td style="padding: 0.75rem;">R$ <?= isset($total) ? number_format($total, 2, ',', '.') : "0,00" ?></td>
+                  <td style="padding: 0.75rem;">R$ <?= isset($total) ? number_format($total, 2, ',', '.') : "0,00" ?>
+                  </td>
                   <td></td>
                 </tr>
               </tfoot>
             </table>
           </div>
-          <a href="fornecedores.php" class="btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
+          <a href="fornecedores.php" class="btn-primary"
+            style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
             Ver Fornecedores
           </a>
 
@@ -632,13 +631,15 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
           <a href="../index.php" class="logo">
             <div class="heart-icon">
               <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                <path
+                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>
             </div>
             <span class="logo-text">Planner de Sonhos</span>
           </a>
           <p class="footer-description">
-            A plataforma mais completa para cerimonialistas organizarem casamentos perfeitos. Simplifique sua gestão e encante seus clientes.
+            A plataforma mais completa para cerimonialistas organizarem casamentos perfeitos. Simplifique sua gestão e
+            encante seus clientes.
           </p>
           <div class="footer-contact">
             <svg style="width: 1rem; height: 1rem" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -667,7 +668,7 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
     function toggleMobileMenu() {
       const mobileMenu = document.getElementById("mobileMenu");
       const hamburgerBtn = document.getElementById("hamburgerBtn");
-      if (mobileMenu && hamburgerBtn) { 
+      if (mobileMenu && hamburgerBtn) {
         mobileMenu.classList.toggle("active");
         hamburgerBtn.classList.toggle("hamburger-active");
       }
@@ -675,22 +676,22 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     function toggleProfileDropdown() {
       const dropdown = document.getElementById("profileDropdown");
-      if (dropdown) { 
+      if (dropdown) {
         dropdown.classList.toggle("active");
       }
     }
 
-   
-    document.addEventListener('click', function(event) {
+
+    document.addEventListener('click', function (event) {
       const profileWrapper = document.querySelector('.profile-dropdown-wrapper');
       const dropdown = document.getElementById("profileDropdown");
-      if (profileWrapper && dropdown && !profileWrapper.contains(event.target)) { 
+      if (profileWrapper && dropdown && !profileWrapper.contains(event.target)) {
         dropdown.classList.remove("active");
       }
     });
-    
+
     document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-      anchor.addEventListener("click", function(e) {
+      anchor.addEventListener("click", function (e) {
         e.preventDefault();
         const target = document.querySelector(this.getAttribute("href"));
         if (target) {
@@ -700,7 +701,7 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
           });
           const mobileMenu = document.getElementById("mobileMenu");
           const hamburgerBtn = document.getElementById("hamburgerBtn");
-          if (mobileMenu && hamburgerBtn) { 
+          if (mobileMenu && hamburgerBtn) {
             mobileMenu.classList.remove("active");
             hamburgerBtn.classList.remove("hamburger-active");
           }
@@ -708,81 +709,81 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
       });
     });
 
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       console.log('[v0] Initializing star rating system');
-      
+
       document.querySelectorAll('.estrela-rating').forEach(rating => {
         const stars = rating.querySelectorAll('.estrela-icon');
         const form = rating.closest('.rating-form');
         const ratingInput = form.querySelector('input[name="rating"]');
         const currentRating = parseInt(ratingInput.value) || 0;
-        
+
         console.log('[v0] Setting up rating for item with current rating:', currentRating);
-        
-      
+
+
         updateStarDisplay(stars, currentRating);
-        
+
         stars.forEach((star) => {
           const starRating = parseInt(star.dataset.rating);
-          
-          star.addEventListener('click', function(e) {
+
+          star.addEventListener('click', function (e) {
             e.preventDefault();
-            e.stopPropagation(); 
+            e.stopPropagation();
             console.log('[v0] Star clicked, rating:', starRating);
-            
+
             ratingInput.value = starRating;
             updateStarDisplay(stars, starRating);
-            
-            
+
+
             const formData = new FormData(form);
             formData.append('save_rating', '1');
-            
+
             console.log('[v0] Submitting rating via AJAX');
-            
+
             fetch('orcamento.php', {
               method: 'POST',
               body: formData,
               headers: {
-                'X-Requested-With': 'XMLHttpRequest' 
+                'X-Requested-With': 'XMLHttpRequest'
               }
             })
-            .then(response => {
-              if (response.ok) {
-                console.log('[v0] Rating saved successfully');
-               
-                stars.forEach(s => {
-                  s.classList.add('success-feedback');
-                });
-                setTimeout(() => {
-                  stars.forEach(s => s.classList.remove('success-feedback'));
-                  updateStarDisplay(stars, starRating);
-                }, 400);
-              } else {
-                console.error('[v0] Error saving rating');
-              }
-            })
-            .catch(error => {
-              console.error('[v0] Network error:', error);
-            });
+              .then(response => {
+                if (response.ok) {
+                  console.log('[v0] Rating saved successfully');
+
+                  stars.forEach(s => {
+                    s.classList.add('success-feedback');
+                  });
+                  setTimeout(() => {
+                    stars.forEach(s => s.classList.remove('success-feedback'));
+                    updateStarDisplay(stars, starRating);
+                  }, 400);
+                } else {
+                  console.error('[v0] Error saving rating');
+                }
+              })
+              .catch(error => {
+                console.error('[v0] Network error:', error);
+              });
           });
-          
-          
-          star.addEventListener('mouseenter', function() {
+
+
+          star.addEventListener('mouseenter', function () {
             updateStarDisplay(stars, starRating, true);
           });
         });
-        
-      
-        rating.addEventListener('mouseleave', function() {
+
+
+        rating.addEventListener('mouseleave', function () {
           updateStarDisplay(stars, parseInt(ratingInput.value) || 0);
         });
       });
-      
+
       function updateStarDisplay(stars, rating, isHover = false) {
         stars.forEach((star) => {
           const starValue = parseInt(star.dataset.rating);
           star.classList.remove('active', 'hover');
-          
+
           if (starValue <= rating) {
             if (isHover) {
               star.classList.add('hover');

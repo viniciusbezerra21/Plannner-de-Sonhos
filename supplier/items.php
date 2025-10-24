@@ -4,128 +4,128 @@ require_once "../config/conexao.php";
 
 
 if (!isset($_SESSION['fornecedor_id'])) {
-    header("Location: login.php");
-    exit;
+  header("Location: login.php");
+  exit;
 }
 
-$fornecedor_id = (int)$_SESSION['fornecedor_id'];
+$fornecedor_id = (int) $_SESSION['fornecedor_id'];
 $mensagem = "";
 $tipo_mensagem = "";
 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
-    $action = $_POST['action'];
-    $nome_item = trim($_POST['nome_item'] ?? '');
-    $descricao = trim($_POST['descricao'] ?? '');
-    $valor_unitario = floatval($_POST['valor_unitario'] ?? 0);
-    $id_item = isset($_POST['id_item']) ? (int)$_POST['id_item'] : null;
+  $action = $_POST['action'];
+  $nome_item = trim($_POST['nome_item'] ?? '');
+  $descricao = trim($_POST['descricao'] ?? '');
+  $valor_unitario = floatval($_POST['valor_unitario'] ?? 0);
+  $id_item = isset($_POST['id_item']) ? (int) $_POST['id_item'] : null;
 
-    if (empty($nome_item) || $valor_unitario <= 0) {
-        $mensagem = 'Por favor, preencha todos os campos corretamente.';
-        $tipo_mensagem = 'erro';
-    } else {
-        try {
-            if ($action === 'add') {
-                $stmt = $pdo->prepare("SHOW COLUMNS FROM itens LIKE 'descricao'");
-                $stmt->execute();
-                $has_descricao = $stmt->rowCount() > 0;
+  if (empty($nome_item) || $valor_unitario <= 0) {
+    $mensagem = 'Por favor, preencha todos os campos corretamente.';
+    $tipo_mensagem = 'erro';
+  } else {
+    try {
+      if ($action === 'add') {
+        $stmt = $pdo->prepare("SHOW COLUMNS FROM itens LIKE 'descricao'");
+        $stmt->execute();
+        $has_descricao = $stmt->rowCount() > 0;
 
-                if ($has_descricao) {
-                    $stmt = $pdo->prepare("
+        if ($has_descricao) {
+          $stmt = $pdo->prepare("
                         INSERT INTO itens (id_fornecedor, nome_item, descricao, valor_unitario, data_criacao)
                         VALUES (?, ?, ?, ?, NOW())
                     ");
-                    $stmt->execute([$fornecedor_id, $nome_item, $descricao, $valor_unitario]);
-                } else {
-                 
-                    $stmt = $pdo->prepare("
+          $stmt->execute([$fornecedor_id, $nome_item, $descricao, $valor_unitario]);
+        } else {
+
+          $stmt = $pdo->prepare("
                         INSERT INTO itens (id_fornecedor, nome_item, valor_unitario)
                         VALUES (?, ?, ?)
                     ");
-                    $stmt->execute([$fornecedor_id, $nome_item, $valor_unitario]);
-                    $mensagem = 'Item adicionado! Nota: Execute o script SQL para adicionar suporte a descrições.';
-                    $tipo_mensagem = 'sucesso';
-                }
-                if ($has_descricao) {
-                    $mensagem = 'Item adicionado com sucesso!';
-                    $tipo_mensagem = 'sucesso';
-                }
-            } elseif ($action === 'edit' && $id_item) {
-                $stmt = $pdo->prepare("SHOW COLUMNS FROM itens LIKE 'descricao'");
-                $stmt->execute();
-                $has_descricao = $stmt->rowCount() > 0;
+          $stmt->execute([$fornecedor_id, $nome_item, $valor_unitario]);
+          $mensagem = 'Item adicionado! Nota: Execute o script SQL para adicionar suporte a descrições.';
+          $tipo_mensagem = 'sucesso';
+        }
+        if ($has_descricao) {
+          $mensagem = 'Item adicionado com sucesso!';
+          $tipo_mensagem = 'sucesso';
+        }
+      } elseif ($action === 'edit' && $id_item) {
+        $stmt = $pdo->prepare("SHOW COLUMNS FROM itens LIKE 'descricao'");
+        $stmt->execute();
+        $has_descricao = $stmt->rowCount() > 0;
 
-                if ($has_descricao) {
-                    $stmt = $pdo->prepare("
+        if ($has_descricao) {
+          $stmt = $pdo->prepare("
                         UPDATE itens SET nome_item = ?, descricao = ?, valor_unitario = ?
                         WHERE id_item = ? AND id_fornecedor = ?
                     ");
-                    $stmt->execute([$nome_item, $descricao, $valor_unitario, $id_item, $fornecedor_id]);
-                } else {
-                    $stmt = $pdo->prepare("
+          $stmt->execute([$nome_item, $descricao, $valor_unitario, $id_item, $fornecedor_id]);
+        } else {
+          $stmt = $pdo->prepare("
                         UPDATE itens SET nome_item = ?, valor_unitario = ?
                         WHERE id_item = ? AND id_fornecedor = ?
                     ");
-                    $stmt->execute([$nome_item, $valor_unitario, $id_item, $fornecedor_id]);
-                }
-                $mensagem = 'Item atualizado com sucesso!';
-                $tipo_mensagem = 'sucesso';
-            }
-        } catch (PDOException $e) {
-            if (strpos($e->getMessage(), 'Unknown column') !== false) {
-                $mensagem = 'Erro: Tabela precisa ser atualizada. Execute o script SQL: scripts/create_items_and_packages_tables.sql';
-            } else {
-                $mensagem = 'Erro ao salvar item. Tente novamente.';
-            }
-            $tipo_mensagem = 'erro';
-            error_log("Item error: " . $e->getMessage());
+          $stmt->execute([$nome_item, $valor_unitario, $id_item, $fornecedor_id]);
         }
+        $mensagem = 'Item atualizado com sucesso!';
+        $tipo_mensagem = 'sucesso';
+      }
+    } catch (PDOException $e) {
+      if (strpos($e->getMessage(), 'Unknown column') !== false) {
+        $mensagem = 'Erro: Tabela precisa ser atualizada. Execute o script SQL: scripts/create_items_and_packages_tables.sql';
+      } else {
+        $mensagem = 'Erro ao salvar item. Tente novamente.';
+      }
+      $tipo_mensagem = 'erro';
+      error_log("Item error: " . $e->getMessage());
     }
+  }
 }
 
 
 if (isset($_GET['delete']) && isset($_GET['id'])) {
-    $id_item = (int)$_GET['id'];
-    try {
-        $stmt = $pdo->prepare("DELETE FROM itens WHERE id_item = ? AND id_fornecedor = ?");
-        $stmt->execute([$id_item, $fornecedor_id]);
-        $mensagem = 'Item deletado com sucesso!';
-        $tipo_mensagem = 'sucesso';
-    } catch (PDOException $e) {
-        $mensagem = 'Erro ao deletar item.';
-        $tipo_mensagem = 'erro';
-    }
+  $id_item = (int) $_GET['id'];
+  try {
+    $stmt = $pdo->prepare("DELETE FROM itens WHERE id_item = ? AND id_fornecedor = ?");
+    $stmt->execute([$id_item, $fornecedor_id]);
+    $mensagem = 'Item deletado com sucesso!';
+    $tipo_mensagem = 'sucesso';
+  } catch (PDOException $e) {
+    $mensagem = 'Erro ao deletar item.';
+    $tipo_mensagem = 'erro';
+  }
 }
 
 
 try {
-    $stmt = $pdo->prepare("SHOW COLUMNS FROM itens LIKE 'descricao'");
-    $stmt->execute();
-    $has_descricao = $stmt->rowCount() > 0;
+  $stmt = $pdo->prepare("SHOW COLUMNS FROM itens LIKE 'descricao'");
+  $stmt->execute();
+  $has_descricao = $stmt->rowCount() > 0;
 
-    if ($has_descricao) {
-        $stmt = $pdo->prepare("SELECT * FROM itens WHERE id_fornecedor = ? ORDER BY data_criacao DESC");
-    } else {
-        $stmt = $pdo->prepare("SELECT * FROM itens WHERE id_fornecedor = ? ORDER BY id_item DESC");
-    }
-    $stmt->execute([$fornecedor_id]);
-    $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
+  if ($has_descricao) {
+    $stmt = $pdo->prepare("SELECT * FROM itens WHERE id_fornecedor = ? ORDER BY data_criacao DESC");
+  } else {
+    $stmt = $pdo->prepare("SELECT * FROM itens WHERE id_fornecedor = ? ORDER BY id_item DESC");
+  }
+  $stmt->execute([$fornecedor_id]);
+  $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
-    $itens = [];
-    error_log("Items fetch error: " . $e->getMessage());
+  $itens = [];
+  error_log("Items fetch error: " . $e->getMessage());
 }
 
 
 $item_edit = null;
 if (isset($_GET['edit']) && isset($_GET['id'])) {
-    $id_item = (int)$_GET['id'];
-    try {
-        $stmt = $pdo->prepare("SELECT * FROM itens WHERE id_item = ? AND id_fornecedor = ?");
-        $stmt->execute([$id_item, $fornecedor_id]);
-        $item_edit = $stmt->fetch(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) {
-        error_log("Item edit fetch error: " . $e->getMessage());
-    }
+  $id_item = (int) $_GET['id'];
+  try {
+    $stmt = $pdo->prepare("SELECT * FROM itens WHERE id_item = ? AND id_fornecedor = ?");
+    $stmt->execute([$id_item, $fornecedor_id]);
+    $item_edit = $stmt->fetch(PDO::FETCH_ASSOC);
+  } catch (PDOException $e) {
+    error_log("Item edit fetch error: " . $e->getMessage());
+  }
 }
 ?>
 <!DOCTYPE html>
@@ -137,7 +137,9 @@ if (isset($_GET['edit']) && isset($_GET['id'])) {
   <title>Gerenciar Itens - Planner de Sonhos</title>
   <link rel="stylesheet" href="../Style/styles.css">
   <link rel="shortcut icon" href="../Style/assets/icon.png" type="image/x-icon">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto:wght@300;400;500&display=swap"
+    rel="stylesheet" />
   <style>
     .items-container {
       display: grid;
@@ -367,7 +369,8 @@ if (isset($_GET['edit']) && isset($_GET['id'])) {
         <a href="dashboard.php" class="logo">
           <div class="heart-icon">
             <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              <path
+                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
             </svg>
           </div>
           <span class="logo-text">Planner de Sonhos</span>
@@ -398,7 +401,7 @@ if (isset($_GET['edit']) && isset($_GET['id'])) {
         <?php endif; ?>
 
         <div class="items-container">
-          
+
           <div class="form-section">
             <h2><?php echo $item_edit ? 'Editar Item' : 'Adicionar Novo Item'; ?></h2>
 
@@ -410,17 +413,22 @@ if (isset($_GET['edit']) && isset($_GET['id'])) {
 
               <div class="form-group">
                 <label for="nome_item">Nome do Item/Serviço *</label>
-                <input type="text" id="nome_item" name="nome_item" value="<?php echo htmlspecialchars($item_edit['nome_item'] ?? ''); ?>" required placeholder="Ex: Decoração com Flores">
+                <input type="text" id="nome_item" name="nome_item"
+                  value="<?php echo htmlspecialchars($item_edit['nome_item'] ?? ''); ?>" required
+                  placeholder="Ex: Decoração com Flores">
               </div>
 
               <div class="form-group">
                 <label for="descricao">Descrição</label>
-                <textarea id="descricao" name="descricao" placeholder="Descreva o item/serviço em detalhes..."><?php echo htmlspecialchars($item_edit['descricao'] ?? ''); ?></textarea>
+                <textarea id="descricao" name="descricao"
+                  placeholder="Descreva o item/serviço em detalhes..."><?php echo htmlspecialchars($item_edit['descricao'] ?? ''); ?></textarea>
               </div>
 
               <div class="form-group">
                 <label for="valor_unitario">Valor Unitário (R$) *</label>
-                <input type="number" id="valor_unitario" name="valor_unitario" value="<?php echo htmlspecialchars($item_edit['valor_unitario'] ?? ''); ?>" required step="0.01" min="0" placeholder="0.00">
+                <input type="number" id="valor_unitario" name="valor_unitario"
+                  value="<?php echo htmlspecialchars($item_edit['valor_unitario'] ?? ''); ?>" required step="0.01"
+                  min="0" placeholder="0.00">
               </div>
 
               <div class="form-actions">
@@ -434,7 +442,7 @@ if (isset($_GET['edit']) && isset($_GET['id'])) {
             </form>
           </div>
 
-          
+
           <div class="items-list">
             <h2>Seus Itens/Serviços</h2>
 
@@ -448,21 +456,22 @@ if (isset($_GET['edit']) && isset($_GET['id'])) {
               </div>
             <?php else: ?>
               <?php foreach ($itens as $item): ?>
-              <div class="item-card">
-                <div class="item-header">
-                  <h3 class="item-name"><?php echo htmlspecialchars($item['nome_item']); ?></h3>
-                  <div class="item-price">R$ <?php echo number_format($item['valor_unitario'], 2, ',', '.'); ?></div>
-                </div>
+                <div class="item-card">
+                  <div class="item-header">
+                    <h3 class="item-name"><?php echo htmlspecialchars($item['nome_item']); ?></h3>
+                    <div class="item-price">R$ <?php echo number_format($item['valor_unitario'], 2, ',', '.'); ?></div>
+                  </div>
 
-                <?php if (!empty($item['descricao'])): ?>
-                  <p class="item-description"><?php echo htmlspecialchars($item['descricao']); ?></p>
-                <?php endif; ?>
+                  <?php if (!empty($item['descricao'])): ?>
+                    <p class="item-description"><?php echo htmlspecialchars($item['descricao']); ?></p>
+                  <?php endif; ?>
 
-                <div class="item-actions">
-                  <a href="items.php?edit=1&id=<?php echo $item['id_item']; ?>" class="btn-edit">Editar</a>
-                  <a href="items.php?delete=1&id=<?php echo $item['id_item']; ?>" class="btn-delete" onclick="return confirm('Tem certeza que deseja deletar este item?');">Deletar</a>
+                  <div class="item-actions">
+                    <a href="items.php?edit=1&id=<?php echo $item['id_item']; ?>" class="btn-edit">Editar</a>
+                    <a href="items.php?delete=1&id=<?php echo $item['id_item']; ?>" class="btn-delete"
+                      onclick="return confirm('Tem certeza que deseja deletar este item?');">Deletar</a>
+                  </div>
                 </div>
-              </div>
               <?php endforeach; ?>
             <?php endif; ?>
           </div>
@@ -478,7 +487,8 @@ if (isset($_GET['edit']) && isset($_GET['id'])) {
           <a href="../index.php" class="logo">
             <div class="heart-icon">
               <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                <path
+                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>
             </div>
             <span class="logo-text">Planner de Sonhos</span>

@@ -3,76 +3,76 @@ session_start();
 require_once "../config/conexao.php";
 
 $cookieName = "lembrar_me_fornecedor";
-$cookieTime = time() + (86400 * 30); 
+$cookieTime = time() + (86400 * 30);
 $mensagem = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["acao"]) && $_POST["acao"] === "login") {
-    $email = trim($_POST["email"] ?? "");
-    $senha = trim($_POST["senha"] ?? "");
+  $email = trim($_POST["email"] ?? "");
+  $senha = trim($_POST["senha"] ?? "");
 
-    if (empty($email) || empty($senha)) {
-        $mensagem = "<div class='mensagem-erro'>Por favor, preencha todos os campos.</div>";
-    } else {
-        try {
-            $checkColumn = $pdo->query("SHOW COLUMNS FROM fornecedores LIKE 'senha'");
-            if ($checkColumn->rowCount() === 0) {
-                $mensagem = "<div class='mensagem-erro'>Sistema de login não configurado. Execute o script SQL em scripts/add_senha_to_fornecedores.sql</div>";
-            } else {
-                $stmt = $pdo->prepare("SELECT id_fornecedor, nome_fornecedor, email, senha FROM fornecedores WHERE email = ?");
-                $stmt->execute([$email]);
-                $fornecedor = $stmt->fetch(PDO::FETCH_ASSOC);
+  if (empty($email) || empty($senha)) {
+    $mensagem = "<div class='mensagem-erro'>Por favor, preencha todos os campos.</div>";
+  } else {
+    try {
+      $checkColumn = $pdo->query("SHOW COLUMNS FROM fornecedores LIKE 'senha'");
+      if ($checkColumn->rowCount() === 0) {
+        $mensagem = "<div class='mensagem-erro'>Sistema de login não configurado. Execute o script SQL em scripts/add_senha_to_fornecedores.sql</div>";
+      } else {
+        $stmt = $pdo->prepare("SELECT id_fornecedor, nome_fornecedor, email, senha FROM fornecedores WHERE email = ?");
+        $stmt->execute([$email]);
+        $fornecedor = $stmt->fetch(PDO::FETCH_ASSOC);
 
-                if (!$fornecedor) {
-                    $mensagem = "<div class='mensagem-erro'>Email não encontrado. Verifique seu email ou cadastre-se.</div>";
-                } elseif (empty($fornecedor["senha"])) {
-                    $mensagem = "<div class='mensagem-erro'>Conta sem senha configurada. Por favor, cadastre-se novamente.</div>";
-                } elseif (password_verify($senha, $fornecedor["senha"])) {
-                    session_regenerate_id(true);
-                    $_SESSION["fornecedor_id"] = (int)$fornecedor["id_fornecedor"];
-                    $_SESSION["fornecedor_nome"] = $fornecedor["nome_fornecedor"];
-                    $_SESSION["fornecedor_email"] = $fornecedor["email"];
+        if (!$fornecedor) {
+          $mensagem = "<div class='mensagem-erro'>Email não encontrado. Verifique seu email ou cadastre-se.</div>";
+        } elseif (empty($fornecedor["senha"])) {
+          $mensagem = "<div class='mensagem-erro'>Conta sem senha configurada. Por favor, cadastre-se novamente.</div>";
+        } elseif (password_verify($senha, $fornecedor["senha"])) {
+          session_regenerate_id(true);
+          $_SESSION["fornecedor_id"] = (int) $fornecedor["id_fornecedor"];
+          $_SESSION["fornecedor_nome"] = $fornecedor["nome_fornecedor"];
+          $_SESSION["fornecedor_email"] = $fornecedor["email"];
 
-                    $checkTokenColumn = $pdo->query("SHOW COLUMNS FROM fornecedores LIKE 'remember_token'");
-                    if ($checkTokenColumn->rowCount() > 0) {
-                        $token = bin2hex(random_bytes(16));
-                        setcookie($cookieName, $token, $cookieTime, "/", "", false, true);
-                        $stmt = $pdo->prepare("UPDATE fornecedores SET remember_token = ? WHERE id_fornecedor = ?");
-                        $stmt->execute([$token, $fornecedor["id_fornecedor"]]);
-                    }
+          $checkTokenColumn = $pdo->query("SHOW COLUMNS FROM fornecedores LIKE 'remember_token'");
+          if ($checkTokenColumn->rowCount() > 0) {
+            $token = bin2hex(random_bytes(16));
+            setcookie($cookieName, $token, $cookieTime, "/", "", false, true);
+            $stmt = $pdo->prepare("UPDATE fornecedores SET remember_token = ? WHERE id_fornecedor = ?");
+            $stmt->execute([$token, $fornecedor["id_fornecedor"]]);
+          }
 
-                    header("Location: dashboard.php");
-                    exit;
-                } else {
-                    $mensagem = "<div class='mensagem-erro'>Senha incorreta. Tente novamente.</div>";
-                }
-            }
-        } catch (PDOException $e) {
-            $mensagem = "<div class='mensagem-erro'>Erro ao fazer login: " . htmlspecialchars($e->getMessage()) . "</div>";
-            error_log("Login error: " . $e->getMessage());
+          header("Location: dashboard.php");
+          exit;
+        } else {
+          $mensagem = "<div class='mensagem-erro'>Senha incorreta. Tente novamente.</div>";
         }
+      }
+    } catch (PDOException $e) {
+      $mensagem = "<div class='mensagem-erro'>Erro ao fazer login: " . htmlspecialchars($e->getMessage()) . "</div>";
+      error_log("Login error: " . $e->getMessage());
     }
+  }
 }
 
 
 if (!isset($_SESSION['fornecedor_id']) && isset($_COOKIE[$cookieName])) {
-    $cookieToken = $_COOKIE[$cookieName];
-    try {
-        $checkTokenColumn = $pdo->query("SHOW COLUMNS FROM fornecedores LIKE 'remember_token'");
-        if ($checkTokenColumn->rowCount() > 0) {
-            $stmt = $pdo->prepare("SELECT id_fornecedor, nome_fornecedor, email FROM fornecedores WHERE remember_token = ?");
-            $stmt->execute([$cookieToken]);
-            $fornecedor = $stmt->fetch(PDO::FETCH_ASSOC);
-            if ($fornecedor) {
-                $_SESSION['fornecedor_id'] = (int)$fornecedor['id_fornecedor'];
-                $_SESSION['fornecedor_nome'] = $fornecedor['nome_fornecedor'];
-                $_SESSION['fornecedor_email'] = $fornecedor['email'];
-                header("Location: dashboard.php");
-                exit;
-            }
-        }
-    } catch (PDOException $e) {
-        error_log("Cookie restore error: " . $e->getMessage());
+  $cookieToken = $_COOKIE[$cookieName];
+  try {
+    $checkTokenColumn = $pdo->query("SHOW COLUMNS FROM fornecedores LIKE 'remember_token'");
+    if ($checkTokenColumn->rowCount() > 0) {
+      $stmt = $pdo->prepare("SELECT id_fornecedor, nome_fornecedor, email FROM fornecedores WHERE remember_token = ?");
+      $stmt->execute([$cookieToken]);
+      $fornecedor = $stmt->fetch(PDO::FETCH_ASSOC);
+      if ($fornecedor) {
+        $_SESSION['fornecedor_id'] = (int) $fornecedor['id_fornecedor'];
+        $_SESSION['fornecedor_nome'] = $fornecedor['nome_fornecedor'];
+        $_SESSION['fornecedor_email'] = $fornecedor['email'];
+        header("Location: dashboard.php");
+        exit;
+      }
     }
+  } catch (PDOException $e) {
+    error_log("Cookie restore error: " . $e->getMessage());
+  }
 }
 ?>
 <!DOCTYPE html>
@@ -83,7 +83,9 @@ if (!isset($_SESSION['fornecedor_id']) && isset($_COOKIE[$cookieName])) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login de Fornecedor - Planner de Sonhos</title>
   <link rel="stylesheet" href="../Style/styles.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto:wght@300;400;500&display=swap"
+    rel="stylesheet" />
   <link rel="shortcut icon" href="../Style/assets/icon.png" type="image/x-icon">
   <style>
     .supplier-login-container {
@@ -238,7 +240,8 @@ if (!isset($_SESSION['fornecedor_id']) && isset($_COOKIE[$cookieName])) {
         <a href="../index.php" class="logo">
           <div class="heart-icon">
             <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              <path
+                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
             </svg>
           </div>
           <span class="logo-text">Planner de Sonhos</span>
@@ -258,8 +261,9 @@ if (!isset($_SESSION['fornecedor_id']) && isset($_COOKIE[$cookieName])) {
         <div class="supplier-login-container">
           <div class="supplier-login-content">
             <h1>Bem-vindo, Fornecedor!</h1>
-            <p>Gerencie seus serviços, itens e pacotes de forma simples e eficiente. Conecte-se com clientes que procuram por seus serviços.</p>
-            
+            <p>Gerencie seus serviços, itens e pacotes de forma simples e eficiente. Conecte-se com clientes que
+              procuram por seus serviços.</p>
+
             <ul class="benefits-list">
               <li>
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -289,9 +293,11 @@ if (!isset($_SESSION['fornecedor_id']) && isset($_COOKIE[$cookieName])) {
           </div>
 
           <div class="supplier-login-form">
-            <h2 style="text-align: center; margin-bottom: 1.5rem; color: hsl(var(--foreground));">Login de Fornecedor</h2>
+            <h2 style="text-align: center; margin-bottom: 1.5rem; color: hsl(var(--foreground));">Login de Fornecedor
+            </h2>
 
-            <?php if ($mensagem) echo $mensagem; ?>
+            <?php if ($mensagem)
+              echo $mensagem; ?>
 
             <form method="POST">
               <input type="hidden" name="acao" value="login">
@@ -313,7 +319,8 @@ if (!isset($_SESSION['fornecedor_id']) && isset($_COOKIE[$cookieName])) {
             </form>
 
             <p style="text-align: center; margin-top: 1rem; font-size: 0.875rem; color: hsl(var(--muted-foreground));">
-              <a href="../user/login.php" style="color: hsl(var(--primary)); text-decoration: underline;">Sou cliente</a>
+              <a href="../user/login.php" style="color: hsl(var(--primary)); text-decoration: underline;">Sou
+                cliente</a>
             </p>
           </div>
         </div>
@@ -328,7 +335,8 @@ if (!isset($_SESSION['fornecedor_id']) && isset($_COOKIE[$cookieName])) {
           <a href="../index.php" class="logo">
             <div class="heart-icon">
               <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                <path
+                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>
             </div>
             <span class="logo-text">Planner de Sonhos</span>

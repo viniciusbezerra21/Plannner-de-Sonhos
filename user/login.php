@@ -3,40 +3,40 @@ session_start();
 require_once "../config/conexao.php";
 
 $cookieName = "lembrar_me";
-$cookieTime = time() + (86400 * 30); // 30 dias
+$cookieTime = time() + (86400 * 30);
 $mensagem = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["acao"]) && $_POST["acao"] === "login") {
-    $email = $_POST["email"];
-    $senha = $_POST["senha"];
+  $email = $_POST["email"];
+  $senha = $_POST["senha"];
 
-    $stmt = $pdo->prepare("SELECT id_usuario, nome, email, senha, cargo, foto_perfil FROM usuarios WHERE email = ? OR nome = ?");
-    $stmt->execute([$email, $email]);
-    $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+  $stmt = $pdo->prepare("SELECT id_usuario, nome, email, senha, cargo, foto_perfil FROM usuarios WHERE email = ? OR nome = ?");
+  $stmt->execute([$email, $email]);
+  $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($usuario && password_verify($senha, $usuario["senha"])) {
-        // Protege a sessão
-        session_regenerate_id(true);
+  if ($usuario && password_verify($senha, $usuario["senha"])) {
 
-        $_SESSION["usuario_id"] = (int)$usuario["id_usuario"];
-        $_SESSION["nome"] = $usuario["nome"];
-        $_SESSION["cargo"] = $usuario["cargo"];
-        $_SESSION["foto_perfil"] = $usuario['foto_perfil'] ?? 'default.png';
+    session_regenerate_id(true);
 
-        $token = bin2hex(random_bytes(16));
-        setcookie($cookieName, $token, $cookieTime, "/", "", false, true);
-        $stmt = $pdo->prepare("UPDATE usuarios SET remember_token = ? WHERE id_usuario = ?");
-        $stmt->execute([$token, $usuario["id_usuario"]]);
+    $_SESSION["usuario_id"] = (int) $usuario["id_usuario"];
+    $_SESSION["nome"] = $usuario["nome"];
+    $_SESSION["cargo"] = $usuario["cargo"];
+    $_SESSION["foto_perfil"] = $usuario['foto_perfil'] ?? 'default.png';
 
-        if ($usuario["cargo"] === "dev") {
-            header("Location: ../pages/dev.php");
-        } else {
-            header("Location: ../index.php");
-        }
-        exit;
+    $token = bin2hex(random_bytes(16));
+    setcookie($cookieName, $token, $cookieTime, "/", "", false, true);
+    $stmt = $pdo->prepare("UPDATE usuarios SET remember_token = ? WHERE id_usuario = ?");
+    $stmt->execute([$token, $usuario["id_usuario"]]);
+
+    if ($usuario["cargo"] === "dev") {
+      header("Location: ../pages/dev.php");
     } else {
-        $mensagem = "<div class='mensagem-erro'>E-mail/usuário ou senha inválidos.</div>";
+      header("Location: ../index.php");
     }
+    exit;
+  } else {
+    $mensagem = "<div class='mensagem-erro'>E-mail/usuário ou senha inválidos.</div>";
+  }
 }
 ?>
 
@@ -289,7 +289,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["acao"]) && $_POST["ac
         </button>
       </div>
       <div id="mobileMenu" class="mobile-menu">
-        <nav style="display: flex; flex-direction: column; gap: 1rem; padding: 1rem 0; border-top: 1px solid hsl(var(--border)); margin-top: 0.5rem;">
+        <nav
+          style="display: flex; flex-direction: column; gap: 1rem; padding: 1rem 0; border-top: 1px solid hsl(var(--border)); margin-top: 0.5rem;">
           <a href="../index.php" class="nav-link">Início</a>
           <a href="cadastro.php" class="btn-primary" style="align-items: center">Cadastre-se</a>
         </nav>
@@ -300,37 +301,45 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["acao"]) && $_POST["ac
     <section class="page-content" style="padding-top: 6rem">
       <div class="container">
         <div class="login-container">
-          <!-- Left side - Content -->
+
           <div class="login-content">
             <h1>Bem-vindo!</h1>
-            <p>Faça login para gerenciar seus eventos e casamento com facilidade. Acesse seu calendário, orçamento, fornecedores e muito mais.</p>
-            
+            <p>Faça login para gerenciar seus eventos e casamento com facilidade. Acesse seu calendário, orçamento,
+              fornecedores e muito mais.</p>
+
             <div style="background: hsl(var(--muted)); border-radius: 0.75rem; padding: 1.5rem; margin-top: 2rem;">
               <h3 style="margin-top: 0; color: hsl(var(--foreground));">Novo por aqui?</h3>
-              <p style="color: hsl(var(--muted-foreground)); margin-bottom: 1rem;">Crie sua conta para começar a organizar o casamento dos seus sonhos.</p>
-              <a href="cadastro.php" class="btn-primary" style="display: inline-block; padding: 0.75rem 1.5rem;">Criar Conta</a>
+              <p style="color: hsl(var(--muted-foreground)); margin-bottom: 1rem;">Crie sua conta para começar a
+                organizar o casamento dos seus sonhos.</p>
+              <a href="cadastro.php" class="btn-primary" style="display: inline-block; padding: 0.75rem 1.5rem;">Criar
+                Conta</a>
             </div>
           </div>
 
-          <!-- Right side - Login Form -->
+
           <div class="login-form">
             <h2>Login de Cliente</h2>
 
-            <?php if ($mensagem) echo $mensagem; ?>
+            <?php if ($mensagem)
+              echo $mensagem; ?>
 
             <form method="POST">
               <input type="hidden" name="acao" value="login">
 
               <div class="input-group">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                  <path
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+                  </path>
                 </svg>
                 <input type="text" name="email" placeholder="E-mail ou Nome de Usuário" required />
               </div>
 
               <div class="input-group">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                  <path
+                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
+                  </path>
                 </svg>
                 <input type="password" name="senha" placeholder="Senha" required />
               </div>
@@ -341,11 +350,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["acao"]) && $_POST["ac
 
               <p style="text-align: center; margin-top: 1rem; font-size: 0.875rem">
                 Não tem uma conta?
-                <a href="cadastro.php" style="color: hsl(var(--primary)); text-decoration: underline">Cadastre-se aqui</a>.
+                <a href="cadastro.php" style="color: hsl(var(--primary)); text-decoration: underline">Cadastre-se
+                  aqui</a>.
               </p>
             </form>
 
-            <!-- Added supplier login section -->
+
             <div class="divider">Ou</div>
 
             <div class="supplier-section">
