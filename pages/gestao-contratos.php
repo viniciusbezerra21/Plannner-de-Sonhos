@@ -4,7 +4,7 @@ require_once "../config/conexao.php";
 
 $cookieName = "lembrar_me";
 
-/* --- Restaurar sessão a partir do cookie (seguro: valida no DB) --- */
+
 if (!isset($_SESSION['usuario_id']) && isset($_COOKIE[$cookieName])) {
   $cookieUserId = (int) $_COOKIE[$cookieName];
   if ($cookieUserId > 0) {
@@ -16,7 +16,7 @@ if (!isset($_SESSION['usuario_id']) && isset($_COOKIE[$cookieName])) {
       $_SESSION['nome'] = $u['nome'];
       $_SESSION['cargo'] = $u['cargo'] ?? 'cliente';
     } else {
-      // cookie inválido -> remover
+      
       setcookie($cookieName, "", time() - 3600, "/");
     }
   }
@@ -24,7 +24,7 @@ if (!isset($_SESSION['usuario_id']) && isset($_COOKIE[$cookieName])) {
 
 $user_data = ['nome' => 'Usuário', 'email' => '', 'foto_perfil' => 'default.png'];
 
-/* --- Verifica login e busca dados do usuário --- */
+
 if (isset($_SESSION['usuario_id'])) {
   try {
     $stmt = $pdo->prepare("SELECT nome, email, foto_perfil FROM usuarios WHERE id_usuario = ?");
@@ -37,7 +37,7 @@ if (isset($_SESSION['usuario_id'])) {
         'email' => $result['email'] ?? '',
         'foto_perfil' => !empty($result['foto_perfil']) ? $result['foto_perfil'] : 'default.png'
       ];
-      // Update session with latest photo
+      
       if (!empty($result['foto_perfil'])) {
         $_SESSION['foto_perfil'] = $result['foto_perfil'];
       } else {
@@ -49,27 +49,7 @@ if (isset($_SESSION['usuario_id'])) {
   }
 }
 
-/* ------------------------ */
-/* 🔐 LOGIN POR COOKIE */
-/* ------------------------ */
-// if (!isset($_SESSION['usuario_id']) && isset($_COOKIE[$cookieName])) {
-//   $usuarioId = (int) $_COOKIE[$cookieName];
-//
-//   $stmt = $pdo->prepare("SELECT id_usuario, foto_perfil FROM usuarios WHERE id_usuario = ?");
-//   $stmt->execute([$usuarioId]);
-//   $user = $stmt->fetch(PDO::FETCH_ASSOC);
-//
-//   if ($user) {
-//     $_SESSION['usuario_id'] = $user['id_usuario'];
-//     $_SESSION['foto_perfil'] = $user['foto_perfil'] ?: "default.png";
-//   } else {
-//     setcookie($cookieName, "", time() - 3600, "/");
-//   }
-// }
 
-/* ------------------------ */
-/* 🔑 VERIFICA LOGIN */
-/* ------------------------ */
 if (!isset($_SESSION['usuario_id'])) {
   header("Location: ../user/login.php");
   exit;
@@ -92,9 +72,7 @@ if (isset($_POST['logout'])) {
   exit;
 }
 
-/* ------------------------ */
-/* ➕ ADICIONAR CONTRATO */
-/* ------------------------ */
+
 if (isset($_POST['add_contract'])) {
   $nome_fornecedor = trim($_POST['nome_fornecedor']);
   $categoria = trim($_POST['categoria']);
@@ -103,7 +81,7 @@ if (isset($_POST['add_contract'])) {
   $valor = $_POST['valor'] ? floatval($_POST['valor']) : null;
   $observacoes = trim($_POST['observacoes']);
   
-  // Upload do arquivo PDF
+  
   $arquivo_pdf = '';
   if (isset($_FILES['arquivo_pdf']) && $_FILES['arquivo_pdf']['error'] === UPLOAD_ERR_OK) {
     $uploadDir = '../Docs/';
@@ -124,13 +102,11 @@ if (isset($_POST['add_contract'])) {
   exit;
 }
 
-/* ------------------------ */
-/* 🗑️ EXCLUIR CONTRATO */
-/* ------------------------ */
+
 if (isset($_POST['delete_contract'])) {
   $id_contrato = (int) $_POST['id_contrato'];
   
-  // Buscar o arquivo para deletar
+
   $stmt = $pdo->prepare("SELECT arquivo_pdf FROM contratos WHERE id_contrato = ? AND id_usuario = ?");
   $stmt->execute([$id_contrato, $idUsuario]);
   $contrato = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -149,9 +125,7 @@ if (isset($_POST['delete_contract'])) {
   exit;
 }
 
-/* ------------------------ */
-/* ✏️ EDITAR CONTRATO */
-/* ------------------------ */
+
 if (isset($_POST['edit_contract'])) {
   $id_contrato = (int) $_POST['id_contrato'];
   $nome_fornecedor = trim($_POST['nome_fornecedor']);
@@ -169,9 +143,7 @@ if (isset($_POST['edit_contract'])) {
   exit;
 }
 
-/* ------------------------ */
-/* 📋 LISTAR CONTRATOS */
-/* ------------------------ */
+
 $stmt = $pdo->prepare("SELECT * FROM contratos WHERE id_usuario = ? ORDER BY data_assinatura DESC");
 $stmt->execute([$idUsuario]);
 $contratos = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -190,7 +162,7 @@ $contratos = $stmt->fetchAll(PDO::FETCH_ASSOC);
     rel="stylesheet" />
   <style>
     
-    /* Adding modal and form styles for contract management */
+   
     .modal-overlay {
       display: none;
       position: fixed;
@@ -432,7 +404,7 @@ $contratos = $stmt->fetchAll(PDO::FETCH_ASSOC);
   <header class="header">
     <div class="container">
       <div class="header-content">
-        <!-- Logo -->
+       
         <a href="../index.php" class="logo">
           <div class="heart-icon">
             <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
@@ -474,7 +446,7 @@ $contratos = $stmt->fetchAll(PDO::FETCH_ASSOC);
                       class="profile-dropdown-avatar"
                     >
                     <div class="profile-dropdown-info">
-                      <!-- Fixed to properly display user name and email -->
+                      
                       <div class="profile-dropdown-name">
                         <?php echo htmlspecialchars($user_data['nome']); ?>
                       </div>
@@ -607,7 +579,7 @@ $contratos = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </section>
   </main>
 
-  <!-- Adding modal for adding new contracts -->
+
   <div class="modal-overlay" id="addModal">
     <div class="contract-modal">
       <form method="post" enctype="multipart/form-data">
@@ -668,7 +640,7 @@ $contratos = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
   </div>
 
-  <!-- Adding modal for editing contracts -->
+  
   <div class="modal-overlay" id="editModal">
     <div class="contract-modal">
       <form method="post">
@@ -762,7 +734,7 @@ $contratos = $stmt->fetchAll(PDO::FETCH_ASSOC);
       document.getElementById(modalId).classList.remove("active");
     }
 
-    // Close modal when clicking outside
+   
     document.addEventListener("click", function(event) {
       const modals = document.querySelectorAll(".modal-overlay");
       modals.forEach(modal => {
@@ -779,7 +751,7 @@ $contratos = $stmt->fetchAll(PDO::FETCH_ASSOC);
       hamburgerBtn.classList.toggle("hamburger-active");
     }
 
-    // Smooth scrolling for anchor links
+    
     document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
       anchor.addEventListener("click", function(e) {
         e.preventDefault();

@@ -4,7 +4,7 @@ require_once '../config/conexao.php';
 
 $cookieName = "lembrar_me";
 
-// Restore session from cookie if needed
+
 if (!isset($_SESSION['usuario_id']) && isset($_COOKIE[$cookieName])) {
   $cookieUserId = (int) $_COOKIE[$cookieName];
   if ($cookieUserId > 0) {
@@ -24,7 +24,7 @@ if (!isset($_SESSION['usuario_id']) && isset($_COOKIE[$cookieName])) {
 
 $user_data = ['nome' => 'Usuário', 'email' => '', 'foto_perfil' => 'default.png'];
 
-/* --- Verifica login e busca dados do usuário --- */
+
 if (isset($_SESSION['usuario_id'])) {
   try {
     $stmt = $pdo->prepare("SELECT nome, email, foto_perfil FROM usuarios WHERE id_usuario = ?");
@@ -37,7 +37,7 @@ if (isset($_SESSION['usuario_id'])) {
         'email' => $result['email'] ?? '',
         'foto_perfil' => !empty($result['foto_perfil']) ? $result['foto_perfil'] : 'default.png'
       ];
-      // Update session with latest photo
+      
       if (!empty($result['foto_perfil'])) {
         $_SESSION['foto_perfil'] = $result['foto_perfil'];
       } else {
@@ -79,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       exit;
     }
     
-    // Basic validation
+    
     if (empty($nome) || empty($email) || empty($mensagem)) {
         $error = true;
         $errorMessage = 'Por favor, preencha todos os campos obrigatórios.';
@@ -98,12 +98,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
             
             $success = true;
-            // Clear form data on success
+            
             $_POST = [];
         } catch (PDOException $e) {
             $error = true;
             $errorMessage = 'Erro ao enviar mensagem. Por favor, tente novamente mais tarde.';
-            // Log error for debugging (in production, use proper logging)
+            
             error_log("Contact form error: " . $e->getMessage());
         }
     }
@@ -227,7 +227,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       }
     }
     
-    /* Added styles for success and error alerts */
+
     .alert {
       padding: 1rem;
       border-radius: 0.5rem;
@@ -430,7 +430,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <a href="contato.php" class="nav-link">Contato</a> 
             <?php if (isset($_SESSION["usuario_id"])): ?>
-              <!-- Added profile dropdown for logged-in users -->
+             
               <div class="profile-dropdown-wrapper">
                 <img 
                   src="../user/fotos/<?php echo htmlspecialchars($_SESSION['foto_perfil'] ?? 'default.png'); ?>"
@@ -447,7 +447,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         class="profile-dropdown-avatar"
                       >
                       <div class="profile-dropdown-info">
-                        <!-- Fixed to properly display user name and email -->
+                       
                         <div class="profile-dropdown-name">
                           <?php echo htmlspecialchars($user_data['nome']); ?>
                         </div>
@@ -539,7 +539,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             
             <?php if ($success): ?>
-              <!-- Display success message when form is submitted successfully -->
+              
               <div class="alert alert-success">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
@@ -552,7 +552,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
             
             <?php if ($error): ?>
-              <!-- Display error message when form submission fails -->
+             
               <div class="alert alert-error">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -564,7 +564,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               </div>
             <?php endif; ?>
             
-            <!-- Updated form to submit to itself via POST -->
+           
             <form method="POST" action="contato.php" class="contact-form">
               <div class="form-row">
                 <div class="form-group">

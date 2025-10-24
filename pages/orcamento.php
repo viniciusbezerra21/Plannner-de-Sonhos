@@ -4,7 +4,7 @@ require_once "../config/conexao.php";
 
 $cookieName = "lembrar_me";
 
-/* --- Restaurar sessão a partir do cookie (seguro: valida no DB) --- */
+
 if (!isset($_SESSION['usuario_id']) && isset($_COOKIE[$cookieName])) {
   $cookieUserId = (int) $_COOKIE[$cookieName];
   if ($cookieUserId > 0) {
@@ -16,7 +16,7 @@ if (!isset($_SESSION['usuario_id']) && isset($_COOKIE[$cookieName])) {
       $_SESSION['nome'] = $u['nome'];
       $_SESSION['cargo'] = $u['cargo'] ?? 'cliente';
     } else {
-      // cookie inválido -> remover
+    
       setcookie($cookieName, "", time() - 3600, "/");
     }
   }
@@ -24,7 +24,7 @@ if (!isset($_SESSION['usuario_id']) && isset($_COOKIE[$cookieName])) {
 
 $user_data = ['nome' => 'Usuário', 'email' => '', 'foto_perfil' => 'default.png'];
 
-/* --- Verifica login e busca dados do usuário --- */
+
 if (isset($_SESSION['usuario_id'])) {
   try {
     $stmt = $pdo->prepare("SELECT nome, email, foto_perfil FROM usuarios WHERE id_usuario = ?");
@@ -37,7 +37,7 @@ if (isset($_SESSION['usuario_id'])) {
         'email' => $result['email'] ?? '',
         'foto_perfil' => !empty($result['foto_perfil']) ? $result['foto_perfil'] : 'default.png'
       ];
-      // Update session with latest photo
+    
       if (!empty($result['foto_perfil'])) {
         $_SESSION['foto_perfil'] = $result['foto_perfil'];
       } else {
@@ -69,9 +69,7 @@ if (isset($_POST['logout'])) {
 
 $idUsuario = (int) $_SESSION['usuario_id'];
 
-/* ------------------------ */
-/* ⭐ SALVAR AVALIAÇÃO */
-/* ------------------------ */
+
 if (isset($_POST['save_rating'])) {
   $idOrc = (int) $_POST['id_orcamento'];
   $rating = (int) $_POST['rating'];
@@ -91,14 +89,12 @@ if (isset($_POST['save_rating'])) {
   exit;
 }
 
-/* ------------------------ */
-/* ➕ ADICIONAR ITEM */
-/* ------------------------ */
+
 if (isset($_POST['add_item'])) {
   $item = trim($_POST['item'] ?? '');
   $fornecedor = trim($_POST['fornecedor'] ?? '');
   $quantidade = (int) ($_POST['quantidade'] ?? 0);
-  // aceitar vírgula decimal no input
+ 
   $valor_unitario = (float) str_replace(',', '.', ($_POST['valor_unitario'] ?? 0));
 
   if ($item !== "" && $valor_unitario > 0) {
@@ -109,9 +105,7 @@ if (isset($_POST['add_item'])) {
   exit;
 }
 
-/* ------------------------ */
-/* 🗑️ EXCLUIR ITEM */
-/* ------------------------ */
+
 if (isset($_POST['delete_item'])) {
   $idOrc = (int) $_POST['delete_item'];
   $stmt = $pdo->prepare("DELETE FROM orcamentos WHERE id_orcamento = ? AND id_usuario = ?");
@@ -120,9 +114,7 @@ if (isset($_POST['delete_item'])) {
   exit;
 }
 
-/* ------------------------ */
-/* 📋 LISTAR ITENS */
-/* ------------------------ */
+
 $stmt = $pdo->prepare("SELECT * FROM orcamentos WHERE id_usuario = ? ORDER BY id_orcamento DESC");
 $stmt->execute([$idUsuario]);
 $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -281,22 +273,22 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
       }
     }
 
-    /* Enhanced star rating styles */
+    
     .estrela-rating {
       display: flex;
-      gap: 4px; /* Adjusted gap for better spacing */
+      gap: 4px; 
       align-items: center;
     }
 
     .estrela-icon {
-      width: 20px; /* Increased icon size */
-      height: 20px; /* Increased icon size */
+      width: 20px; 
+      height: 20px; 
       fill: #ddd;
       cursor: pointer;
       transition: all 0.2s ease-in-out;
     }
 
-    /* Simplified star states with better visibility */
+    
     .estrela-icon.active {
       fill: #ffc107;
     }
@@ -306,8 +298,8 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     .estrela-icon.success-feedback {
-      fill: #d572d8; /* Slightly different color for feedback */
-      transform: scale(1.2); /* Added scale effect for feedback */
+      fill: #d572d8; 
+      transform: scale(1.2);
     }
 
     .rating-form {
@@ -444,7 +436,7 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </head>
 
 <body>
-  <!-- Header -->
+  
   <header class="header">
     <div class="container">
       <div class="header-content">
@@ -488,7 +480,7 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
                       class="profile-dropdown-avatar"
                     >
                     <div class="profile-dropdown-info">
-                      <!-- Fixed to properly display user name and email -->
+                      
                       <div class="profile-dropdown-name">
                         <?php echo htmlspecialchars($user_data['nome']); ?>
                       </div>
@@ -516,8 +508,8 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     Funcionalidades
                   </a>
                   <form method="post" style="margin:0;">
-                    <!-- <button type="submit" name="logout" class="profile-dropdown-item logout" style="width: 100%; text-align: left; background: none; border: none; font-family: inherit; font-size: inherit;"> -->
-                    <button type="submit" name="logout" class="profile-dropdown-item"> <!-- Removed inline styles, use class -->
+                   
+                    <button type="submit" name="logout" class="profile-dropdown-item"> 
                       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                         <polyline points="16 17 21 12 16 7"></polyline>
@@ -591,7 +583,7 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
                               <svg class="estrela-icon <?= ($i['avaliacao'] >= $star) ? 'active' : '' ?>" 
                                    data-rating="<?= $star ?>" 
                                    viewBox="0 0 24 24"
-                                   xmlns="http://www.w3.org/2000/svg"> <!-- Added xmlns attribute for SVG -->
+                                   xmlns="http://www.w3.org/2000/svg"> 
                                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                               </svg>
                             <?php endfor; ?>
@@ -675,7 +667,7 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
     function toggleMobileMenu() {
       const mobileMenu = document.getElementById("mobileMenu");
       const hamburgerBtn = document.getElementById("hamburgerBtn");
-      if (mobileMenu && hamburgerBtn) { // Added null check for elements
+      if (mobileMenu && hamburgerBtn) { 
         mobileMenu.classList.toggle("active");
         hamburgerBtn.classList.toggle("hamburger-active");
       }
@@ -683,16 +675,16 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     function toggleProfileDropdown() {
       const dropdown = document.getElementById("profileDropdown");
-      if (dropdown) { // Added null check for element
+      if (dropdown) { 
         dropdown.classList.toggle("active");
       }
     }
 
-    // Fechar dropdown quando clicar fora
+   
     document.addEventListener('click', function(event) {
       const profileWrapper = document.querySelector('.profile-dropdown-wrapper');
       const dropdown = document.getElementById("profileDropdown");
-      if (profileWrapper && dropdown && !profileWrapper.contains(event.target)) { // Added null check for elements
+      if (profileWrapper && dropdown && !profileWrapper.contains(event.target)) { 
         dropdown.classList.remove("active");
       }
     });
@@ -708,7 +700,7 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
           });
           const mobileMenu = document.getElementById("mobileMenu");
           const hamburgerBtn = document.getElementById("hamburgerBtn");
-          if (mobileMenu && hamburgerBtn) { // Added null check for elements
+          if (mobileMenu && hamburgerBtn) { 
             mobileMenu.classList.remove("active");
             hamburgerBtn.classList.remove("hamburger-active");
           }
@@ -727,7 +719,7 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
         console.log('[v0] Setting up rating for item with current rating:', currentRating);
         
-        // Initialize visual state
+      
         updateStarDisplay(stars, currentRating);
         
         stars.forEach((star) => {
@@ -735,13 +727,13 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
           
           star.addEventListener('click', function(e) {
             e.preventDefault();
-            e.stopPropagation(); // Prevent event bubbling up
+            e.stopPropagation(); 
             console.log('[v0] Star clicked, rating:', starRating);
             
             ratingInput.value = starRating;
             updateStarDisplay(stars, starRating);
             
-            // Submit form via AJAX
+            
             const formData = new FormData(form);
             formData.append('save_rating', '1');
             
@@ -751,13 +743,13 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
               method: 'POST',
               body: formData,
               headers: {
-                'X-Requested-With': 'XMLHttpRequest' // Add header for AJAX identification
+                'X-Requested-With': 'XMLHttpRequest' 
               }
             })
             .then(response => {
               if (response.ok) {
                 console.log('[v0] Rating saved successfully');
-                // Show brief success feedback
+               
                 stars.forEach(s => {
                   s.classList.add('success-feedback');
                 });
@@ -774,13 +766,13 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
             });
           });
           
-          // Hover effects
+          
           star.addEventListener('mouseenter', function() {
             updateStarDisplay(stars, starRating, true);
           });
         });
         
-        // Reset hover effect
+      
         rating.addEventListener('mouseleave', function() {
           updateStarDisplay(stars, parseInt(ratingInput.value) || 0);
         });

@@ -4,7 +4,7 @@ require_once "../config/conexao.php";
 
 $cookieName = "lembrar_me";
 
-/* --- Restaurar sessão a partir do cookie (seguro: valida no DB) --- */
+
 if (!isset($_SESSION['usuario_id']) && isset($_COOKIE[$cookieName])) {
   $cookieUserId = (int) $_COOKIE[$cookieName];
   if ($cookieUserId > 0) {
@@ -16,7 +16,7 @@ if (!isset($_SESSION['usuario_id']) && isset($_COOKIE[$cookieName])) {
       $_SESSION['nome'] = $u['nome'];
       $_SESSION['cargo'] = $u['cargo'] ?? 'cliente';
     } else {
-      // cookie inválido -> remover
+      
       setcookie($cookieName, "", time() - 3600, "/");
     }
   }
@@ -24,7 +24,7 @@ if (!isset($_SESSION['usuario_id']) && isset($_COOKIE[$cookieName])) {
 
 $user_data = ['nome' => 'Usuário', 'email' => '', 'foto_perfil' => 'default.png'];
 
-/* --- Verifica login e busca dados do usuário --- */
+
 if (isset($_SESSION['usuario_id'])) {
   try {
     $stmt = $pdo->prepare("SELECT nome, email, foto_perfil FROM usuarios WHERE id_usuario = ?");
@@ -37,7 +37,7 @@ if (isset($_SESSION['usuario_id'])) {
         'email' => $result['email'] ?? '',
         'foto_perfil' => !empty($result['foto_perfil']) ? $result['foto_perfil'] : 'default.png'
       ];
-      // Update session with latest photo
+    
       if (!empty($result['foto_perfil'])) {
         $_SESSION['foto_perfil'] = $result['foto_perfil'];
       } else {
@@ -49,9 +49,7 @@ if (isset($_SESSION['usuario_id'])) {
   }
 }
 
-/* ------------------------ */
-/* 🔑 VERIFICA LOGIN */
-/* ------------------------ */
+
 if (!isset($_SESSION['usuario_id'])) {
   header("Location: ../user/login.php");
   exit;
@@ -74,9 +72,7 @@ if (isset($_POST['logout'])) {
   exit;
 }
 
-/* ------------------------ */
-/* ➕ ADICIONAR TAREFA */
-/* ------------------------ */
+
 if (isset($_POST['add_task'])) {
   $titulo = trim($_POST['titulo']);
   $responsavel = trim($_POST['responsavel']);
@@ -92,9 +88,7 @@ if (isset($_POST['add_task'])) {
   exit;
 }
 
-/* ------------------------ */
-/* 📋 LISTAR TAREFAS */
-/* ------------------------ */
+
 $stmt = $pdo->prepare("SELECT * FROM tarefas WHERE id_usuario = ? ORDER BY prazo ASC");
 $stmt->execute([$idUsuario]);
 $tarefas = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -111,7 +105,7 @@ $tarefas = $stmt->fetchAll(PDO::FETCH_ASSOC);
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet" />
 
   <style>
-    /* Faz o layout ocupar a tela inteira */
+  
     body {
       display: flex;
       flex-direction: column;
@@ -119,12 +113,12 @@ $tarefas = $stmt->fetchAll(PDO::FETCH_ASSOC);
       margin: 0;
     }
 
-    /* O conteúdo principal cresce e empurra o footer */
+
     main {
       flex: 1;
     }
 
-    /* Footer fixo no fim */
+   
     footer {
       margin-top: auto;
       background: hsl(var(--card));
@@ -154,9 +148,7 @@ $tarefas = $stmt->fetchAll(PDO::FETCH_ASSOC);
       max-width: 500px;
     }
 
-    /* ------------------------ */
-    /* 🎨 CUSTOM SELECT */
-    /* ------------------------ */
+ 
     .custom-select {
       position: relative;
       user-select: none;
@@ -375,7 +367,7 @@ $tarefas = $stmt->fetchAll(PDO::FETCH_ASSOC);
                       alt="Avatar"
                       class="profile-dropdown-avatar">
                     <div class="profile-dropdown-info">
-                      <!-- Fixed to properly display user name and email -->
+                     
                       <div class="profile-dropdown-name">
                         <?php echo htmlspecialchars($user_data['nome']); ?>
                       </div>
@@ -559,7 +551,7 @@ $tarefas = $stmt->fetchAll(PDO::FETCH_ASSOC);
       }
     });
 
-    // Dropdown customizado
+   
     document.querySelectorAll(".custom-select").forEach(select => {
       const selected = select.querySelector(".selected");
       const options = select.querySelector(".options");

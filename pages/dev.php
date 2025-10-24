@@ -4,27 +4,27 @@ require_once "../config/conexao.php";
 
 $cookieName = "lembrar_me";
 
-// Verifica se está logado
+
 if (!isset($_SESSION['usuario_id'])) {
   header("Location: ../user/login.php");
   exit;
 }
 
-// Busca cargo do usuário
+
 $stmt = $pdo->prepare("SELECT nome, cargo FROM usuarios WHERE id_usuario = ?");
 $stmt->execute([$_SESSION['usuario_id']]);
 $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// Se não existir usuário ou não for dev → expulsa
+
 if (!$usuario || $usuario['cargo'] !== 'dev') {
   header("Location: ../index.php");
   exit;
 }
 
-// Deixa nome disponível pra saudação no header
+
 $_SESSION['nome'] = $usuario['nome'];
 
-// === Logout ===
+
 if (isset($_POST['logout'])) {
   setcookie($cookieName, "", time() - 3600, "/");
   session_unset();
@@ -33,12 +33,12 @@ if (isset($_POST['logout'])) {
   exit;
 }
 
-// Contadores
+
 $totalUsuarios = $pdo->query("SELECT COUNT(*) FROM usuarios WHERE cargo = 'cliente'")->fetchColumn();
 $totalEventos = $pdo->query("SELECT COUNT(*) FROM eventos")->fetchColumn();
 $totalMensagens = $pdo->query("SELECT COUNT(*) FROM contatos")->fetchColumn();
 
-// Listas
+
 $usuarios = $pdo->query("SELECT id_usuario, nome, email FROM usuarios WHERE cargo = 'cliente' ORDER BY id_usuario DESC")->fetchAll();
 $eventos = $pdo->query("
   SELECT e.id_evento, e.nome_evento, e.data_evento, e.local, u.nome AS usuario
@@ -393,7 +393,7 @@ $orcamentos = $pdo->query("
     </main>
   </div>
 
-  <!-- Modal Usuários -->
+  
   <div class="modal-overlay" id="userModal">
     <div class="modal">
       <button class="close-modal" onclick="closeModal('userModal')">&times;</button>
@@ -440,7 +440,7 @@ $orcamentos = $pdo->query("
     </div>
   </div>
 
-  <!-- Modal Eventos -->
+ 
   <div class="modal-overlay" id="eventsModal">
     <div class="modal">
       <button class="close-modal" onclick="closeModal('eventsModal')">&times;</button>
@@ -466,7 +466,7 @@ $orcamentos = $pdo->query("
     </div>
   </div>
 
-  <!-- Modal Mensagens -->
+  
   <div class="modal-overlay" id="messagesModal">
     <div class="modal">
       <button class="close-modal" onclick="closeModal('messagesModal')">&times;</button>
@@ -493,7 +493,7 @@ $orcamentos = $pdo->query("
       </table>
     </div>
   </div>
-  <!-- Modal Tarefas -->
+ 
   <div class="modal-overlay" id="tasksModal">
     <div class="modal">
       <button class="close-modal" onclick="closeModal('tasksModal')">&times;</button>
@@ -531,7 +531,7 @@ $orcamentos = $pdo->query("
     </div>
   </div>
 
-  <!-- Modal Orçamentos -->
+  
   <div class="modal-overlay" id="budgetModal">
     <div class="modal">
       <button class="close-modal" onclick="closeModal('budgetModal')">&times;</button>

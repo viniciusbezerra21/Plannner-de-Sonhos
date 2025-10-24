@@ -4,9 +4,7 @@ require_once "../config/conexao.php";
 
 $cookieName = "lembrar_me";
 
-/* ------------------------
-   🔐 LOGIN POR COOKIE
--------------------------*/
+
 if (!isset($_SESSION['usuario_id']) && isset($_COOKIE[$cookieName])) {
   $usuarioId = (int) $_COOKIE[$cookieName];
 
@@ -22,10 +20,10 @@ if (!isset($_SESSION['usuario_id']) && isset($_COOKIE[$cookieName])) {
   }
 }
 
-/* Initialize $user_data to prevent undefined variable errors in modal */
+
 $user_data = ['nome' => 'Usuário', 'email' => '', 'foto_perfil' => 'default.png'];
 
-/* --- Verifica login e busca dados do usuário --- */
+
 if (isset($_SESSION['usuario_id'])) {
   try {
     $stmt = $pdo->prepare("SELECT nome, email, foto_perfil FROM usuarios WHERE id_usuario = ?");
@@ -38,7 +36,7 @@ if (isset($_SESSION['usuario_id'])) {
         'email' => $result['email'] ?? '',
         'foto_perfil' => !empty($result['foto_perfil']) ? $result['foto_perfil'] : 'default.png'
       ];
-      // Update session with latest photo
+     
       if (!empty($result['foto_perfil'])) {
         $_SESSION['foto_perfil'] = $result['foto_perfil'];
       } else {
@@ -50,14 +48,12 @@ if (isset($_SESSION['usuario_id'])) {
   }
 }
 
-/* Ensure default photo is set in session */
+
 if (empty($_SESSION['foto_perfil'])) {
   $_SESSION['foto_perfil'] = 'default.png';
 }
 
-/* ------------------------
-   🔑 VERIFICA LOGIN
--------------------------*/
+
 if (!isset($_SESSION['usuario_id'])) {
   header("Location: ../user/login.php");
   exit;
@@ -80,9 +76,7 @@ if (isset($_POST['logout'])) {
   exit;
 }
 
-/* ------------------------
-   📅 BUSCAR EVENTOS DO USUÁRIO
--------------------------*/
+
 try {
   $stmt = $pdo->prepare("SELECT 
     id_evento,
@@ -116,7 +110,7 @@ try {
   }
 }
 
-// Converter eventos para JSON para uso no JavaScript
+
 $eventosJson = json_encode($eventos);
 ?>
 <!DOCTYPE html>
@@ -357,7 +351,7 @@ $eventosJson = json_encode($eventos);
       background: hsl(var(--accent));
     }
 
-    /* Added search bar transition styles */
+   
     .search-container {
       position: relative;
       display: flex;
@@ -396,7 +390,7 @@ $eventosJson = json_encode($eventos);
       background: hsl(var(--accent));
     }
     
-    /* Added filter modal styles */
+
     .filter-modal {
       display: none;
       position: fixed;
@@ -621,7 +615,7 @@ $eventosJson = json_encode($eventos);
 </head>
 
 <body>
-  <!-- Added filter modal -->
+
   <div class="filter-modal" id="filter-modal">
     <div class="filter-content card-modal">
       <h2 class="text-primary">Filtrar Eventos</h2>
@@ -674,7 +668,7 @@ $eventosJson = json_encode($eventos);
         </select>
       </div>
       
-      <!-- Added checkbox to mark event as completed -->
+      
       <div class="form-group">
         <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
           <input type="checkbox" id="statusConcluidoInput" style="width: 18px; height: 18px; cursor: pointer;">
@@ -807,7 +801,7 @@ $eventosJson = json_encode($eventos);
                       class="profile-dropdown-avatar"
                     >
                     <div class="profile-dropdown-info">
-                      <!-- Fixed to properly display user name and email -->
+                     
                       <div class="profile-dropdown-name">
                         <?php echo htmlspecialchars($user_data['nome']); ?>
                       </div>
@@ -965,7 +959,7 @@ $eventosJson = json_encode($eventos);
                       <polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46 22,3" />
                     </svg>
                   </button>
-                  <!-- Modified search button and input for transition effect -->
+                  
                   <div class="search-container">
                     <input type="text" class="search-input" id="search-input" placeholder="Buscar eventos..." />
                     <button type="button" class="action-btn" id="search-btn">
@@ -1190,13 +1184,13 @@ $eventosJson = json_encode($eventos);
         const options = select.querySelector(".options");
         const hiddenInput = select.querySelector("input[type=hidden]");
 
-        // Toggle abrir/fechar opções
+       
         selected.addEventListener("click", () => {
           options.style.display =
             options.style.display === "block" ? "none" : "block";
         });
 
-        // Selecionar opção
+      
         options.querySelectorAll("li").forEach((option) => {
           option.addEventListener("click", () => {
             selected.textContent = option.textContent;
@@ -1205,7 +1199,7 @@ $eventosJson = json_encode($eventos);
           });
         });
 
-        // Fechar ao clicar fora
+        
         document.addEventListener("click", (e) => {
           if (!select.contains(e.target)) {
             options.style.display = "none";
@@ -1224,7 +1218,7 @@ $eventosJson = json_encode($eventos);
       }
     });
     
-    // Close search when clicking outside
+    
     document.addEventListener('click', (e) => {
       if (!searchBtn.contains(e.target) && !searchInput.contains(e.target)) {
         searchInput.classList.remove('expanded');
@@ -1257,7 +1251,7 @@ $eventosJson = json_encode($eventos);
       filterModal.classList.remove('active');
     });
     
-    // Toggle filter chips
+  
     document.querySelectorAll('.filter-chip, .color-chip').forEach(chip => {
       chip.addEventListener('click', () => {
         chip.classList.toggle('active');
@@ -1265,7 +1259,7 @@ $eventosJson = json_encode($eventos);
     });
     
     applyFiltersBtn.addEventListener('click', () => {
-      // Collect active filters
+    
       activeFilters = {
         prioridade: [],
         cor: [],
@@ -1278,7 +1272,7 @@ $eventosJson = json_encode($eventos);
         activeFilters[filterType].push(filterValue);
       });
       
-      // Apply filters to events list
+      
       filtrarEventos(activeFilters);
       filterModal.classList.remove('active');
     });
@@ -1291,14 +1285,14 @@ $eventosJson = json_encode($eventos);
       filtrarEventos(activeFilters);
     });
     
-    // Filter events function
+    
     function filtrarEventos(filters) {
       const eventItems = document.querySelectorAll('.event-item');
       
       eventItems.forEach(item => {
         let shouldShow = true;
         
-        // Check prioridade filter
+        
         if (filters.prioridade.length > 0) {
           const itemPrioridade = item.dataset.prioridade;
           if (!filters.prioridade.includes(itemPrioridade)) {
@@ -1306,7 +1300,7 @@ $eventosJson = json_encode($eventos);
           }
         }
         
-        // Check cor filter
+        
         if (filters.cor.length > 0) {
           const itemCor = item.dataset.cor;
           if (!filters.cor.includes(itemCor)) {
@@ -1314,7 +1308,7 @@ $eventosJson = json_encode($eventos);
           }
         }
         
-        // Check status filter
+        
         if (filters.status.length > 0) {
           const itemStatus = item.dataset.status;
           if (!filters.status.includes(itemStatus)) {
@@ -1326,7 +1320,7 @@ $eventosJson = json_encode($eventos);
       });
     }
     
-    // Search functionality
+ 
     searchInput.addEventListener('input', (e) => {
       const searchTerm = e.target.value.toLowerCase();
       const eventItems = document.querySelectorAll('.event-item');
