@@ -3,7 +3,7 @@ session_start();
 require_once "../config/conexao.php";
 
 $cookieName = "lembrar_me_fornecedor";
-$cookieTime = time() + (86400 * 30); // 30 dias
+$cookieTime = time() + (86400 * 30); 
 $mensagem = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["acao"]) && $_POST["acao"] === "login") {
@@ -53,7 +53,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["acao"]) && $_POST["ac
     }
 }
 
-// Restaurar sessão a partir do cookie
+
 if (!isset($_SESSION['fornecedor_id']) && isset($_COOKIE[$cookieName])) {
     $cookieToken = $_COOKIE[$cookieName];
     try {

@@ -2,7 +2,7 @@
 session_start();
 require_once "../config/conexao.php";
 
-// Verificar se o fornecedor está logado
+
 if (!isset($_SESSION['fornecedor_id'])) {
     header("Location: login.php");
     exit;
@@ -12,7 +12,7 @@ $fornecedor_id = (int)$_SESSION['fornecedor_id'];
 $mensagem = "";
 $tipo_mensagem = "";
 
-// Handle add/edit item
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     $action = $_POST['action'];
     $nome_item = trim($_POST['nome_item'] ?? '');
@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                     ");
                     $stmt->execute([$fornecedor_id, $nome_item, $descricao, $valor_unitario]);
                 } else {
-                    // Fallback if columns don't exist yet
+                 
                     $stmt = $pdo->prepare("
                         INSERT INTO itens (id_fornecedor, nome_item, valor_unitario)
                         VALUES (?, ?, ?)
@@ -83,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     }
 }
 
-// Handle delete item
+
 if (isset($_GET['delete']) && isset($_GET['id'])) {
     $id_item = (int)$_GET['id'];
     try {
@@ -97,7 +97,7 @@ if (isset($_GET['delete']) && isset($_GET['id'])) {
     }
 }
 
-// Get all items
+
 try {
     $stmt = $pdo->prepare("SHOW COLUMNS FROM itens LIKE 'descricao'");
     $stmt->execute();
@@ -115,7 +115,7 @@ try {
     error_log("Items fetch error: " . $e->getMessage());
 }
 
-// Get item for editing
+
 $item_edit = null;
 if (isset($_GET['edit']) && isset($_GET['id'])) {
     $id_item = (int)$_GET['id'];
@@ -398,7 +398,7 @@ if (isset($_GET['edit']) && isset($_GET['id'])) {
         <?php endif; ?>
 
         <div class="items-container">
-          <!-- Form -->
+          
           <div class="form-section">
             <h2><?php echo $item_edit ? 'Editar Item' : 'Adicionar Novo Item'; ?></h2>
 
@@ -434,7 +434,7 @@ if (isset($_GET['edit']) && isset($_GET['id'])) {
             </form>
           </div>
 
-          <!-- Items List -->
+          
           <div class="items-list">
             <h2>Seus Itens/Serviços</h2>
 

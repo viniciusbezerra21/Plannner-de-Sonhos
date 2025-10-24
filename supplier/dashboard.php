@@ -2,7 +2,7 @@
 session_start();
 require_once "../config/conexao.php";
 
-// Verificar se o fornecedor está logado
+
 if (!isset($_SESSION['fornecedor_id'])) {
     header("Location: login.php");
     exit;
@@ -10,7 +10,7 @@ if (!isset($_SESSION['fornecedor_id'])) {
 
 $fornecedor_id = (int)$_SESSION['fornecedor_id'];
 
-// Fetch supplier info
+
 try {
     $stmt = $pdo->prepare("SELECT * FROM fornecedores WHERE id_fornecedor = ?");
     $stmt->execute([$fornecedor_id]);
@@ -22,12 +22,12 @@ try {
         exit;
     }
 
-    // Get total items
+ 
     $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM itens WHERE id_fornecedor = ?");
     $stmt->execute([$fornecedor_id]);
     $total_itens = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
-    // Get total packages
+ 
     $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM pacotes WHERE id_fornecedor = ?");
     $stmt->execute([$fornecedor_id]);
     $total_pacotes = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
@@ -42,12 +42,12 @@ try {
     $rating_result = $stmt->fetch(PDO::FETCH_ASSOC);
     $avaliacao_media = $rating_result['media_avaliacao'] ? number_format($rating_result['media_avaliacao'], 1) : 'N/A';
 
-    // Get recent items
+  
     $stmt = $pdo->prepare("SELECT * FROM itens WHERE id_fornecedor = ? ORDER BY id_item DESC LIMIT 5");
     $stmt->execute([$fornecedor_id]);
     $itens_recentes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Get recent packages
+ 
     $stmt = $pdo->prepare("SELECT * FROM pacotes WHERE id_fornecedor = ? ORDER BY id_pacote DESC LIMIT 5");
     $stmt->execute([$fornecedor_id]);
     $pacotes_recentes = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -61,7 +61,7 @@ try {
     $pacotes_recentes = [];
 }
 
-// Handle logout
+
 if (isset($_POST['logout'])) {
     setcookie("lembrar_me_fornecedor", "", time() - 3600, "/");
     session_unset();
@@ -410,14 +410,14 @@ if (isset($_POST['logout'])) {
             </div>
           </aside>
 
-          <!-- Main Content -->
+          
           <div class="main-content">
             <div class="welcome-card">
               <h1>Bem-vindo, <?php echo htmlspecialchars($fornecedor['nome_fornecedor']); ?>!</h1>
               <p>Gerencie seus serviços, itens e pacotes de forma eficiente.</p>
             </div>
 
-            <!-- Stats -->
+          
             <div class="stats-grid">
               <div class="stat-card">
                 <div class="stat-icon">
@@ -440,7 +440,7 @@ if (isset($_POST['logout'])) {
                 <div class="stat-label">Pacotes</div>
               </div>
 
-              <!-- Display calculated average rating from orcamentos -->
+              
               <div class="stat-card">
                 <div class="stat-icon">
                   <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -452,7 +452,7 @@ if (isset($_POST['logout'])) {
               </div>
             </div>
 
-            <!-- Recent Items -->
+          
             <?php if (!empty($itens_recentes)): ?>
             <div class="section">
               <h2>
@@ -497,7 +497,7 @@ if (isset($_POST['logout'])) {
             </div>
             <?php endif; ?>
 
-            <!-- Recent Packages -->
+         
             <?php if (!empty($pacotes_recentes)): ?>
             <div class="section">
               <h2>

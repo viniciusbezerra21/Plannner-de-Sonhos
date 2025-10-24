@@ -2,7 +2,7 @@
 session_start();
 require_once "../config/conexao.php";
 
-// Verificar se o fornecedor está logado
+
 if (!isset($_SESSION['fornecedor_id'])) {
     header("Location: login.php");
     exit;
@@ -12,7 +12,7 @@ $fornecedor_id = (int)$_SESSION['fornecedor_id'];
 $mensagem = "";
 $tipo_mensagem = "";
 
-// Handle add/edit package
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     $action = $_POST['action'];
     $nome_pacote = trim($_POST['nome_pacote'] ?? '');
@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                     $stmt->execute([$fornecedor_id, $nome_pacote, $descricao, $valor_total, count($itens_selecionados)]);
                     $id_pacote = $pdo->lastInsertId();
 
-                    // Add items to package
+                   
                     foreach ($itens_selecionados as $id_item) {
                         $stmt = $pdo->prepare("
                             INSERT INTO pacote_itens (id_pacote, id_item)
@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                     ");
                     $stmt->execute([$nome_pacote, $descricao, $valor_total, count($itens_selecionados), $id_pacote, $fornecedor_id]);
 
-                    // Delete old items and add new ones
+                    
                     $stmt = $pdo->prepare("DELETE FROM pacote_itens WHERE id_pacote = ?");
                     $stmt->execute([$id_pacote]);
 
@@ -88,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     }
 }
 
-// Handle delete package
+
 if (isset($_GET['delete']) && isset($_GET['id'])) {
     $id_pacote = (int)$_GET['id'];
     try {
@@ -104,7 +104,7 @@ if (isset($_GET['delete']) && isset($_GET['id'])) {
     }
 }
 
-// Get all packages
+
 try {
     $stmt = $pdo->prepare("SHOW TABLES LIKE 'pacotes'");
     $stmt->execute();
@@ -122,7 +122,7 @@ try {
     error_log("Packages fetch error: " . $e->getMessage());
 }
 
-// Get all items for selection
+
 try {
     $stmt = $pdo->prepare("SELECT * FROM itens WHERE id_fornecedor = ? ORDER BY nome_item ASC");
     $stmt->execute([$fornecedor_id]);
@@ -132,7 +132,7 @@ try {
     error_log("Items fetch error: " . $e->getMessage());
 }
 
-// Get package for editing
+
 $pacote_edit = null;
 $itens_pacote = [];
 if (isset($_GET['edit']) && isset($_GET['id'])) {
@@ -471,7 +471,7 @@ if (isset($_GET['edit']) && isset($_GET['id'])) {
         <?php endif; ?>
 
         <div class="packages-container">
-          <!-- Form -->
+        
           <div class="form-section">
             <h2><?php echo $pacote_edit ? 'Editar Pacote' : 'Criar Novo Pacote'; ?></h2>
 
@@ -526,7 +526,7 @@ if (isset($_GET['edit']) && isset($_GET['id'])) {
             </form>
           </div>
 
-          <!-- Packages List -->
+         
           <div class="packages-list">
             <h2>Seus Pacotes</h2>
 

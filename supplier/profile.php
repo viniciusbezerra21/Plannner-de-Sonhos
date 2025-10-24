@@ -4,7 +4,7 @@ require_once "../config/conexao.php";
 
 $cookieName = "lembrar_me_fornecedor";
 
-// Verificar se o fornecedor está logado
+
 if (!isset($_SESSION['fornecedor_id'])) {
     header("Location: login.php");
     exit;
@@ -14,7 +14,7 @@ $fornecedor_id = (int)$_SESSION['fornecedor_id'];
 $mensagem = "";
 $tipo_mensagem = "";
 
-// Fetch supplier info
+
 try {
     $stmt = $pdo->prepare("SELECT * FROM fornecedores WHERE id_fornecedor = ?");
     $stmt->execute([$fornecedor_id]);
@@ -31,7 +31,7 @@ try {
 }
 
 if (isset($_POST['logout'])) {
-    // Clear remember token from database
+   
     try {
         $stmt = $pdo->prepare("UPDATE fornecedores SET remember_token = NULL WHERE id_fornecedor = ?");
         $stmt->execute([$fornecedor_id]);
@@ -39,7 +39,7 @@ if (isset($_POST['logout'])) {
         error_log("Logout error: " . $e->getMessage());
     }
     
-    // Clear cookie and session
+    
     setcookie($cookieName, "", time() - 3600, "/");
     session_unset();
     session_destroy();
@@ -47,7 +47,7 @@ if (isset($_POST['logout'])) {
     exit;
 }
 
-// Handle profile update
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_profile') {
     $nome = trim($_POST['nome_fornecedor'] ?? '');
     $email = trim($_POST['email'] ?? '');
@@ -70,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             $mensagem = 'Perfil atualizado com sucesso!';
             $tipo_mensagem = 'sucesso';
             
-            // Refresh fornecedor data
+            
             $stmt = $pdo->prepare("SELECT * FROM fornecedores WHERE id_fornecedor = ?");
             $stmt->execute([$fornecedor_id]);
             $fornecedor = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -82,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 }
 
-// Handle password change
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'change_password') {
     $senha_atual = trim($_POST['senha_atual'] ?? '');
     $senha_nova = trim($_POST['senha_nova'] ?? '');
@@ -286,7 +286,7 @@ $categorias = [
         <?php endif; ?>
 
         <div class="profile-container">
-          <!-- Profile Info -->
+        
           <div class="profile-section">
             <h2>Informações da Empresa</h2>
 
@@ -331,7 +331,7 @@ $categorias = [
             </form>
           </div>
 
-          <!-- Change Password -->
+          
           <div class="profile-section">
             <h2>Alterar Senha</h2>
 

@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register_supplier']))
         $tipo_mensagem = 'erro';
     } else {
         try {
-            // Verificar se email já existe
+            
             $stmt = $pdo->prepare("SELECT id_fornecedor FROM fornecedores WHERE email = ?");
             $stmt->execute([$email]);
             if ($stmt->fetch()) {
@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register_supplier']))
                 $mensagem = 'Fornecedor cadastrado com sucesso! Faça login para continuar.';
                 $tipo_mensagem = 'sucesso';
                 
-                // Clear form values
+               
                 $nome_fornecedor = '';
                 $categoria = '';
                 $email = '';
@@ -361,7 +361,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register_supplier']))
       }
     });
 
-    // Real-time password match validation
+    
     document.getElementById('confirmar_senha').addEventListener('input', function() {
       const senha = document.getElementById('senha').value;
       const confirmarSenha = this.value;
