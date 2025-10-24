@@ -1,11 +1,11 @@
 <?php
 session_start();
 
-// === CONFIGURAÇÕES DO COOKIE ===
-$cookieName = "lembrar_me";
-$cookieTime = time() + (86400 * 30); // 30 dias
 
-// === Simulação de login automático ===
+$cookieName = "lembrar_me";
+$cookieTime = time() + (86400 * 30); 
+
+
 if (!isset($_SESSION['usuario_id']) && isset($_COOKIE[$cookieName])) {
   $_SESSION['usuario_id'] = $_COOKIE[$cookieName];
   $_SESSION['foto_perfil'] = "default.png";
@@ -14,7 +14,7 @@ if (isset($_SESSION["usuario_id"]) && empty($_SESSION['foto_perfil'])) {
   $_SESSION['foto_perfil'] = "default.png";
 }
 
-// === Logout ===
+
 if (isset($_POST['logout'])) {
   setcookie($cookieName, "", time() - 3600, "/");
   session_unset();
@@ -34,7 +34,7 @@ if (isset($_SESSION["usuario_id"])) {
     
     if ($result) {
       $user_data = $result;
-      // Update session with latest photo
+      
       if (!empty($result['foto_perfil'])) {
         $_SESSION['foto_perfil'] = $result['foto_perfil'];
       }
@@ -183,7 +183,7 @@ if (isset($_SESSION["usuario_id"])) {
       }
     }
 
-    /* Enhanced profile dropdown styles */
+   
     .profile-dropdown-wrapper {
       position: relative;
     }
@@ -326,7 +326,7 @@ if (isset($_SESSION["usuario_id"])) {
   <header class="header">
     <div class="container">
       <div class="header-content">
-        <!-- Logo -->
+       
         <a href="index.php" class="logo">
           <div class="heart-icon">
             <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
@@ -355,7 +355,7 @@ if (isset($_SESSION["usuario_id"])) {
           <?php endif; ?>
 
           <?php if (isset($_SESSION["usuario_id"])): ?>
-            <!-- Enhanced profile dropdown with user info -->
+            
             <div class="profile-dropdown-wrapper">
               <img 
                 src="user/fotos/<?php echo htmlspecialchars($_SESSION['foto_perfil'] ?? 'default.png'); ?>"
@@ -372,7 +372,7 @@ if (isset($_SESSION["usuario_id"])) {
                       class="profile-dropdown-avatar"
                     >
                     <div class="profile-dropdown-info">
-                      <!-- Fixed to properly display user name and email -->
+                    
                       <div class="profile-dropdown-name">
                         <?php echo htmlspecialchars($user_data['nome']); ?>
                       </div>
@@ -413,7 +413,7 @@ if (isset($_SESSION["usuario_id"])) {
               </div>
             </div>
           <?php else: ?>
-            <!-- Botão login padrão -->
+           
             <a href="user/login.php" class="btn-primary" style="align-items: center">Login</a>
           <?php endif; ?>
         </nav>
@@ -430,7 +430,7 @@ if (isset($_SESSION["usuario_id"])) {
     <section class="hero">
       <div class="container">
         <div class="hero-content">
-          <!-- Content -->
+          
           <div class="hero-text">
             <div>
               <h1 class="hero-title">
@@ -475,7 +475,7 @@ if (isset($_SESSION["usuario_id"])) {
               <button class="btn-outline" id="abrirModal">Assistir Demonstração</button>
             </div>
 
-            <!-- Trust indicators -->
+            
             <div class="trust-indicators">
               <div class="trust-indicator">
                 <svg fill="currentColor" viewBox="0 0 24 24">
@@ -504,7 +504,7 @@ if (isset($_SESSION["usuario_id"])) {
 
           <div class="hero-visual">
             <div class="hero-visual-card">
-              <!-- Main content area -->
+              
               <div class="hero-visual-content">
                 <div class="hero-visual-header">
                   <h3 class="hero-visual-title">Próximos Eventos</h3>
@@ -821,7 +821,7 @@ if (isset($_SESSION["usuario_id"])) {
       dropdown.classList.toggle("active");
     }
 
-    // Close dropdown when clicking outside
+    
     document.addEventListener('click', function(event) {
       const dropdown = document.getElementById("profileDropdown");
       const wrapper = document.querySelector('.profile-dropdown-wrapper');

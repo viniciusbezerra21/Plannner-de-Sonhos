@@ -1,11 +1,11 @@
 <?php
 session_start();
-require_once "config/conexao.php"; // conexão com o banco
+require_once "config/conexao.php"; 
 
 $cookieName = "lembrar_me";
-$cookieTime = time() + (86400 * 30); // 30 dias
+$cookieTime = time() + (86400 * 30); 
 
-// Login via cookie
+
 if (isset($_COOKIE[$cookieName]) && !isset($_SESSION['id_usuario'])) {
     $token = $_COOKIE[$cookieName];
     $stmt = $pdo->prepare("SELECT id_usuario, nome, cargo FROM usuarios WHERE remember_token = ?");
@@ -17,7 +17,7 @@ if (isset($_COOKIE[$cookieName]) && !isset($_SESSION['id_usuario'])) {
         $_SESSION['nome']       = $usuario['nome'];
         $_SESSION['cargo']      = $usuario['cargo'];
 
-        // Redireciona imediatamente
+        
         if ($usuario['cargo'] === 'dev') {
             header("Location: pages/dev.php");
             exit;
@@ -28,7 +28,7 @@ if (isset($_COOKIE[$cookieName]) && !isset($_SESSION['id_usuario'])) {
     }
 }
 
-// Se já está logado, redireciona
+
 if (isset($_SESSION['id_usuario']) && isset($_SESSION['cargo'])) {
     if ($_SESSION['cargo'] === 'dev') {
         header("Location: pages/dev.php");
@@ -39,7 +39,7 @@ if (isset($_SESSION['id_usuario']) && isset($_SESSION['cargo'])) {
     }
 }
 
-// Processa login do formulário
+
 $erro = "";
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao']) && $_POST['acao'] === 'login') {
     $email_usuario = $_POST['email'];
@@ -50,18 +50,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao']) && $_POST['ac
     $usuario = $stmt->fetch();
 
     if ($usuario && password_verify($senha_usuario, $usuario['senha'])) {
-        // Cria sessão
+       
         $_SESSION['id_usuario'] = $usuario['id_usuario'];
         $_SESSION['nome']       = $usuario['nome'];
         $_SESSION['cargo']      = $usuario['cargo'];
 
-        // Cria cookie sempre para manter logado
+        
         $token = bin2hex(random_bytes(16));
         setcookie($cookieName, $token, $cookieTime, "/");
         $stmt = $pdo->prepare("UPDATE usuarios SET remember_token = ? WHERE id_usuario = ?");
         $stmt->execute([$token, $usuario['id_usuario']]);
 
-        // Redireciona pelo cargo
+        
         if ($usuario['cargo'] === 'dev') {
             header("Location: pages/dev.php");
             exit;
@@ -230,7 +230,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['acao']) && $_POST['ac
             Insira seus dados para acessar o painel de gestão.
           </p>
         </div>
-        <!-- Formulário agora aponta para user/config2.php -->
+       
         <form action="admin.php" method="POST">
           <input type="hidden" name="acao" value="login" />
 
