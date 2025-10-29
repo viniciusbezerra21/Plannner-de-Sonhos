@@ -384,6 +384,7 @@ const eventosSalvos = document.querySelector(".events-list");
 const modalPrioridades = document.getElementById("janela-modal-prioridade");
 const btnSalvarPrioridade = document.getElementById("btnSalvarPrioridade");
 const selectPrioridade = document.getElementById("prioridadeInput");
+const statusConcluidoInput = document.getElementById("statusConcluidoInput");
 
 let eventoSelecionado = null;
 
@@ -451,3 +452,41 @@ btnSalvarPrioridade.addEventListener("click", async (e) => {
 
   modalPrioridades.style.display = "none";
 });
+
+const checkConcluido = document.getElementById("statusConcluidoInput");
+configurarStatusConcluido(eventosSalvos, checkConcluido, modalPrioridades);
+
+function configurarStatusConcluido(eventosSalvos, checkConcluido, modalPrioridades) {
+  checkConcluido.addEventListener("change", async () => {
+    if (!eventoSelecionado) return;
+
+    const dataEvento = eventoSelecionado.querySelector("#dataEvento").textContent;
+    const nomeEvento = eventoSelecionado.querySelector("#nomeEvento").textContent;
+    const evento = eventos[dataEvento].find(ev => ev.nome === nomeEvento);
+
+    eventoSelecionado.classList.toggle("evento-concluido", checkConcluido.checked);
+
+    evento.status = checkConcluido.checked ? "concluido" : "pendente";
+
+    try {
+      const response = await fetch(API_BASE, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          action: "update_status",
+          id: evento.id,
+          status: evento.status,
+        }),
+      });
+
+      const result = await response.json();
+      if (!result.success) {
+        console.error("Erro ao atualizar status:", result.error);
+      }
+    } catch (error) {
+      console.error("Erro na atualização do status:", error);
+    }
+  });
+}
