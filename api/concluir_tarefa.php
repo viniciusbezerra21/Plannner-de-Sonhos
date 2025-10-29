@@ -2,81 +2,42 @@
 session_start();
 require_once "../config/conexao.php";
 
-// Verificar se o usuário está logado e é dev
+header('Content-Type: application/json');
+
 if (!isset($_SESSION['usuario_id'])) {
-  header("Location: ../user/login.php");
+  echo json_encode(['success' => false, 'message' => 'Usuário não autenticado']);
   exit;
 }
 
-$stmt = $pdo->prepare("SELECT cargo FROM usuarios WHERE id_usuario = ?");
-$stmt->execute([$_SESSION['usuario_id']]);
-$usuario = $stmt->fetch(PDO::FETCH_ASSOC);
-
-if (!$usuario || $usuario['cargo'] !== 'dev') {
-  header("Location: ../index.php");
-  exit;
-}
-
-// Processar o formulário de atualização de tarefa
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $tarefa_id = (int) $_POST['tarefa_id'];
   $novo_status = trim($_POST['novo_status']);
-  $observacoes = trim($_POST['observacoes']);
-  $usuario_id = $_SESSION['usuario_id'];
+  $observacoes = trim($_POST['observacoes'] ?? '');
 
-  // Validar dados
-  if ($tarefa_id && $novo_status) {
-    
-    try {
-      if (!empty($observacoes)) {
-        // Se houver observações, atualizar também os campos de conclusão
-        if (strtolower($novo_status) === 'concluída' || strtolower($novo_status) === 'concluido') {
-          $stmt = $pdo->prepare("
-            UPDATE tarefas 
-            SET status = ?, 
-                observacoes = ?, 
-                data_conclusao = NOW(), 
-                concluido_por = ? 
-            WHERE id_tarefa = ?
-          ");
-          $stmt->execute([$novo_status, $observacoes, $usuario_id, $tarefa_id]);
-        } else {
-          $stmt = $pdo->prepare("
-            UPDATE tarefas 
-            SET status = ?, 
-                observacoes = ? 
-            WHERE id_tarefa = ?
-          ");
-          $stmt->execute([$novo_status, $observacoes, $tarefa_id]);
-        }
-      } else {
-        // Sem observações, apenas atualizar o status
-        if (strtolower($novo_status) === 'concluída' || strtolower($novo_status) === 'concluido') {
-          $stmt = $pdo->prepare("
-            UPDATE tarefas 
-            SET status = ?, 
-                data_conclusao = NOW(), 
-                concluido_por = ? 
-            WHERE id_tarefa = ?
-          ");
-          $stmt->execute([$novo_status, $usuario_id, $tarefa_id]);
-        } else {
-          $stmt = $pdo->prepare("UPDATE tarefas SET status = ? WHERE id_tarefa = ?");
-          $stmt->execute([$novo_status, $tarefa_id]);
-        }
-      }
+  if (!$tarefa_id || !$novo_status) {
+    echo json_encode(['success' => false, 'message' => 'Dados incompletos']);
+    exit;
+  }
 
-      $_SESSION['mensagem_sucesso'] = "Tarefa atualizada com sucesso!";
+  try {
+    // Atualizar status da tarefa
+    $stmt = $pdo->prepare("UPDATE tarefas SET status = ? WHERE id_tarefa = ?");
+    $stmt->execute([$novo_status, $tarefa_id]);
 
-    } catch (PDOException $e) {
-      $_SESSION['mensagem_erro'] = "Erro ao atualizar tarefa: " . $e->getMessage();
+    // Se houver observações, você pode salvá-las em uma tabela de logs
+    if ($observacoes) {
+      // Adicione sua lógica para salvar observações
     }
 
-  } else {
-    $_SESSION['mensagem_erro'] = "Dados inválidos.";
+    echo json_encode([
+      'success' => true, 
+      'message' => 'Tarefa atualizada com sucesso!',
+      'novo_status' => $novo_status
+    ]);
+  } catch (Exception $e) {
+    echo json_encode(['success' => false, 'message' => 'Erro no servidor: ' . $e->getMessage()]);
   }
+} else {
+  echo json_encode(['success' => false, 'message' => 'Método não permitido']);
 }
-
-header("Location: dev.php");
-exit;
 ?>
