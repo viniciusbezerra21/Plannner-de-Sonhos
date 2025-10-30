@@ -4,7 +4,6 @@ require_once "../config/conexao.php";
 
 $cookieName = "lembrar_me_fornecedor";
 
-
 if (!isset($_SESSION['fornecedor_id'])) {
   header("Location: login.php");
   exit;
@@ -47,7 +46,6 @@ if (isset($_POST['logout'])) {
   exit;
 }
 
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_profile') {
   $nome = trim($_POST['nome_fornecedor'] ?? '');
   $email = trim($_POST['email'] ?? '');
@@ -60,16 +58,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $tipo_mensagem = 'erro';
   } else {
     try {
-      $sql = "UPDATE fornecedores SET nome_fornecedor = ?, email = ?, telefone = ?, descricao = ?, categoria = ? WHERE id_fornecedor = ?";
-      $stmt = $pdo->prepare($sql);
-      $stmt->execute([$nome, $email, $telefone, $descricao, $categoria, $fornecedor_id]);
+      $foto_perfil = null;
+      $foto_dir = __DIR__ . '/fotos_perfil/';
+      
+      if (!file_exists($foto_dir)) {
+        mkdir($foto_dir, 0755, true);
+      }
+
+      if (isset($_FILES['foto_perfil']) && $_FILES['foto_perfil']['error'] === UPLOAD_ERR_OK) {
+        $allowed = ['jpg', 'jpeg', 'png', 'gif'];
+        $filename = $_FILES['foto_perfil']['name'];
+        $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        
+        if (in_array($ext, $allowed)) {
+          $new_filename = 'fornecedor_' . $fornecedor_id . '_' . time() . '.' . $ext;
+          $upload_path = $foto_dir . $new_filename;
+          
+          if (move_uploaded_file($_FILES['foto_perfil']['tmp_name'], $upload_path)) {
+            $foto_perfil = $new_filename;
+            
+            // Deletar foto antiga
+            if (!empty($fornecedor['foto_perfil'])) {
+              $old_file = $foto_dir . $fornecedor['foto_perfil'];
+              if (file_exists($old_file)) {
+                unlink($old_file);
+              }
+            }
+          }
+        }
+      }
+
+      $stmt = $pdo->prepare("SHOW COLUMNS FROM fornecedores LIKE 'foto_perfil'");
+      $stmt->execute();
+      $has_foto = $stmt->rowCount() > 0;
+
+      if ($has_foto && $foto_perfil) {
+        $sql = "UPDATE fornecedores SET nome_fornecedor = ?, email = ?, telefone = ?, descricao = ?, categoria = ?, foto_perfil = ? WHERE id_fornecedor = ?";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$nome, $email, $telefone, $descricao, $categoria, $foto_perfil, $fornecedor_id]);
+      } else {
+        $sql = "UPDATE fornecedores SET nome_fornecedor = ?, email = ?, telefone = ?, descricao = ?, categoria = ? WHERE id_fornecedor = ?";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$nome, $email, $telefone, $descricao, $categoria, $fornecedor_id]);
+      }
 
       $_SESSION['fornecedor_nome'] = $nome;
       $_SESSION['fornecedor_email'] = $email;
 
       $mensagem = 'Perfil atualizado com sucesso!';
       $tipo_mensagem = 'sucesso';
-
 
       $stmt = $pdo->prepare("SELECT * FROM fornecedores WHERE id_fornecedor = ?");
       $stmt->execute([$fornecedor_id]);
@@ -81,7 +118,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
   }
 }
-
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'change_password') {
   $senha_atual = trim($_POST['senha_atual'] ?? '');
@@ -234,6 +270,61 @@ $categorias = [
       border-color: #f5c6cb;
     }
 
+    /* Estilos para foto de perfil */
+    .profile-photo-section {
+      text-align: center;
+      margin-bottom: 2rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid hsl(var(--border));
+    }
+
+    .profile-photo-container {
+      position: relative;
+      width: 150px;
+      height: 150px;
+      margin: 0 auto 1rem;
+    }
+
+    .profile-photo {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid hsl(var(--primary));
+    }
+
+    .profile-photo-placeholder {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: hsl(var(--muted));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      color: hsl(var(--muted-foreground));
+      border: 4px solid hsl(var(--border));
+    }
+
+    .photo-upload-btn {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      background: hsl(var(--primary));
+      color: white;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .photo-upload-btn:hover {
+      background: hsl(var(--primary) / 0.9);
+    }
+
+    #foto_perfil_input {
+      display: none;
+    }
+
     @media (max-width: 768px) {
       .profile-container {
         grid-template-columns: 1fr;
@@ -293,8 +384,26 @@ $categorias = [
           <div class="profile-section">
             <h2>Informações da Empresa</h2>
 
-            <form method="POST">
+            <!-- Adicionando enctype e seção de foto de perfil -->
+            <form method="POST" enctype="multipart/form-data">
               <input type="hidden" name="action" value="update_profile">
+
+              <!-- Seção de foto de perfil -->
+              <div class="profile-photo-section">
+                <div class="profile-photo-container">
+                  <?php if (!empty($fornecedor['foto_perfil'])): ?>
+                    <img src="fotos_perfil/<?php echo htmlspecialchars($fornecedor['foto_perfil']); ?>" alt="Foto de perfil" class="profile-photo" id="profile-photo-preview">
+                  <?php else: ?>
+                    <div class="profile-photo-placeholder" id="profile-photo-preview">
+                      <?php echo strtoupper(substr($fornecedor['nome_fornecedor'], 0, 1)); ?>
+                    </div>
+                  <?php endif; ?>
+                </div>
+                <label for="foto_perfil_input" class="photo-upload-btn">
+                  Alterar Foto de Perfil
+                </label>
+                <input type="file" id="foto_perfil_input" name="foto_perfil" accept="image/*" onchange="previewProfilePhoto(event)">
+              </div>
 
               <div class="form-group">
                 <label for="nome_fornecedor">Nome da Empresa *</label>
@@ -337,7 +446,6 @@ $categorias = [
               </div>
             </form>
           </div>
-
 
           <div class="profile-section">
             <h2>Alterar Senha</h2>
@@ -390,6 +498,22 @@ $categorias = [
       </div>
     </div>
   </footer>
+
+  <!-- Script para preview de foto de perfil -->
+  <script>
+    function previewProfilePhoto(event) {
+      const preview = document.getElementById('profile-photo-preview');
+      const file = event.target.files[0];
+      
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          preview.innerHTML = '<img src="' + e.target.result + '" alt="Preview" class="profile-photo">';
+        }
+        reader.readAsDataURL(file);
+      }
+    }
+  </script>
 </body>
 
 </html>

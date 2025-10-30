@@ -2,7 +2,6 @@
 session_start();
 require_once "../config/conexao.php";
 
-
 if (!isset($_SESSION['fornecedor_id'])) {
   header("Location: login.php");
   exit;
@@ -25,37 +24,96 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     $tipo_mensagem = 'erro';
   } else {
     try {
+      $foto_produto = null;
+      $foto_dir = __DIR__ . '/fotos/';
+      
+      // Criar diretório se não existir
+      if (!file_exists($foto_dir)) {
+        mkdir($foto_dir, 0755, true);
+      }
+
+      if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+        $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        $filename = $_FILES['foto']['name'];
+        $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        
+        if (in_array($ext, $allowed)) {
+          $new_filename = 'item_' . $fornecedor_id . '_' . time() . '.' . $ext;
+          $upload_path = $foto_dir . $new_filename;
+          
+          if (move_uploaded_file($_FILES['foto']['tmp_name'], $upload_path)) {
+            $foto_produto = $new_filename;
+            
+            // Se estiver editando, deletar foto antiga
+            if ($action === 'edit' && $id_item) {
+              $stmt = $pdo->prepare("SELECT foto_produto FROM itens WHERE id_item = ? AND id_fornecedor = ?");
+              $stmt->execute([$id_item, $fornecedor_id]);
+              $old_item = $stmt->fetch(PDO::FETCH_ASSOC);
+              if ($old_item && !empty($old_item['foto_produto'])) {
+                $old_file = $foto_dir . $old_item['foto_produto'];
+                if (file_exists($old_file)) {
+                  unlink($old_file);
+                }
+              }
+            }
+          }
+        }
+      }
+
       if ($action === 'add') {
         $stmt = $pdo->prepare("SHOW COLUMNS FROM itens LIKE 'descricao'");
         $stmt->execute();
         $has_descricao = $stmt->rowCount() > 0;
 
-        if ($has_descricao) {
+        $stmt = $pdo->prepare("SHOW COLUMNS FROM itens LIKE 'foto_produto'");
+        $stmt->execute();
+        $has_foto = $stmt->rowCount() > 0;
+
+        if ($has_descricao && $has_foto) {
           $stmt = $pdo->prepare("
-                        INSERT INTO itens (id_fornecedor, nome_item, descricao, valor_unitario, data_criacao)
-                        VALUES (?, ?, ?, ?, NOW())
+                        INSERT INTO itens (id_fornecedor, nome_item, descricao, valor_unitario, foto_produto, data_criacao)
+                        VALUES (?, ?, ?, ?, ?, NOW())
+                    ");
+          $stmt->execute([$fornecedor_id, $nome_item, $descricao, $valor_unitario, $foto_produto]);
+        } elseif ($has_descricao) {
+          $stmt = $pdo->prepare("
+                        INSERT INTO itens (id_fornecedor, nome_item, descricao, valor_unitario)
+                        VALUES (?, ?, ?, ?)
                     ");
           $stmt->execute([$fornecedor_id, $nome_item, $descricao, $valor_unitario]);
         } else {
-
           $stmt = $pdo->prepare("
                         INSERT INTO itens (id_fornecedor, nome_item, valor_unitario)
                         VALUES (?, ?, ?)
                     ");
           $stmt->execute([$fornecedor_id, $nome_item, $valor_unitario]);
-          $mensagem = 'Item adicionado! Nota: Execute o script SQL para adicionar suporte a descrições.';
-          $tipo_mensagem = 'sucesso';
         }
-        if ($has_descricao) {
-          $mensagem = 'Item adicionado com sucesso!';
-          $tipo_mensagem = 'sucesso';
-        }
+        $mensagem = 'Item adicionado com sucesso!';
+        $tipo_mensagem = 'sucesso';
       } elseif ($action === 'edit' && $id_item) {
         $stmt = $pdo->prepare("SHOW COLUMNS FROM itens LIKE 'descricao'");
         $stmt->execute();
         $has_descricao = $stmt->rowCount() > 0;
 
-        if ($has_descricao) {
+        $stmt = $pdo->prepare("SHOW COLUMNS FROM itens LIKE 'foto_produto'");
+        $stmt->execute();
+        $has_foto = $stmt->rowCount() > 0;
+
+        if ($has_descricao && $has_foto) {
+          if ($foto_produto) {
+            $stmt = $pdo->prepare("
+                          UPDATE itens SET nome_item = ?, descricao = ?, valor_unitario = ?, foto_produto = ?
+                          WHERE id_item = ? AND id_fornecedor = ?
+                      ");
+            $stmt->execute([$nome_item, $descricao, $valor_unitario, $foto_produto, $id_item, $fornecedor_id]);
+          } else {
+            $stmt = $pdo->prepare("
+                          UPDATE itens SET nome_item = ?, descricao = ?, valor_unitario = ?
+                          WHERE id_item = ? AND id_fornecedor = ?
+                      ");
+            $stmt->execute([$nome_item, $descricao, $valor_unitario, $id_item, $fornecedor_id]);
+          }
+        } elseif ($has_descricao) {
           $stmt = $pdo->prepare("
                         UPDATE itens SET nome_item = ?, descricao = ?, valor_unitario = ?
                         WHERE id_item = ? AND id_fornecedor = ?
@@ -73,7 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
       }
     } catch (PDOException $e) {
       if (strpos($e->getMessage(), 'Unknown column') !== false) {
-        $mensagem = 'Erro: Tabela precisa ser atualizada. Execute o script SQL: scripts/create_items_and_packages_tables.sql';
+        $mensagem = 'Erro: Tabela precisa ser atualizada. Execute o script SQL: scripts/add_photo_fields.sql';
       } else {
         $mensagem = 'Erro ao salvar item. Tente novamente.';
       }
@@ -87,6 +145,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 if (isset($_GET['delete']) && isset($_GET['id'])) {
   $id_item = (int) $_GET['id'];
   try {
+    $stmt = $pdo->prepare("SELECT foto_produto FROM itens WHERE id_item = ? AND id_fornecedor = ?");
+    $stmt->execute([$id_item, $fornecedor_id]);
+    $item = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($item && !empty($item['foto_produto'])) {
+      $foto_path = __DIR__ . '/fotos/' . $item['foto_produto'];
+      if (file_exists($foto_path)) {
+        unlink($foto_path);
+      }
+    }
+    
     $stmt = $pdo->prepare("DELETE FROM itens WHERE id_item = ? AND id_fornecedor = ?");
     $stmt->execute([$id_item, $fornecedor_id]);
     $mensagem = 'Item deletado com sucesso!';
@@ -341,6 +410,37 @@ if (isset($_GET['edit']) && isset($_GET['id'])) {
       border-color: #f5c6cb;
     }
 
+    .photo-preview {
+      margin-top: 0.5rem;
+      max-width: 200px;
+      border-radius: 0.5rem;
+      overflow: hidden;
+    }
+
+    .photo-preview img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .item-photo {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .item-card-with-photo {
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      gap: 1rem;
+    }
+
+    .item-card-content {
+      flex: 1;
+    }
+
     @media (max-width: 768px) {
       .items-container {
         grid-template-columns: 1fr;
@@ -405,7 +505,7 @@ if (isset($_GET['edit']) && isset($_GET['id'])) {
           <div class="form-section">
             <h2><?php echo $item_edit ? 'Editar Item' : 'Adicionar Novo Item'; ?></h2>
 
-            <form method="POST">
+            <form method="POST" enctype="multipart/form-data">
               <input type="hidden" name="action" value="<?php echo $item_edit ? 'edit' : 'add'; ?>">
               <?php if ($item_edit): ?>
                 <input type="hidden" name="id_item" value="<?php echo $item_edit['id_item']; ?>">
@@ -429,6 +529,19 @@ if (isset($_GET['edit']) && isset($_GET['id'])) {
                 <input type="number" id="valor_unitario" name="valor_unitario"
                   value="<?php echo htmlspecialchars($item_edit['valor_unitario'] ?? ''); ?>" required step="0.01"
                   min="0" placeholder="0.00">
+              </div>
+
+              <div class="form-group">
+                <label for="foto">Foto do Produto</label>
+                <input type="file" id="foto" name="foto" accept="image/*" onchange="previewImage(event)">
+                <?php if ($item_edit && !empty($item_edit['foto_produto'])): ?>
+                  <div class="photo-preview">
+                    <img src="fotos/<?php echo htmlspecialchars($item_edit['foto_produto']); ?>" alt="Foto atual">
+                  </div>
+                <?php endif; ?>
+                <div id="preview" class="photo-preview" style="display: none;">
+                  <img id="preview-img" src="/placeholder.svg" alt="Preview">
+                </div>
               </div>
 
               <div class="form-actions">
@@ -457,6 +570,14 @@ if (isset($_GET['edit']) && isset($_GET['id'])) {
             <?php else: ?>
               <?php foreach ($itens as $item): ?>
                 <div class="item-card">
+                  <?php if (!empty($item['foto_produto'])): ?>
+                    <div class="item-card-with-photo">
+                      <img src="fotos/<?php echo htmlspecialchars($item['foto_produto']); ?>" alt="<?php echo htmlspecialchars($item['nome_item']); ?>" class="item-photo">
+                      <div class="item-card-content">
+                  <?php else: ?>
+                    <div>
+                  <?php endif; ?>
+                  
                   <div class="item-header">
                     <h3 class="item-name"><?php echo htmlspecialchars($item['nome_item']); ?></h3>
                     <div class="item-price">R$ <?php echo number_format($item['valor_unitario'], 2, ',', '.'); ?></div>
@@ -471,6 +592,13 @@ if (isset($_GET['edit']) && isset($_GET['id'])) {
                     <a href="items.php?delete=1&id=<?php echo $item['id_item']; ?>" class="btn-delete"
                       onclick="return confirm('Tem certeza que deseja deletar este item?');">Deletar</a>
                   </div>
+                  
+                  <?php if (!empty($item['foto_produto'])): ?>
+                      </div>
+                    </div>
+                  <?php else: ?>
+                    </div>
+                  <?php endif; ?>
                 </div>
               <?php endforeach; ?>
             <?php endif; ?>
@@ -500,6 +628,25 @@ if (isset($_GET['edit']) && isset($_GET['id'])) {
       </div>
     </div>
   </footer>
+
+  <script>
+    function previewImage(event) {
+      const preview = document.getElementById('preview');
+      const previewImg = document.getElementById('preview-img');
+      const file = event.target.files[0];
+      
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          previewImg.src = e.target.result;
+          preview.style.display = 'block';
+        }
+        reader.readAsDataURL(file);
+      } else {
+        preview.style.display = 'none';
+      }
+    }
+  </script>
 </body>
 
 </html>

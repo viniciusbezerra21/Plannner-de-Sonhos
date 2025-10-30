@@ -322,6 +322,12 @@ $idUsuario = (int) $_SESSION['usuario_id'] ?? 0;
     <div class="container">
       <div class="header-content">
         <a href="../index.php" class="logo">
+        <div class="heart-icon">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+              <path
+                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+            </svg>
+          </div>
           <span class="logo-text">Planner de Sonhos</span>
         </a>
 
@@ -332,7 +338,7 @@ $idUsuario = (int) $_SESSION['usuario_id'] ?? 0;
             <div class="dropdown-menu">
               <a href="calendario.php">Calendário</a>
               <a href="orcamento.php">Orçamento</a>
-              <a href="fornecedores.php">Fornecedores</a>
+              <a href="itens.php">Serviços</a>
               <a href="gestao-contratos.php">Gestão de Contratos</a>
               <a href="tarefas.php">Lista de Tarefas</a>
             </div>
@@ -360,14 +366,14 @@ $idUsuario = (int) $_SESSION['usuario_id'] ?? 0;
                   </div>
                 </div>
                 <div class="profile-dropdown-menu">
-                  <a href="user/perfil.php" class="profile-dropdown-item">
+                  <a href="../user/perfil.php" class="profile-dropdown-item">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                       <circle cx="12" cy="7" r="4"></circle>
                     </svg>
                     Meu Perfil
                   </a>
-                  <a href="pages/funcionalidades.php" class="profile-dropdown-item">
+                  <a href="funcionalidades.php" class="profile-dropdown-item">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <rect x="3" y="4" width="7" height="7"></rect>
                       <rect x="14" y="3" width="7" height="7"></rect>
@@ -660,7 +666,7 @@ $idUsuario = (int) $_SESSION['usuario_id'] ?? 0;
           </div>
         </div>
         <div class="footer-links">
-          <h3>Links Rápidos</h3>
+          <h3>Navegação</h3>
           <ul>
             <li><a href="../index.php">Início</a></li>
             <li>
@@ -675,60 +681,28 @@ $idUsuario = (int) $_SESSION['usuario_id'] ?? 0;
           <h3>Legal</h3>
           <ul>
             <li><a href="../legal-pages/about.html">Sobre</a></li>
-            <li><a href="../legal-pages/privacity-politics.html">Política de Privacidade</a></li>
+            <li>
+              <a href="../legal-pages/privacity-politics.html">Política de Privacidade</a>
+            </li>
             <li><a href="../legal-pages/uses-terms.html">Termos de Uso</a></li>
           </ul>
         </div>
       </div>
+
       <div class="footer-bottom">
-        <p>&copy; 2024 Planner de Sonhos. Todos os direitos reservados.</p>
+        <p>&copy; 2025 Planner de Sonhos. Todos os direitos reservados.</p>
+        <div
+          style="display: flex; align-items: center; gap: 0.25rem; font-size: 0.875rem; color: hsl(var(--muted-foreground));">
+          <span>Feito com</span>
+          <svg style="width: 1rem; height: 1rem; color: hsl(var(--primary)); margin: 0 0.25rem;" fill="currentColor"
+            viewBox="0 0 24 24">
+            <path
+              d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+          </svg>
+          <span>para cerimonialistas</span>
+        </div>
       </div>
     </div>
-    <div id="loginModal" class="login-modal">
-      <div class="login-modal-content">
-        <span class="login-modal-close" onclick="closeLoginModal()">&times;</span>
-        <h2>Você precisa estar logado</h2>
-        <p>Faça login para acessar esta funcionalidade.</p>
-        <a href="../user/login.php" class="btn-primary">Login</a>
-      </div>
-    </div>
-    <style>
-      .login-modal {
-        display: none;
-        position: fixed;
-        z-index: 2000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: auto;
-        background-color: rgba(0, 0, 0, 0.5);
-      }
-
-      .login-modal-content {
-        background-color: hsl(var(--card));
-        margin: 15% auto;
-        padding: 2rem;
-        border-radius: 0.75rem;
-        width: 90%;
-        max-width: 400px;
-        text-align: center;
-        color: hsl(var(--foreground));
-      }
-
-      .login-modal-close {
-        position: absolute;
-        top: 0.5rem;
-        right: 1rem;
-        font-size: 1.5rem;
-        cursor: pointer;
-      }
-
-      .login-modal a.btn-primary {
-        margin-top: 1rem;
-        display: inline-block;
-      }
-    </style>
   </footer>
   <script>
     function toggleMobileMenu() {

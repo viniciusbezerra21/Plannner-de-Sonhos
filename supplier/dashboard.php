@@ -2,14 +2,12 @@
 session_start();
 require_once "../config/conexao.php";
 
-
 if (!isset($_SESSION['fornecedor_id'])) {
   header("Location: login.php");
   exit;
 }
 
 $fornecedor_id = (int) $_SESSION['fornecedor_id'];
-
 
 try {
   $stmt = $pdo->prepare("SELECT * FROM fornecedores WHERE id_fornecedor = ?");
@@ -22,11 +20,9 @@ try {
     exit;
   }
 
-
   $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM itens WHERE id_fornecedor = ?");
   $stmt->execute([$fornecedor_id]);
   $total_itens = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
-
 
   $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM pacotes WHERE id_fornecedor = ?");
   $stmt->execute([$fornecedor_id]);
@@ -42,11 +38,9 @@ try {
   $rating_result = $stmt->fetch(PDO::FETCH_ASSOC);
   $avaliacao_media = $rating_result['media_avaliacao'] ? number_format($rating_result['media_avaliacao'], 1) : 'N/A';
 
-
   $stmt = $pdo->prepare("SELECT * FROM itens WHERE id_fornecedor = ? ORDER BY id_item DESC LIMIT 5");
   $stmt->execute([$fornecedor_id]);
   $itens_recentes = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
 
   $stmt = $pdo->prepare("SELECT * FROM pacotes WHERE id_fornecedor = ? ORDER BY id_pacote DESC LIMIT 5");
   $stmt->execute([$fornecedor_id]);
@@ -60,7 +54,6 @@ try {
   $itens_recentes = [];
   $pacotes_recentes = [];
 }
-
 
 if (isset($_POST['logout'])) {
   setcookie("lembrar_me_fornecedor", "", time() - 3600, "/");
@@ -312,6 +305,54 @@ if (isset($_POST['logout'])) {
       border: none;
     }
 
+    /* Estilos para foto de perfil no header */
+    .header-profile {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      transition: all 0.2s;
+      text-decoration: none;
+      color: hsl(var(--foreground));
+    }
+
+    .header-profile:hover {
+      background: hsl(var(--muted));
+    }
+
+    .header-profile-photo {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid hsl(var(--primary));
+    }
+
+    .header-profile-placeholder {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: hsl(var(--primary));
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    .header-profile-name {
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+      .header-profile-name {
+        display: none;
+      }
+    }
+
     @media (max-width: 768px) {
       .dashboard-container {
         grid-template-columns: 1fr;
@@ -360,7 +401,17 @@ if (isset($_POST['logout'])) {
 
         <nav class="nav">
           <a href="dashboard.php" class="nav-link">Dashboard</a>
-          <a href="profile.php" class="nav-link">Meu Perfil</a>
+          <!-- Adicionando foto de perfil no header -->
+          <a href="profile.php" class="header-profile">
+            <?php if (!empty($fornecedor['foto_perfil'])): ?>
+              <img src="fotos_perfil/<?php echo htmlspecialchars($fornecedor['foto_perfil']); ?>" alt="Perfil" class="header-profile-photo">
+            <?php else: ?>
+              <div class="header-profile-placeholder">
+                <?php echo strtoupper(substr($fornecedor['nome_fornecedor'], 0, 1)); ?>
+              </div>
+            <?php endif; ?>
+            <span class="header-profile-name"><?php echo htmlspecialchars($fornecedor['nome_fornecedor']); ?></span>
+          </a>
           <form method="post" style="margin: 0;">
             <button type="submit" name="logout" class="btn-primary" style="border: none; cursor: pointer;">Sair</button>
           </form>
@@ -415,13 +466,11 @@ if (isset($_POST['logout'])) {
             </div>
           </aside>
 
-
           <div class="main-content">
             <div class="welcome-card">
               <h1>Bem-vindo, <?php echo htmlspecialchars($fornecedor['nome_fornecedor']); ?>!</h1>
               <p>Gerencie seus serviços, itens e pacotes de forma eficiente.</p>
             </div>
-
 
             <div class="stats-grid">
               <div class="stat-card">
@@ -447,7 +496,6 @@ if (isset($_POST['logout'])) {
                 <div class="stat-label">Pacotes</div>
               </div>
 
-
               <div class="stat-card">
                 <div class="stat-icon">
                   <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -459,7 +507,6 @@ if (isset($_POST['logout'])) {
                 <div class="stat-label">Avaliação Média</div>
               </div>
             </div>
-
 
             <?php if (!empty($itens_recentes)): ?>
               <div class="section">
@@ -505,7 +552,6 @@ if (isset($_POST['logout'])) {
                 </div>
               </div>
             <?php endif; ?>
-
 
             <?php if (!empty($pacotes_recentes)): ?>
               <div class="section">
