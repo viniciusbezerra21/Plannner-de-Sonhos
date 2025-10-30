@@ -300,6 +300,21 @@ $eventosJson = json_encode($eventos);
       transition: all 0.2s;
     }
 
+    .evento-concluido{
+      text-decoration: line-through;
+      opacity: 0.6;
+    }
+
+    .evento-concluido h1{
+      text-decoration: line-through;
+      opacity: 0.6;
+    }
+
+    .evento-concluido span{
+      text-decoration: line-through;
+      opacity: 0.6;
+    }
+
     .event-list .event-item:hover {
       background: hsl(var(--muted));
       transform: translateX(4px);
