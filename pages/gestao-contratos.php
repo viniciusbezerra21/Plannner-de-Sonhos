@@ -154,7 +154,7 @@ $contratos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Planner de Sonhos - Gestão de Contratos</title>
+  <title >Planner de Sonhos - Gestão de Contratos</title>
   <link rel="stylesheet" href="../Style/styles.css" />
   <link rel="shortcut icon" href="../Style/assets/icon.png" type="image/x-icon">
   <link
@@ -219,7 +219,6 @@ $contratos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     .contract-actions {
       display: flex;
-      gap: 0.5rem;
       margin-top: 1rem;
     }
 
@@ -236,12 +235,13 @@ $contratos = $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     .btn-edit {
-      background: #3b82f6;
+      background-color: hsl(var(--primary));
       color: white;
     }
 
     .btn-delete {
       background: #ef4444;
+
       color: white;
     }
 
@@ -504,16 +504,16 @@ $contratos = $stmt->fetchAll(PDO::FETCH_ASSOC);
   <main>
     <section class="page-content">
       <div class="container">
-        <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;">
+        <div class="page-header" style="justify-content:space-between;align-items:flex-start;">
           <div>
-            <h1 class="page-title">
+            <h1 class="page-title"">
               Gestão de <span class="gradient-text">Contratos</span>
             </h1>
             <p class="page-description">
               Visualize, baixe e mantenha todos os contratos organizados em um só lugar.
             </p>
           </div>
-          <button class="btn-primary" onclick="openAddModal()">+ Novo Contrato</button>
+          <button  class="btn-primary" style="margin-top: 1.5rem;" onclick="openAddModal()">+ Novo Contrato</button>
         </div>
 
         <div class="contracts-grid"
@@ -556,19 +556,19 @@ $contratos = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="contract-actions">
                   <?php if ($contrato['arquivo_pdf']): ?>
                     <a href="../Docs/<?php echo htmlspecialchars($contrato['arquivo_pdf']); ?>" download class="btn-small"
-                      style="background: hsl(var(--primary)); color: white;">
-                      📄 Baixar
+                      style="scale: 0.8;">
+                       Baixar
                     </a>
                   <?php endif; ?>
-                  <button class="btn-small btn-edit"
+                  <button style="scale: 0.8;" class="btn-primary"
                     onclick="openEditModal(<?php echo htmlspecialchars(json_encode($contrato)); ?>)">
-                    ✏️ Editar
+                     Editar
                   </button>
                   <form method="post" style="display: inline;"
                     onsubmit="return confirm('Tem certeza que deseja excluir este contrato?')">
                     <input type="hidden" name="id_contrato" value="<?php echo $contrato['id_contrato']; ?>">
-                    <button type="submit" name="delete_contract" class="btn-small btn-delete">
-                      🗑️ Excluir
+                    <button type="submit" name="delete_contract" style="scale: 0.8; left: 120px;" class="btn-outline">
+                       Excluir
                     </button>
                   </form>
                 </div>
