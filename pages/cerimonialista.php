@@ -251,7 +251,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register_supplier']))
         </a>
         <nav class="nav">
           <a href="../index.php" class="nav-link">Início</a>
-          <a href="login.php" class="btn-primary">Login</a>
+          <a href="../user/login.php" class="btn-primary">Login</a>
         </nav>
       </div>
     </div>
