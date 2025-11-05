@@ -263,6 +263,25 @@ $eventosJson = json_encode($eventos);
       padding: 20px;
     }
 
+    /* Adicionando estilos para o modal de visualização de eventos */
+    .view-events-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .view-events-modal.active {
+      display: flex;
+    }
+    /* </CHANGE> */
+
     .card-modal {
       background-color: hsl(var(--card));
       border: 1px solid hsl(var(--border));

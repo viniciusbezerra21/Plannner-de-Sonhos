@@ -635,113 +635,12 @@ $tarefas = $pdo->query("
         justify-content: space-between;
       }
     }
-
-    .popup-notification {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) scale(0.8);
-      background: rgba(20, 20, 20, 0.98);
-      border: 2px solid hsl(var(--primary));
-      border-radius: 1rem;
-      padding: 2rem;
-      min-width: 400px;
-      max-width: 500px;
-      z-index: 2000;
-      opacity: 0;
-      transition: all 0.3s ease;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-    }
-
-    .popup-notification.show {
-      opacity: 1;
-      transform: translate(-50%, -50%) scale(1);
-    }
-
-    .popup-notification.success {
-      border-color: #4caf50;
-    }
-
-    .popup-notification.error {
-      border-color: #f44336;
-    }
-
-    .popup-notification .popup-icon {
-      width: 60px;
-      height: 60px;
-      margin: 0 auto 1rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      font-size: 2rem;
-    }
-
-    .popup-notification.success .popup-icon {
-      background: rgba(76, 175, 80, 0.2);
-      color: #4caf50;
-    }
-
-    .popup-notification.error .popup-icon {
-      background: rgba(244, 67, 54, 0.2);
-      color: #f44336;
-    }
-
-    .popup-notification h3 {
-      text-align: center;
-      margin-bottom: 0.5rem;
-      color: white;
-    }
-
-    .popup-notification p {
-      text-align: center;
-      color: rgba(255, 255, 255, 0.8);
-      margin-bottom: 1.5rem;
-    }
-
-    .popup-notification .popup-close {
-      width: 100%;
-      padding: 0.75rem;
-      background: hsl(var(--primary));
-      color: white;
-      border: none;
-      border-radius: 0.5rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .popup-notification .popup-close:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    }
-
-    .popup-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      z-index: 1999;
-      display: none;
-    }
-
-    .popup-overlay.show {
-      display: block;
-    }
-
     select {
       color: white !important;
       background: rgba(255, 255, 255, 0.1) !important;
       -webkit-appearance: none;
       -moz-appearance: none;
       appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath
-                  d='M6 9L1 4h10z'/%3E%3C/svg%3E") !important;
-      background-repeat: no-repeat !important;
-      background-position: right 0.75rem center !important;
-      padding-right: 2.5rem !important;
     }
 
     select option {
@@ -1240,15 +1139,7 @@ $tarefas = $pdo->query("
 </footer>
 
 
-  <!-- Added popup notification elements -->
-  <div class="popup-overlay" id="popupOverlay"></div>
-  <div class="popup-notification" id="popupNotification">
-    <div class="popup-icon" id="popupIcon"></div>
-    <h3 id="popupTitle"></h3>
-    <p id="popupMessage"></p>
-    <button class="popup-close" onclick="closePopup()">Fechar</button>
-  </div>
-
+  
   <script>
     function openModal(modalId) {
       document.getElementById('pageContent').classList.add('blurred');
