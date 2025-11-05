@@ -1,4 +1,3 @@
-// Animações
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -208,7 +207,6 @@
   100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
 }
 
-// Aplicando animações
 .feature-card,
 .module-card,
 .event-item {

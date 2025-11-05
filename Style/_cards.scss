@@ -1,4 +1,3 @@
-// Card base
 .card {
   background-color: hsl(var(--card));
   border: 1px solid hsl(var(--border));
@@ -13,7 +12,6 @@
   }
 }
 
-// Feature cards
 .feature-card {
   background: hsl(var(--card));
   border: 1px solid hsl(var(--border));
@@ -86,7 +84,6 @@
   z-index: 10;
 }
 
-// Feature detailed cards
 .feature-detailed-card {
   background: white;
   padding: $spacing-xl;
@@ -140,7 +137,6 @@
   }
 }
 
-// Module cards
 .module-card {
   background: white;
   border-radius: $radius-lg;
@@ -258,7 +254,6 @@
   border-top: 1px solid #f3f4f6;
 }
 
-// Financial cards
 .financial-card {
   background: hsl(var(--card));
   border: 1px solid hsl(var(--border));
@@ -406,7 +401,6 @@
   }
 }
 
-// Stats cards
 .stats-card,
 .timeline-card,
 .quick-actions-card {
@@ -436,7 +430,6 @@
   margin-bottom: $spacing-md;
 }
 
-// Contact cards
 .contact-form-card,
 .contact-info-card,
 .faq-card {
@@ -452,7 +445,6 @@
   margin-bottom: $spacing-3xl;
 }
 
-// Calendar cards
 .calendar-controls-card,
 .upcoming-events-card {
   background: white;
