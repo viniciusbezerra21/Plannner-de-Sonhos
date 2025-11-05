@@ -2,7 +2,6 @@
 session_start();
 require_once "../config/conexao.php";
 
-
 if (!isset($_SESSION['fornecedor_id'])) {
   header("Location: login.php");
   exit;
@@ -11,7 +10,6 @@ if (!isset($_SESSION['fornecedor_id'])) {
 $fornecedor_id = (int) $_SESSION['fornecedor_id'];
 $mensagem = "";
 $tipo_mensagem = "";
-
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
   $action = $_POST['action'];
@@ -34,14 +32,59 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $mensagem = 'Erro: Tabela de pacotes não existe. Execute o script SQL: scripts/create_items_and_packages_tables.sql';
         $tipo_mensagem = 'erro';
       } else {
-        if ($action === 'add') {
-          $stmt = $pdo->prepare("
-                        INSERT INTO pacotes (id_fornecedor, nome_pacote, descricao, valor_total, quantidade_itens, data_criacao)
-                        VALUES (?, ?, ?, ?, ?, NOW())
-                    ");
-          $stmt->execute([$fornecedor_id, $nome_pacote, $descricao, $valor_total, count($itens_selecionados)]);
-          $id_pacote = $pdo->lastInsertId();
+        $foto_pacote = null;
+        $foto_dir = __DIR__ . '/fotos/';
+        
+        if (!file_exists($foto_dir)) {
+          mkdir($foto_dir, 0755, true);
+        }
 
+        if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+          $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+          $filename = $_FILES['foto']['name'];
+          $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+          
+          if (in_array($ext, $allowed)) {
+            $new_filename = 'pacote_' . $fornecedor_id . '_' . time() . '.' . $ext;
+            $upload_path = $foto_dir . $new_filename;
+            
+            if (move_uploaded_file($_FILES['foto']['tmp_name'], $upload_path)) {
+              $foto_pacote = $new_filename;
+              
+              if ($action === 'edit' && $id_pacote) {
+                $stmt = $pdo->prepare("SELECT foto_pacote FROM pacotes WHERE id_pacote = ? AND id_fornecedor = ?");
+                $stmt->execute([$id_pacote, $fornecedor_id]);
+                $old_pacote = $stmt->fetch(PDO::FETCH_ASSOC);
+                if ($old_pacote && !empty($old_pacote['foto_pacote'])) {
+                  $old_file = $foto_dir . $old_pacote['foto_pacote'];
+                  if (file_exists($old_file)) {
+                    unlink($old_file);
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        $stmt = $pdo->prepare("SHOW COLUMNS FROM pacotes LIKE 'foto_pacote'");
+        $stmt->execute();
+        $has_foto = $stmt->rowCount() > 0;
+
+        if ($action === 'add') {
+          if ($has_foto) {
+            $stmt = $pdo->prepare("
+                          INSERT INTO pacotes (id_fornecedor, nome_pacote, descricao, valor_total, quantidade_itens, foto_pacote, data_criacao)
+                          VALUES (?, ?, ?, ?, ?, ?, NOW())
+                      ");
+            $stmt->execute([$fornecedor_id, $nome_pacote, $descricao, $valor_total, count($itens_selecionados), $foto_pacote]);
+          } else {
+            $stmt = $pdo->prepare("
+                          INSERT INTO pacotes (id_fornecedor, nome_pacote, descricao, valor_total, quantidade_itens, data_criacao)
+                          VALUES (?, ?, ?, ?, ?, NOW())
+                      ");
+            $stmt->execute([$fornecedor_id, $nome_pacote, $descricao, $valor_total, count($itens_selecionados)]);
+          }
+          $id_pacote = $pdo->lastInsertId();
 
           foreach ($itens_selecionados as $id_item) {
             $stmt = $pdo->prepare("
@@ -54,12 +97,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
           $mensagem = 'Pacote criado com sucesso!';
           $tipo_mensagem = 'sucesso';
         } elseif ($action === 'edit' && $id_pacote) {
-          $stmt = $pdo->prepare("
-                        UPDATE pacotes SET nome_pacote = ?, descricao = ?, valor_total = ?, quantidade_itens = ?
-                        WHERE id_pacote = ? AND id_fornecedor = ?
-                    ");
-          $stmt->execute([$nome_pacote, $descricao, $valor_total, count($itens_selecionados), $id_pacote, $fornecedor_id]);
-
+          if ($has_foto && $foto_pacote) {
+            $stmt = $pdo->prepare("
+                          UPDATE pacotes SET nome_pacote = ?, descricao = ?, valor_total = ?, quantidade_itens = ?, foto_pacote = ?
+                          WHERE id_pacote = ? AND id_fornecedor = ?
+                      ");
+            $stmt->execute([$nome_pacote, $descricao, $valor_total, count($itens_selecionados), $foto_pacote, $id_pacote, $fornecedor_id]);
+          } else {
+            $stmt = $pdo->prepare("
+                          UPDATE pacotes SET nome_pacote = ?, descricao = ?, valor_total = ?, quantidade_itens = ?
+                          WHERE id_pacote = ? AND id_fornecedor = ?
+                      ");
+            $stmt->execute([$nome_pacote, $descricao, $valor_total, count($itens_selecionados), $id_pacote, $fornecedor_id]);
+          }
 
           $stmt = $pdo->prepare("DELETE FROM pacote_itens WHERE id_pacote = ?");
           $stmt->execute([$id_pacote]);
@@ -88,10 +138,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
   }
 }
 
-
 if (isset($_GET['delete']) && isset($_GET['id'])) {
   $id_pacote = (int) $_GET['id'];
   try {
+    $stmt = $pdo->prepare("SELECT foto_pacote FROM pacotes WHERE id_pacote = ? AND id_fornecedor = ?");
+    $stmt->execute([$id_pacote, $fornecedor_id]);
+    $pacote = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($pacote && !empty($pacote['foto_pacote'])) {
+      $foto_path = __DIR__ . '/fotos/' . $pacote['foto_pacote'];
+      if (file_exists($foto_path)) {
+        unlink($foto_path);
+      }
+    }
+    
     $stmt = $pdo->prepare("DELETE FROM pacote_itens WHERE id_pacote = ?");
     $stmt->execute([$id_pacote]);
     $stmt = $pdo->prepare("DELETE FROM pacotes WHERE id_pacote = ? AND id_fornecedor = ?");
@@ -103,7 +163,6 @@ if (isset($_GET['delete']) && isset($_GET['id'])) {
     $tipo_mensagem = 'erro';
   }
 }
-
 
 try {
   $stmt = $pdo->prepare("SHOW TABLES LIKE 'pacotes'");
@@ -122,7 +181,6 @@ try {
   error_log("Packages fetch error: " . $e->getMessage());
 }
 
-
 try {
   $stmt = $pdo->prepare("SELECT * FROM itens WHERE id_fornecedor = ? ORDER BY nome_item ASC");
   $stmt->execute([$fornecedor_id]);
@@ -131,7 +189,6 @@ try {
   $todos_itens = [];
   error_log("Items fetch error: " . $e->getMessage());
 }
-
 
 $pacote_edit = null;
 $itens_pacote = [];
@@ -414,6 +471,27 @@ if (isset($_GET['edit']) && isset($_GET['id'])) {
       border-color: #f5c6cb;
     }
 
+    .photo-preview {
+      margin-top: 0.5rem;
+      max-width: 200px;
+      border-radius: 0.5rem;
+      overflow: hidden;
+    }
+
+    .photo-preview img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .package-photo {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
     @media (max-width: 768px) {
       .packages-container {
         grid-template-columns: 1fr;
@@ -478,7 +556,7 @@ if (isset($_GET['edit']) && isset($_GET['id'])) {
           <div class="form-section">
             <h2><?php echo $pacote_edit ? 'Editar Pacote' : 'Criar Novo Pacote'; ?></h2>
 
-            <form method="POST">
+            <form method="POST" enctype="multipart/form-data">
               <input type="hidden" name="action" value="<?php echo $pacote_edit ? 'edit' : 'add'; ?>">
               <?php if ($pacote_edit): ?>
                 <input type="hidden" name="id_pacote" value="<?php echo $pacote_edit['id_pacote']; ?>">
@@ -502,6 +580,19 @@ if (isset($_GET['edit']) && isset($_GET['id'])) {
                 <input type="number" id="valor_total" name="valor_total"
                   value="<?php echo htmlspecialchars($pacote_edit['valor_total'] ?? ''); ?>" required step="0.01"
                   min="0" placeholder="0.00">
+              </div>
+
+              <div class="form-group">
+                <label for="foto">Foto do Pacote</label>
+                <input type="file" id="foto" name="foto" accept="image/*" onchange="previewImage(event)">
+                <?php if ($pacote_edit && !empty($pacote_edit['foto_pacote'])): ?>
+                  <div class="photo-preview">
+                    <img src="fotos/<?php echo htmlspecialchars($pacote_edit['foto_pacote']); ?>" alt="Foto atual">
+                  </div>
+                <?php endif; ?>
+                <div id="preview" class="photo-preview" style="display: none;">
+                  <img id="preview-img" src="/placeholder.svg" alt="Preview">
+                </div>
               </div>
 
               <div class="form-group">
@@ -537,7 +628,6 @@ if (isset($_GET['edit']) && isset($_GET['id'])) {
             </form>
           </div>
 
-
           <div class="packages-list">
             <h2>Seus Pacotes</h2>
 
@@ -555,6 +645,10 @@ if (isset($_GET['edit']) && isset($_GET['id'])) {
             <?php else: ?>
               <?php foreach ($pacotes as $pacote): ?>
                 <div class="package-card">
+                  <?php if (!empty($pacote['foto_pacote'])): ?>
+                    <img src="fotos/<?php echo htmlspecialchars($pacote['foto_pacote']); ?>" alt="<?php echo htmlspecialchars($pacote['nome_pacote']); ?>" class="package-photo">
+                  <?php endif; ?>
+                  
                   <div class="package-header">
                     <h3 class="package-name"><?php echo htmlspecialchars($pacote['nome_pacote']); ?></h3>
                     <div class="package-price">R$ <?php echo number_format($pacote['valor_total'], 2, ',', '.'); ?></div>
@@ -602,6 +696,25 @@ if (isset($_GET['edit']) && isset($_GET['id'])) {
       </div>
     </div>
   </footer>
+
+  <script>
+    function previewImage(event) {
+      const preview = document.getElementById('preview');
+      const previewImg = document.getElementById('preview-img');
+      const file = event.target.files[0];
+      
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          previewImg.src = e.target.result;
+          preview.style.display = 'block';
+        }
+        reader.readAsDataURL(file);
+      } else {
+        preview.style.display = 'none';
+      }
+    }
+  </script>
 </body>
 
 </html>

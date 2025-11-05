@@ -4,7 +4,6 @@ require_once "../config/conexao.php";
 
 $cookieName = "lembrar_me";
 
-
 if (!isset($_SESSION['usuario_id']) && isset($_COOKIE[$cookieName])) {
   $cookieUserId = (int) $_COOKIE[$cookieName];
   if ($cookieUserId > 0) {
@@ -59,42 +58,90 @@ $categorias = [
 
 $categoria_selecionada = isset($_GET['categoria']) ? $_GET['categoria'] : 'buffet';
 
-$sql = "
+$itens_disponiveis = [];
+$pacotes_disponiveis = [];
+
+// Buscar itens da categoria selecionada
+$sql_itens = "
   SELECT 
+    i.id_item,
+    i.nome_item,
+    i.valor_unitario,
+    i.descricao,
     f.id_fornecedor,
     f.nome_fornecedor,
     f.categoria,
     COUNT(DISTINCT o.id_orcamento) as total_avaliacoes,
     COALESCE(AVG(CASE WHEN o.avaliacao > 0 THEN o.avaliacao END), 0) as rating_score
-  FROM fornecedores f
-  LEFT JOIN itens i ON f.id_fornecedor = i.id_fornecedor
+  FROM itens i
+  INNER JOIN fornecedores f ON i.id_fornecedor = f.id_fornecedor
   LEFT JOIN orcamentos o ON i.nome_item = o.item AND o.avaliacao > 0
   WHERE f.categoria = ?
-  GROUP BY f.id_fornecedor, f.nome_fornecedor, f.categoria
+  GROUP BY i.id_item, i.nome_item, i.valor_unitario, i.descricao, f.id_fornecedor, f.nome_fornecedor, f.categoria
   ORDER BY rating_score DESC, total_avaliacoes DESC
 ";
 
-$stmt = $pdo->prepare($sql);
+$stmt = $pdo->prepare($sql_itens);
 $stmt->execute([$categoria_selecionada]);
-$fornecedores = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$itens_disponiveis = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$fornecedores_com_servicos = [];
-foreach ($fornecedores as $fornecedor) {
-  $fornecedor_id = $fornecedor['id_fornecedor'];
+// Buscar pacotes da categoria selecionada
+$sql_pacotes = "
+  SELECT 
+    p.id_pacote,
+    p.nome_pacote,
+    p.valor_total,
+    p.descricao,
+    p.quantidade_itens,
+    f.id_fornecedor,
+    f.nome_fornecedor,
+    f.categoria,
+    0 as total_avaliacoes,
+    0 as rating_score
+  FROM pacotes p
+  INNER JOIN fornecedores f ON p.id_fornecedor = f.id_fornecedor
+  WHERE f.categoria = ?
+  ORDER BY p.nome_pacote ASC
+";
 
+$stmt = $pdo->prepare($sql_pacotes);
+$stmt->execute([$categoria_selecionada]);
+$pacotes_disponiveis = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-  $stmt = $pdo->prepare("SELECT * FROM itens WHERE id_fornecedor = ? ORDER BY nome_item ASC LIMIT 5");
-  $stmt->execute([$fornecedor_id]);
-  $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// Combinar itens e pacotes em um único array
+$servicos_disponiveis = [];
 
+// Adicionar pacotes primeiro (destaque)
+foreach ($pacotes_disponiveis as $pacote) {
+  $servicos_disponiveis[] = [
+    'tipo' => 'pacote',
+    'id' => $pacote['id_pacote'],
+    'nome' => $pacote['nome_pacote'],
+    'valor' => $pacote['valor_total'],
+    'descricao' => $pacote['descricao'],
+    'fornecedor_id' => $pacote['id_fornecedor'],
+    'fornecedor_nome' => $pacote['nome_fornecedor'],
+    'categoria' => $pacote['categoria'],
+    'rating' => $pacote['rating_score'],
+    'avaliacoes' => $pacote['total_avaliacoes'],
+    'quantidade_itens' => $pacote['quantidade_itens']
+  ];
+}
 
-  $stmt = $pdo->prepare("SELECT * FROM pacotes WHERE id_fornecedor = ? ORDER BY nome_pacote ASC LIMIT 3");
-  $stmt->execute([$fornecedor_id]);
-  $pacotes = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-  $fornecedor['itens'] = $itens;
-  $fornecedor['pacotes'] = $pacotes;
-  $fornecedores_com_servicos[] = $fornecedor;
+// Adicionar itens
+foreach ($itens_disponiveis as $item) {
+  $servicos_disponiveis[] = [
+    'tipo' => 'item',
+    'id' => $item['id_item'],
+    'nome' => $item['nome_item'],
+    'valor' => $item['valor_unitario'],
+    'descricao' => $item['descricao'],
+    'fornecedor_id' => $item['id_fornecedor'],
+    'fornecedor_nome' => $item['nome_fornecedor'],
+    'categoria' => $item['categoria'],
+    'rating' => $item['rating_score'],
+    'avaliacoes' => $item['total_avaliacoes']
+  ];
 }
 
 if (isset($_POST['logout'])) {
@@ -118,7 +165,6 @@ if (isset($_POST['add_to_budget'])) {
   $tipo = $_POST['tipo'] ?? 'item'; 
   $id_servico = (int) $_POST['id_servico'];
 
-
   $stmt = $pdo->prepare("SELECT nome_fornecedor FROM fornecedores WHERE id_fornecedor = ?");
   $stmt->execute([$id_fornecedor]);
   $fornecedor = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -126,13 +172,11 @@ if (isset($_POST['add_to_budget'])) {
   if ($fornecedor) {
     try {
       if ($tipo === 'item') {
-
         $stmt = $pdo->prepare("SELECT nome_item, valor_unitario FROM itens WHERE id_item = ?");
         $stmt->execute([$id_servico]);
         $item = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($item) {
-
           $stmt = $pdo->prepare("
             INSERT INTO orcamentos (id_usuario, item, fornecedor, quantidade, valor_unitario, avaliacao)
             VALUES (?, ?, ?, 1, ?, 0)
@@ -140,13 +184,11 @@ if (isset($_POST['add_to_budget'])) {
           $stmt->execute([$id_usuario, $item['nome_item'], $fornecedor['nome_fornecedor'], $item['valor_unitario']]);
         }
       } elseif ($tipo === 'pacote') {
-
         $stmt = $pdo->prepare("SELECT nome_pacote, valor_total FROM pacotes WHERE id_pacote = ?");
         $stmt->execute([$id_servico]);
         $pacote = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($pacote) {
-
           $stmt = $pdo->prepare("
             INSERT INTO orcamentos (id_usuario, item, fornecedor, quantidade, valor_unitario, avaliacao)
             VALUES (?, ?, ?, 1, ?, 0)
@@ -155,14 +197,13 @@ if (isset($_POST['add_to_budget'])) {
         }
       }
 
-
       $stmt = $pdo->prepare("
         INSERT INTO contratos (nome_fornecedor, categoria, arquivo_pdf, data_assinatura, data_validade, valor, status, id_usuario)
         VALUES (?, ?, '', CURDATE(), DATE_ADD(CURDATE(), INTERVAL 1 YEAR), 0, 'ativo', ?)
       ");
       $stmt->execute([$fornecedor['nome_fornecedor'], $categoria_selecionada, $id_usuario]);
 
-      header("Location: fornecedores.php?categoria=" . urlencode($categoria_selecionada) . "&success=1");
+      header("Location: itens.php?categoria=" . urlencode($categoria_selecionada) . "&success=1");
       exit;
     } catch (PDOException $e) {
       error_log("Error adding to budget: " . $e->getMessage());
@@ -280,6 +321,37 @@ if (isset($_POST['add_to_budget'])) {
       font-weight: 600;
     }
 
+    .type-badge {
+      background: hsl(var(--secondary) / 0.15);
+      color: hsl(var(--secondary-foreground));
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .type-badge.pacote {
+      background: linear-gradient(135deg, hsl(var(--primary) / 0.2), hsl(var(--primary) / 0.1));
+      color: hsl(var(--primary));
+      border: 1px solid hsl(var(--primary) / 0.3);
+    }
+
+    .supplier-info {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+      font-size: 0.85rem;
+      color: hsl(var(--muted-foreground));
+    }
+
+    .supplier-info svg {
+      width: 14px;
+      height: 14px;
+    }
+
     .supplier-rating {
       display: flex;
       align-items: center;
@@ -312,58 +384,25 @@ if (isset($_POST['add_to_budget'])) {
       font-size: 0.9rem;
       margin-bottom: 1rem;
       flex-grow: 1;
+      line-height: 1.5;
     }
 
-
-    .supplier-services {
-      background: hsl(var(--background));
+    .package-info {
+      background: hsl(var(--muted) / 0.3);
       border-radius: 0.5rem;
-      padding: 1rem;
+      padding: 0.75rem;
       margin-bottom: 1rem;
-    }
-
-    .services-title {
       font-size: 0.85rem;
-      font-weight: 600;
-      color: hsl(var(--foreground));
-      margin-bottom: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .service-item {
+      color: hsl(var(--muted-foreground));
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      padding: 0.5rem 0;
-      border-bottom: 1px solid hsl(var(--border));
-      font-size: 0.85rem;
+      gap: 0.5rem;
     }
 
-    .service-item:last-child {
-      border-bottom: none;
-    }
-
-    .service-name {
-      color: hsl(var(--foreground));
-      flex: 1;
-    }
-
-    .service-price {
-      color: hsl(var(--primary));
-      font-weight: 600;
-      margin-left: 0.5rem;
-    }
-
-    .service-badge {
-      display: inline-block;
-      background: hsl(var(--primary) / 0.1);
-      color: hsl(var(--primary));
-      padding: 0.2rem 0.5rem;
-      border-radius: 0.25rem;
-      font-size: 0.7rem;
-      font-weight: 600;
-      margin-right: 0.5rem;
+    .package-info svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
     }
 
     .supplier-actions {
@@ -583,6 +622,12 @@ if (isset($_POST['add_to_budget'])) {
     <div class="container">
       <div class="header-content">
         <a href="../index.php" class="logo">
+        <div class="heart-icon">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+              <path
+                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+            </svg>
+          </div>
           <span class="logo-text">Planner de Sonhos</span>
         </a>
 
@@ -593,7 +638,7 @@ if (isset($_POST['add_to_budget'])) {
             <div class="dropdown-menu">
               <a href="calendario.php">Calendário</a>
               <a href="orcamento.php">Orçamento</a>
-              <a href="fornecedores.php">Fornecedores</a>
+              <a href="itens.php">Serviços</a>
               <a href="gestao-contratos.php">Gestão de Contratos</a>
               <a href="tarefas.php">Lista de Tarefas</a>
             </div>
@@ -602,14 +647,15 @@ if (isset($_POST['add_to_budget'])) {
 
           <?php if (isset($_SESSION["usuario_id"])): ?>
             <div class="profile-dropdown-wrapper">
-              <img src="../user/fotos/<?php echo htmlspecialchars($user_data['foto_perfil'] ?? 'default.png'); ?>"
+              <img src="../user/fotos/<?php echo htmlspecialchars($_SESSION['foto_perfil'] ?? 'default.png'); ?>"
                 alt="Foto de perfil" class="profile-avatar" onclick="toggleProfileDropdown()">
               <div class="profile-dropdown" id="profileDropdown">
                 <div class="profile-dropdown-header">
                   <div class="profile-dropdown-user">
-                    <img src="../user/fotos/<?php echo htmlspecialchars($user_data['foto_perfil'] ?? 'default.png'); ?>"
+                    <img src="../user/fotos/<?php echo htmlspecialchars($_SESSION['foto_perfil'] ?? 'default.png'); ?>"
                       alt="Avatar" class="profile-dropdown-avatar">
                     <div class="profile-dropdown-info">
+
                       <div class="profile-dropdown-name">
                         <?php echo htmlspecialchars($user_data['nome']); ?>
                       </div>
@@ -670,10 +716,10 @@ if (isset($_POST['add_to_budget'])) {
       <div class="container">
         <div class="page-header">
           <h1 class="page-title">
-            Encontre <span class="gradient-text">Fornecedores</span>
+            Encontre <span class="gradient-text">Itens e Pacotes</span>
           </h1>
           <p class="page-description">
-            Explore fornecedores de qualidade para seu evento, organizados por categoria e avaliação.
+            Explore itens e pacotes de qualidade para seu evento, organizados por categoria.
           </p>
         </div>
 
@@ -689,7 +735,7 @@ if (isset($_POST['add_to_budget'])) {
             <h3>Categorias</h3>
             <div class="category-list">
               <?php foreach ($categorias as $key => $nome): ?>
-                <a href="fornecedores.php?categoria=<?php echo urlencode($key); ?>"
+                <a href="itens.php?categoria=<?php echo urlencode($key); ?>"
                   class="category-item <?php echo ($categoria_selecionada === $key) ? 'active' : ''; ?>">
                   <?php echo htmlspecialchars($nome); ?>
                 </a>
@@ -697,113 +743,94 @@ if (isset($_POST['add_to_budget'])) {
             </div>
           </aside>
 
-
           <div>
             <h2 style="margin-bottom: 1.5rem; color: hsl(var(--foreground));">
-              <?php echo htmlspecialchars($categorias[$categoria_selecionada] ?? 'Fornecedores'); ?>
+              <?php echo htmlspecialchars($categorias[$categoria_selecionada] ?? 'Itens e Pacotes'); ?>
             </h2>
 
-            <?php if (empty($fornecedores_com_servicos)): ?>
+            <?php if (empty($servicos_disponiveis)): ?>
               <div class="empty-state">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <circle cx="11" cy="11" r="8"></circle>
                   <path d="m21 21-4.35-4.35"></path>
                 </svg>
-                <h3>Nenhum fornecedor encontrado</h3>
-                <p>Não há fornecedores nesta categoria no momento.</p>
+                <h3>Nenhum item ou pacote encontrado</h3>
+                <p>Não há itens ou pacotes disponíveis nesta categoria no momento.</p>
               </div>
             <?php else: ?>
               <div class="suppliers-grid">
-                <?php foreach ($fornecedores_com_servicos as $fornecedor): ?>
+                <?php foreach ($servicos_disponiveis as $servico): ?>
                   <div class="supplier-card">
                     <div class="supplier-header">
-                      <h3 class="supplier-name"><?php echo htmlspecialchars($fornecedor['nome_fornecedor']); ?></h3>
-                      <span
-                        class="supplier-badge"><?php echo htmlspecialchars($categorias[$categoria_selecionada]); ?></span>
-                    </div>
-
-                    <div class="supplier-rating">
-                      <div class="stars">
-                        <?php
-                        $rating = (float) $fornecedor['rating_score'];
-                        for ($i = 1; $i <= 5; $i++):
-                          ?>
-                          <svg class="star <?php echo ($i <= $rating) ? '' : 'star-empty'; ?>" viewBox="0 0 24 24">
-                            <path
-                              d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                      <div style="flex: 1;">
+                        <h3 class="supplier-name"><?php echo htmlspecialchars($servico['nome']); ?></h3>
+                        <div class="supplier-info">
+                          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
                           </svg>
-                        <?php endfor; ?>
+                          <span><?php echo htmlspecialchars($servico['fornecedor_nome']); ?></span>
+                        </div>
                       </div>
-                      <span class="rating-text">
-                        <?php
-                        if ($fornecedor['total_avaliacoes'] > 0) {
-                          echo number_format($rating, 1, ',', '.') . ' (' . (int) $fornecedor['total_avaliacoes'] . ' avaliações)';
-                        } else {
-                          echo 'Sem avaliações';
-                        }
-                        ?>
-                      </span>
+                      <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem;">
+                        <span class="type-badge <?php echo $servico['tipo']; ?>">
+                          <?php echo $servico['tipo'] === 'pacote' ? 'Pacote' : 'Item'; ?>
+                        </span>
+                        <div style="font-size: 1.25rem; font-weight: 700; color: hsl(var(--primary));">
+                          R$ <?php echo number_format($servico['valor'], 2, ',', '.'); ?>
+                        </div>
+                      </div>
                     </div>
 
-                    <p class="supplier-description">
-                      Fornecedor especializado em
-                      <?php echo htmlspecialchars(strtolower($categorias[$categoria_selecionada])); ?> com excelente
-                      reputação.
-                    </p>
+                    <?php if ($servico['tipo'] === 'item' && $servico['avaliacoes'] > 0): ?>
+                      <div class="supplier-rating">
+                        <div class="stars">
+                          <?php
+                          $rating = (float) $servico['rating'];
+                          for ($i = 1; $i <= 5; $i++):
+                            ?>
+                            <svg class="star <?php echo ($i <= $rating) ? '' : 'star-empty'; ?>" viewBox="0 0 24 24">
+                              <path
+                                d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                            </svg>
+                          <?php endfor; ?>
+                        </div>
+                        <span class="rating-text">
+                          <?php echo number_format($rating, 1, ',', '.') . ' (' . (int) $servico['avaliacoes'] . ' avaliações)'; ?>
+                        </span>
+                      </div>
+                    <?php endif; ?>
 
+                    <?php if (!empty($servico['descricao'])): ?>
+                      <p class="supplier-description">
+                        <?php echo htmlspecialchars($servico['descricao']); ?>
+                      </p>
+                    <?php else: ?>
+                      <p class="supplier-description">
+                        <?php echo $servico['tipo'] === 'pacote' ? 'Pacote completo com múltiplos serviços incluídos.' : 'Serviço de qualidade oferecido por ' . htmlspecialchars($servico['fornecedor_nome']) . '.'; ?>
+                      </p>
+                    <?php endif; ?>
 
-                    <?php if (!empty($fornecedor['itens']) || !empty($fornecedor['pacotes'])): ?>
-                      <div class="supplier-services">
-                        <?php if (!empty($fornecedor['pacotes'])): ?>
-                          <div class="services-title">Pacotes Disponíveis</div>
-                          <?php foreach ($fornecedor['pacotes'] as $pacote): ?>
-                            <div class="service-item">
-                              <span class="service-name">
-                                <span class="service-badge">Pacote</span>
-                                <?php echo htmlspecialchars(substr($pacote['nome_pacote'], 0, 20)); ?>...
-                              </span>
-                              <span class="service-price">R$
-                                <?php echo number_format($pacote['valor_total'], 0, ',', '.'); ?></span>
-                            </div>
-                          <?php endforeach; ?>
-                        <?php endif; ?>
-
-                        <?php if (!empty($fornecedor['itens'])): ?>
-                          <div class="services-title" style="margin-top: 0.75rem;">Itens/Serviços</div>
-                          <?php foreach ($fornecedor['itens'] as $item): ?>
-                            <div class="service-item">
-                              <span class="service-name"><?php echo htmlspecialchars(substr($item['nome_item'], 0, 20)); ?></span>
-                              <span class="service-price">R$
-                                <?php echo number_format($item['valor_unitario'], 0, ',', '.'); ?></span>
-                            </div>
-                          <?php endforeach; ?>
-                        <?php endif; ?>
+                    <?php if ($servico['tipo'] === 'pacote'): ?>
+                      <div class="package-info">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line>
+                          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                        </svg>
+                        <span><strong><?php echo $servico['quantidade_itens']; ?></strong> item(ns) incluído(s) neste pacote</span>
                       </div>
                     <?php endif; ?>
 
                     <div class="supplier-actions">
                       <?php if (isset($_SESSION['usuario_id'])): ?>
-                        <?php if (!empty($fornecedor['pacotes'])): ?>
-                          <form method="post" style="flex: 1;">
-                            <input type="hidden" name="id_fornecedor" value="<?php echo $fornecedor['id_fornecedor']; ?>">
-                            <input type="hidden" name="tipo" value="pacote">
-                            <input type="hidden" name="id_servico"
-                              value="<?php echo $fornecedor['pacotes'][0]['id_pacote']; ?>">
-                            <button type="submit" name="add_to_budget" class="btn-primary" style="width: 100%;">
-                              Adicionar Pacote
-                            </button>
-                          </form>
-                        <?php endif; ?>
-                        <?php if (!empty($fornecedor['itens'])): ?>
-                          <form method="post" style="flex: 1;">
-                            <input type="hidden" name="id_fornecedor" value="<?php echo $fornecedor['id_fornecedor']; ?>">
-                            <input type="hidden" name="tipo" value="item">
-                            <input type="hidden" name="id_servico" value="<?php echo $fornecedor['itens'][0]['id_item']; ?>">
-                            <button type="submit" name="add_to_budget" class="btn-add-item" style="width: 100%;">
-                              Adicionar Item
-                            </button>
-                          </form>
-                        <?php endif; ?>
+                        <form method="post" style="flex: 1;">
+                          <input type="hidden" name="id_fornecedor" value="<?php echo $servico['fornecedor_id']; ?>">
+                          <input type="hidden" name="tipo" value="<?php echo $servico['tipo']; ?>">
+                          <input type="hidden" name="id_servico" value="<?php echo $servico['id']; ?>">
+                          <button type="submit" name="add_to_budget" class="btn-primary" style="width: 100%;">
+                            Adicionar ao Orçamento
+                          </button>
+                        </form>
                       <?php else: ?>
                         <a href="../user/login.php" class="btn-primary"
                           style="width: 100%; text-align: center; padding: 0.75rem;">
@@ -835,7 +862,9 @@ if (isset($_POST['add_to_budget'])) {
             <span class="logo-text">Planner de Sonhos</span>
           </a>
           <p class="footer-description">
-            A plataforma mais completa para cerimonialistas gerenciarem casamentos perfeitos.
+            A plataforma mais completa para cerimonialistas organizarem
+            casamentos perfeitos. Simplifique sua gestão e encante seus
+            clientes.
           </p>
           <div class="footer-contact">
             <svg style="width: 1rem; height: 1rem" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -846,10 +875,24 @@ if (isset($_POST['add_to_budget'])) {
           </div>
         </div>
         <div class="footer-links">
-          <h3>Links Rápidos</h3>
+          <h3>Navegação</h3>
+          <ul>
+            <li><a href="../index.php">Início</a></li>
+            <li>
+              <a href="funcionalidades.php">Funcionalidades</a>
+            </li>
+            <li>
+              <a href="contato.php">Contato</a>
+            </li>
+          </ul>
+        </div>
+        <div class="footer-modules">
+          <h3>Legal</h3>
           <ul>
             <li><a href="../legal-pages/about.html">Sobre</a></li>
-            <li><a href="../legal-pages/privacity-politics.html">Política de Privacidade</a></li>
+            <li>
+              <a href="../legal-pages/privacity-politics.html">Política de Privacidade</a>
+            </li>
             <li><a href="../legal-pages/uses-terms.html">Termos de Uso</a></li>
           </ul>
         </div>
@@ -857,6 +900,16 @@ if (isset($_POST['add_to_budget'])) {
 
       <div class="footer-bottom">
         <p>&copy; 2025 Planner de Sonhos. Todos os direitos reservados.</p>
+        <div
+          style="display: flex; align-items: center; gap: 0.25rem; font-size: 0.875rem; color: hsl(var(--muted-foreground));">
+          <span>Feito com</span>
+          <svg style="width: 1rem; height: 1rem; color: hsl(var(--primary)); margin: 0 0.25rem;" fill="currentColor"
+            viewBox="0 0 24 24">
+            <path
+              d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+          </svg>
+          <span>para cerimonialistas</span>
+        </div>
       </div>
     </div>
   </footer>
