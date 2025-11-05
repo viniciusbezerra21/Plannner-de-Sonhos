@@ -6,9 +6,33 @@ $cookieName = "lembrar_me_fornecedor";
 $cookieTime = time() + (86400 * 30);
 $mensagem = "";
 
+if (!isset($_SESSION['fornecedor_id']) && isset($_COOKIE[$cookieName])) {
+  $cookieToken = $_COOKIE[$cookieName];
+  try {
+    $checkTokenColumn = $pdo->query("SHOW COLUMNS FROM fornecedores LIKE 'remember_token'");
+    if ($checkTokenColumn->rowCount() > 0) {
+      $stmt = $pdo->prepare("SELECT id_fornecedor, nome_fornecedor, email FROM fornecedores WHERE remember_token = ?");
+      $stmt->execute([$cookieToken]);
+      $fornecedor = $stmt->fetch(PDO::FETCH_ASSOC);
+      if ($fornecedor) {
+        $_SESSION['fornecedor_id'] = (int) $fornecedor['id_fornecedor'];
+        $_SESSION['fornecedor_nome'] = $fornecedor['nome_fornecedor'];
+        $_SESSION['fornecedor_email'] = $fornecedor['email'];
+        header("Location: dashboard.php");
+        exit;
+      } else {
+        setcookie($cookieName, "", time() - 3600, "/", "", false, true);
+      }
+    }
+  } catch (PDOException $e) {
+    error_log("Cookie restore error: " . $e->getMessage());
+  }
+}
+
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["acao"]) && $_POST["acao"] === "login") {
   $email = trim($_POST["email"] ?? "");
   $senha = trim($_POST["senha"] ?? "");
+  $lembrarMe = isset($_POST["lembrar_me"]) && $_POST["lembrar_me"] === "1";
 
   if (empty($email) || empty($senha)) {
     $mensagem = "<div class='mensagem-erro'>Por favor, preencha todos os campos.</div>";
@@ -34,10 +58,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["acao"]) && $_POST["ac
 
           $checkTokenColumn = $pdo->query("SHOW COLUMNS FROM fornecedores LIKE 'remember_token'");
           if ($checkTokenColumn->rowCount() > 0) {
-            $token = bin2hex(random_bytes(16));
-            setcookie($cookieName, $token, $cookieTime, "/", "", false, true);
-            $stmt = $pdo->prepare("UPDATE fornecedores SET remember_token = ? WHERE id_fornecedor = ?");
-            $stmt->execute([$token, $fornecedor["id_fornecedor"]]);
+            if ($lembrarMe) {
+              $token = bin2hex(random_bytes(16));
+              setcookie($cookieName, $token, $cookieTime, "/", "", false, true);
+              $stmt = $pdo->prepare("UPDATE fornecedores SET remember_token = ? WHERE id_fornecedor = ?");
+              $stmt->execute([$token, $fornecedor["id_fornecedor"]]);
+            } else {
+              setcookie($cookieName, "", time() - 3600, "/", "", false, true);
+              $stmt = $pdo->prepare("UPDATE fornecedores SET remember_token = NULL WHERE id_fornecedor = ?");
+              $stmt->execute([$fornecedor["id_fornecedor"]]);
+            }
           }
 
           header("Location: dashboard.php");
@@ -50,28 +80,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["acao"]) && $_POST["ac
       $mensagem = "<div class='mensagem-erro'>Erro ao fazer login: " . htmlspecialchars($e->getMessage()) . "</div>";
       error_log("Login error: " . $e->getMessage());
     }
-  }
-}
-
-
-if (!isset($_SESSION['fornecedor_id']) && isset($_COOKIE[$cookieName])) {
-  $cookieToken = $_COOKIE[$cookieName];
-  try {
-    $checkTokenColumn = $pdo->query("SHOW COLUMNS FROM fornecedores LIKE 'remember_token'");
-    if ($checkTokenColumn->rowCount() > 0) {
-      $stmt = $pdo->prepare("SELECT id_fornecedor, nome_fornecedor, email FROM fornecedores WHERE remember_token = ?");
-      $stmt->execute([$cookieToken]);
-      $fornecedor = $stmt->fetch(PDO::FETCH_ASSOC);
-      if ($fornecedor) {
-        $_SESSION['fornecedor_id'] = (int) $fornecedor['id_fornecedor'];
-        $_SESSION['fornecedor_nome'] = $fornecedor['nome_fornecedor'];
-        $_SESSION['fornecedor_email'] = $fornecedor['email'];
-        header("Location: dashboard.php");
-        exit;
-      }
-    }
-  } catch (PDOException $e) {
-    error_log("Cookie restore error: " . $e->getMessage());
   }
 }
 ?>
@@ -148,6 +156,28 @@ if (!isset($_SESSION['fornecedor_id']) && isset($_COOKIE[$cookieName])) {
       outline: none;
       border-color: hsl(var(--primary));
       box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1);
+    }
+
+    .remember-me-container {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      padding: 0.5rem 0;
+    }
+
+    .remember-me-container input[type="checkbox"] {
+      width: 1.125rem;
+      height: 1.125rem;
+      cursor: pointer;
+      accent-color: hsl(var(--primary));
+    }
+
+    .remember-me-container label {
+      font-size: 0.9rem;
+      color: hsl(var(--foreground));
+      cursor: pointer;
+      user-select: none;
     }
 
     .mensagem-sucesso {
@@ -310,6 +340,10 @@ if (!isset($_SESSION['fornecedor_id']) && isset($_COOKIE[$cookieName])) {
               <div class="form-group">
                 <label for="senha">Senha</label>
                 <input type="password" id="senha" name="senha" placeholder="Sua senha" required />
+              </div>
+              <div class="remember-me-container">
+                <input type="checkbox" id="lembrar_me" name="lembrar_me" value="1" />
+                <label for="lembrar_me">Manter-me conectado</label>
               </div>
 
               <div class="form-actions">

@@ -1,0 +1,107 @@
+// Contact
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $spacing-2xl;
+  margin-bottom: $spacing-3xl;
+
+  @include respond-to('lg') {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.contact-form-card {
+  animation: slideInFromLeft 1s ease-out;
+}
+
+.contact-info-card {
+  animation: slideInFromRight 1s ease-out;
+}
+
+.contact-form-header,
+.contact-info-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: $spacing-lg;
+
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #111827;
+  }
+}
+
+.faq-card h2 {
+  font-size: 2rem;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+}
+
+.message-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: hsl(var(--foreground));
+}
+
+.contact-info {
+  display: flex;
+}
+
+.contact-details {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+.contact-detail {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-md;
+
+  svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: hsl(var(--foreground));
+    margin-top: 0.25rem;
+    flex-shrink: 0;
+  }
+
+  h3 {
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 0.25rem;
+  }
+
+  p {
+    color: #6b7280;
+  }
+}
+
+.faq-items {
+  margin-top: $spacing-md;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.faq-item {
+  h3 {
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: $spacing-sm;
+  }
+
+  p {
+    color: #6b7280;
+    font-size: 0.875rem;
+  }
+}
+
+.contact-cta {
+  background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+  border-radius: $spacing-md;
+  padding: $spacing-2xl $spacing-xl;
+  text-align: center;
+  color: white;
+}

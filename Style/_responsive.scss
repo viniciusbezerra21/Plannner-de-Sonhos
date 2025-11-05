@@ -1,0 +1,141 @@
+@media (max-width: 768px) {
+  .nav {
+    display: none;
+  }
+
+  .mobile-menu-btn {
+    display: flex;
+  }
+
+  .hero-title {
+    font-size: 2.5rem;
+  }
+
+  .hero-description {
+    font-size: 1.125rem;
+  }
+
+  .section-title {
+    font-size: 2rem;
+  }
+
+  .page-title {
+    font-size: 2.25rem;
+  }
+
+  .calendar-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .calendar-sidebar {
+    order: -1;
+  }
+
+  .contact-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .features-detailed-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .modules-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .financial-dashboard {
+    grid-template-columns: 1fr;
+  }
+
+  .financial-features-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .reports-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .categories-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .payment-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: $spacing-md;
+  }
+
+  .payment-amount {
+    align-self: flex-end;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 0.75rem;
+  }
+
+  .hero {
+    padding: $spacing-2xl 0.75rem;
+  }
+
+  .stats {
+    padding: $spacing-2xl 0.75rem;
+  }
+
+  .features {
+    padding: $spacing-2xl 0.75rem;
+  }
+
+  .cta {
+    padding: $spacing-2xl 0.75rem;
+  }
+
+  .page-content {
+    padding: $spacing-2xl 0.75rem;
+  }
+
+  .calendar-page {
+    padding: $spacing-md 0.75rem;
+  }
+
+  .calendar-controls {
+    flex-direction: column;
+    gap: $spacing-md;
+  }
+
+  .event-details {
+    flex-direction: column;
+    gap: $spacing-sm;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .cta-buttons {
+    flex-direction: column;
+  }
+
+  .categories-grid {
+    grid-template-columns: 1fr;
+  }
+}
+@media print {
+  .header,
+  .footer,
+  .btn,
+  .mobile-menu-btn {
+    display: none !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  .gradient-text {
+    color: #ec4899 !important;
+    -webkit-text-fill-color: #ec4899 !important;
+  }
+}

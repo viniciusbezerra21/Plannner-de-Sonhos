@@ -1,0 +1,202 @@
+// Hero Section
+.hero {
+  padding-top: 5rem;
+  padding-bottom: 4rem;
+  padding-left: $spacing-md;
+  padding-right: $spacing-md;
+  background: linear-gradient(135deg,
+      var(--wedding-rose-white) 0%,
+      rgba(225, 190, 231, 0.2) 50%,
+      rgba(186, 104, 200, 0.3) 100%);
+  animation: staticFadeIn 0.8s ease-out;
+}
+
+.hero-content {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $spacing-2xl;
+  align-items: center;
+  animation: slideInFromBottom 0.8s ease-out;
+
+  @include respond-to('lg') {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.hero-text {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xl;
+}
+
+.hero-title {
+  font-family: $font-primary;
+  font-weight: 700;
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  color: hsl(var(--foreground));
+  line-height: 1.1;
+  animation: slideInFromLeft 1s ease-out;
+
+  .text-primary {
+    color: hsl(var(--primary));
+    position: relative;
+  }
+}
+
+.hero-description {
+  font-family: $font-secondary;
+  font-size: 1.25rem;
+  color: hsl(var(--muted-foreground));
+  line-height: 1.6;
+  animation: slideInFromLeft 1s ease-out 0.2s both;
+}
+
+.hero-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  animation: slideInFromLeft 1s ease-out 0.4s both;
+
+  @include respond-to('sm') {
+    flex-direction: row;
+  }
+}
+
+.trust-indicators {
+  display: flex;
+  align-items: center;
+  gap: $spacing-lg;
+  font-size: 0.875rem;
+  color: hsl(var(--muted-foreground));
+  flex-wrap: wrap;
+  animation: slideInFromLeft 1s ease-out 0.6s both;
+}
+
+.trust-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+
+  svg {
+    width: 1rem;
+    height: 1rem;
+    color: hsl(var(--primary));
+  }
+}
+
+// Hero Visual
+.hero-visual {
+  position: relative;
+  animation: slideInFromRight 1s ease-out 0.3s both;
+}
+
+.hero-visual-card {
+  background: linear-gradient(135deg, rgba(225, 190, 231, 0.3) 0%, rgba(186, 104, 200, 0.3) 100%);
+  border-radius: 1.5rem;
+  padding: $spacing-xl;
+  position: relative;
+  overflow: hidden;
+
+  svg {
+    animation: float 3s ease-in-out infinite;
+
+    &:nth-child(2) {
+      animation: floatReverse 4s ease-in-out infinite;
+      animation-delay: 1s;
+    }
+  }
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: $spacing-md;
+    right: $spacing-md;
+    width: 5rem;
+    height: 5rem;
+    background: rgba(225, 190, 231, 0.4);
+    border-radius: 50%;
+    filter: blur(1rem);
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: $spacing-xl;
+    left: $spacing-md;
+    width: 4rem;
+    height: 4rem;
+    background: rgba(186, 104, 200, 0.4);
+    border-radius: 50%;
+    filter: blur(0.75rem);
+  }
+}
+
+.hero-visual-content {
+  background: hsla(var(--card), 0.8);
+  backdrop-filter: blur(8px);
+  border-radius: $spacing-md;
+  padding: $spacing-lg;
+  border: 1px solid hsl(var(--border));
+  position: relative;
+  z-index: 10;
+}
+
+.hero-visual-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+}
+
+.hero-visual-title {
+  font-family: $font-primary;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+}
+
+.hero-visual-events {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.hero-visual-event {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(225, 190, 231, 0.2);
+  border-radius: $radius-md;
+
+  &:nth-child(2) {
+    background: rgba(186, 104, 200, 0.2);
+  }
+}
+
+.hero-visual-dot {
+  width: $spacing-sm;
+  height: $spacing-sm;
+  background: hsl(var(--primary));
+  border-radius: 50%;
+  flex-shrink: 0;
+
+  &:nth-child(1) {
+    background: hsl(var(--secondary));
+  }
+}
+
+.hero-visual-event-info {
+  h4 {
+    font-family: $font-secondary;
+    font-weight: 500;
+    font-size: 0.875rem;
+    color: hsl(var(--foreground));
+    margin-bottom: 0.125rem;
+  }
+
+  p {
+    font-family: $font-secondary;
+    font-size: 0.75rem;
+    color: hsl(var(--muted-foreground));
+  }
+}

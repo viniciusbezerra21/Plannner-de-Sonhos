@@ -5,18 +5,44 @@ session_start();
 $cookieName = "lembrar_me";
 $cookieTime = time() + (86400 * 30);
 
-
 if (!isset($_SESSION['usuario_id']) && isset($_COOKIE[$cookieName])) {
-  $_SESSION['usuario_id'] = $_COOKIE[$cookieName];
-  $_SESSION['foto_perfil'] = "default.png";
+  require_once 'config/conexao.php';
+  $cookieToken = $_COOKIE[$cookieName];
+  
+  try {
+    $stmt = $pdo->prepare("SELECT id_usuario, nome, cargo, foto_perfil, email FROM usuarios WHERE remember_token = ?");
+    $stmt->execute([$cookieToken]);
+    $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($usuario) {
+      $_SESSION['usuario_id'] = (int) $usuario['id_usuario'];
+      $_SESSION['nome'] = $usuario['nome'];
+      $_SESSION['cargo'] = $usuario['cargo'];
+      $_SESSION['foto_perfil'] = $usuario['foto_perfil'] ?? 'default.png';
+    } else {
+      setcookie($cookieName, "", time() - 3600, "/", "", false, true);
+    }
+  } catch (PDOException $e) {
+    error_log("Cookie restore error: " . $e->getMessage());
+  }
 }
+
 if (isset($_SESSION["usuario_id"]) && empty($_SESSION['foto_perfil'])) {
   $_SESSION['foto_perfil'] = "default.png";
 }
 
 
 if (isset($_POST['logout'])) {
-  setcookie($cookieName, "", time() - 3600, "/");
+  require_once 'config/conexao.php';
+  if (isset($_SESSION['usuario_id'])) {
+    try {
+      $stmt = $pdo->prepare("UPDATE usuarios SET remember_token = NULL WHERE id_usuario = ?");
+      $stmt->execute([$_SESSION['usuario_id']]);
+    } catch (PDOException $e) {
+      error_log("Logout error: " . $e->getMessage());
+    }
+  }
+  setcookie($cookieName, "", time() - 3600, "/", "", false, true);
   session_unset();
   session_destroy();
   header("Location: index.php");
@@ -365,7 +391,7 @@ if (isset($_SESSION["usuario_id"])) {
                     <div class="profile-dropdown-info">
 
                       <div class="profile-dropdown-name">
-                        <?php echo htmlspecialchars($user_data['nome']); ?>
+                        <?php echo htmlspecialchars($_SESSION['nome'] ?? 'Usuário'); ?>
                       </div>
                       <div class="profile-dropdown-email">
                         <?php echo htmlspecialchars($user_data['email']); ?>
@@ -377,7 +403,7 @@ if (isset($_SESSION["usuario_id"])) {
                   <a href="user/perfil.php" class="profile-dropdown-item">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                      <circle cx="12" cy="7" r="4"></circle>
+                      <circle cx="12" cy="12" r="3"></circle>
                     </svg>
                     Meu Perfil
                   </a>

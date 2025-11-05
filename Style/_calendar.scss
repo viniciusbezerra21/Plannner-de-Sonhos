@@ -1,0 +1,357 @@
+// Calendar Page
+.calendar-page {
+  padding: $spacing-xl $spacing-md;
+}
+
+.calendar-header {
+  display: flex;
+  margin-top: $spacing-2xl;
+  flex-direction: column;
+  gap: $spacing-md;
+  margin-bottom: $spacing-xl;
+
+  @include respond-to('md') {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+}
+
+.calendar-title {
+  font-size: clamp(1.875rem, 4vw, 2.5rem);
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: $spacing-sm;
+}
+
+.calendar-description {
+  color: #6b7280;
+}
+
+.calendar-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $spacing-xl;
+
+  @include respond-to('lg') {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+.calendar-main {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+.calendar-controls {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  margin-bottom: $spacing-lg;
+
+  @include respond-to('sm') {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.calendar-nav {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.calendar-month {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.view-modes {
+  display: flex;
+  gap: $spacing-sm;
+  display: none;
+}
+
+.calendar-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.calendar-header-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.25rem;
+  margin-bottom: $spacing-md;
+}
+
+.calendar-day-header {
+  padding: $spacing-sm;
+  text-align: center;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.25rem;
+}
+
+.calendar-day {
+  padding: $spacing-sm;
+  text-align: center;
+  font-size: 0.875rem;
+  border: 1px solid #e5e7eb;
+  border-radius: $radius-md;
+  cursor: pointer;
+  transition: all $transition-fast;
+  position: relative;
+  min-height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background: #f9fafb;
+    animation: bounce 0.5s ease-out;
+  }
+
+  &.other-month {
+    color: #d1d5db;
+    border-color: #f3f4f6;
+  }
+
+  &.has-event {
+    background: #fdf2f8;
+    border-color: #fce7f3;
+    color: hsl(var(--wedding-dark-purple));
+    font-weight: 500;
+  }
+}
+
+.event-dot {
+  width: $spacing-sm;
+  height: $spacing-sm;
+  background: #ba68c8;
+  border-radius: 50%;
+  position: absolute;
+  bottom: 0.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: pulse 2s infinite;
+}
+
+.events-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-lg;
+
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #111827;
+  }
+}
+
+.events-actions {
+  display: flex;
+  gap: $spacing-sm;
+}
+
+.events-list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.event-item {
+  padding: $spacing-md;
+  background: #f9fafb;
+  border-radius: $radius-md;
+  border-left: 4px solid #d1d5db;
+
+  &.high-priority { border-left-color: #ef4444; }
+  &.medium-priority { border-left-color: #f59e0b; }
+  &.low-priority { border-left-color: #10b981; }
+}
+
+.event-content {
+  flex: 1;
+}
+
+.event-title {
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: $spacing-sm;
+}
+
+.event-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+  margin-bottom: $spacing-sm;
+}
+
+.event-detail {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+
+  svg {
+    width: 1rem;
+    height: 1rem;
+  }
+}
+
+.event-location {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+
+  svg {
+    width: 1rem;
+    height: 1rem;
+  }
+}
+
+.event-type {
+  padding: 0.25rem $spacing-sm;
+  border-radius: $radius-full;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border: 1px solid;
+  align-self: flex-start;
+  margin-left: auto;
+
+  &.azul { background-color: #007bff; }
+  &.vermelho { background-color: #dc3545; }
+  &.verde { background-color: #28a745; }
+  &.amarelo { background-color: #ffc107; }
+  &.rosa { background-color: #e83e8c; }
+
+  &.meeting {
+    background: #dbeafe;
+    color: #1e40af;
+    border-color: #bfdbfe;
+  }
+
+  &.tasting {
+    background: #dcfce7;
+    color: #166534;
+    border-color: #bbf7d0;
+  }
+
+  &.fitting {
+    background: #f3e8ff;
+    color: #7c2d12;
+    border-color: #e9d5ff;
+  }
+}
+
+.calendar-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+.stats-list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  span:first-child {
+    color: #6b7280;
+  }
+}
+
+.stat-value {
+  font-weight: 600;
+  color: #7c3aed;
+
+  &.highlight { color: #8b5cf6; }
+  &.warning { color: #f59e0b; }
+}
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.timeline-item {
+  position: relative;
+
+  &:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    left: 0.375rem;
+    top: 1.25rem;
+    width: 2px;
+    height: 2rem;
+    background: #e5e7eb;
+  }
+}
+
+.timeline-dot {
+  width: 0.75rem;
+  height: 0.75rem;
+  background: hsl(var(--primary));
+  border-radius: 50%;
+  margin-top: $spacing-sm;
+  flex-shrink: 0;
+}
+
+.timeline-content {
+  margin-left: $spacing-md;
+  flex: 1;
+
+  h4 {
+    font-weight: 500;
+    color: #111827;
+    margin-bottom: 0.25rem;
+  }
+
+  ul {
+    list-style: none;
+  }
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-bottom: 0.25rem;
+
+    &::before {
+      content: "";
+      width: 0.25rem;
+      height: 0.25rem;
+      background: #9ca3af;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+  }
+}
+
+.quick-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}

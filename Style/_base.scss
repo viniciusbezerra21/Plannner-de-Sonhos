@@ -1,0 +1,58 @@
+:root {
+  --primary: #{$primary};
+  --primary-foreground: #{$primary-foreground};
+  --secondary: #{$secondary};
+  --secondary-foreground: #{$secondary-foreground};
+  --background: #{$background};
+  --foreground: #{$foreground};
+  --muted: #{$muted};
+  --muted-foreground: #{$muted-foreground};
+  --card: #{$card};
+  --card-foreground: #{$card-foreground};
+  --border: #{$border};
+  --accent: #{$accent};
+  --accent-foreground: #{$accent-foreground};
+  --wedding-lavender: #{$wedding-lavender};
+  --wedding-purple: #{$wedding-purple};
+  --wedding-rose-white: #{$wedding-rose-white};
+  --wedding-dark-purple: #{$wedding-dark-purple};
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: $font-secondary;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5, h6, p {
+  font-family: $font-primary;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: default;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 $spacing-md;
+}
+
+.smooth-scroll {
+  scroll-behavior: smooth;
+}
+
+.backdrop-blur {
+  backdrop-filter: blur(8px);
+}
+
+.checkbox {
+  accent-color: hsl(var(--primary));
+}

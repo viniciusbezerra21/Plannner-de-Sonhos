@@ -1,0 +1,76 @@
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: hsl(var(--background) / 0.95);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid hsl(var(--border));
+  z-index: 50;
+  padding: $spacing-md 0;
+}
+
+.header-content {
+  @include flex-center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 $spacing-md;
+}
+
+.logo {
+  @include flex-center;
+  gap: $spacing-sm;
+  text-decoration: none;
+
+  .heart-icon {
+    width: 2rem;
+    height: 2rem;
+    color: hsl(var(--primary));
+    @include transition(transform);
+
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+}
+
+.logo-text {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: hsl(var(--foreground));
+}
+
+.nav {
+  display: none;
+  gap: $spacing-xl;
+
+  @include respond-to('md') {
+    display: flex;
+  }
+}
+
+.nav-link {
+  color: hsl(var(--foreground));
+  text-decoration: none;
+  font-weight: 500;
+  @include transition(color);
+
+  &:hover {
+    color: hsl(var(--primary));
+  }
+}
+
+.mobile-menu-btn {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: $spacing-sm;
+
+  @include respond-to('md') {
+    display: none;
+  }
+}

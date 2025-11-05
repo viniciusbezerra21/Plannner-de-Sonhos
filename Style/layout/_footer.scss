@@ -1,0 +1,96 @@
+.footer {
+  background: hsl(var(--foreground));
+  color: white;
+  padding: $spacing-3xl $spacing-md $spacing-xl;
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  gap: $spacing-xl;
+
+  @include respond-to('md') {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.footer-brand {
+  grid-column: span 1;
+}
+
+.footer-description {
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: $spacing-md;
+  line-height: 1.6;
+}
+
+.footer-contact {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  margin-top: $spacing-md;
+}
+
+.footer-links,
+.footer-modules {
+  h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: $spacing-md;
+    color: white;
+  }
+
+  ul {
+    list-style: none;
+  }
+
+  li {
+    margin-bottom: $spacing-sm;
+  }
+
+  a {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    @include transition(color);
+
+    &:hover {
+      color: white;
+    }
+  }
+}
+
+.footer-modules .disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.footer-bottom {
+  max-width: 1200px;
+  margin: $spacing-xl auto 0;
+  padding-top: $spacing-xl;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  @include flex-center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+
+  @include respond-to('md') {
+    flex-direction: row;
+  }
+}
+
+.footer-legal {
+  display: flex;
+  gap: $spacing-lg;
+
+  a {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    @include transition(color);
+
+    &:hover {
+      color: white;
+    }
+  }
+}

@@ -1,0 +1,47 @@
+.page-content {
+  padding: 5rem $spacing-md;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: $spacing-3xl;
+}
+
+.page-title {
+  font-size: clamp(2.5rem, 5vw, 3rem);
+  font-weight: 700;
+  margin-bottom: $spacing-lg;
+  color: #111827;
+  animation: slideInFromTop 0.8s ease-out;
+  position: relative;
+
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 3px;
+    background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--secondary)));
+    animation: shimmer 2s ease-in-out infinite, expandLine 1.5s ease-out 0.5s forwards;
+  }
+}
+
+.page-description {
+  font-size: 1.25rem;
+  animation: slideInFromTop 0.8s ease-out;
+  color: #6b7280;
+  max-width: 48rem;
+  margin: 0 auto;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.contracts-grid {
+  animation: fadeIn 0.8s ease-out;
+}

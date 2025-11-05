@@ -1,0 +1,130 @@
+.page-content {
+  padding-top: 5rem;
+}
+
+.page-header {
+  padding: $spacing-3xl $spacing-md;
+  text-align: center;
+}
+
+.page-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #111827;
+  margin-bottom: $spacing-md;
+}
+
+.page-description {
+  color: #6b7280;
+  font-size: 1.125rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.benefits-grid {
+  display: grid;
+  gap: $spacing-xl;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: $spacing-3xl $spacing-md;
+
+  @include respond-to('md') {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.benefit-item {
+  text-align: center;
+
+  svg {
+    width: 3rem;
+    height: 3rem;
+    color: hsl(var(--primary));
+    margin-bottom: $spacing-md;
+  }
+
+  h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: $spacing-sm;
+  }
+
+  p {
+    color: hsl(var(--muted-foreground));
+  }
+}
+
+.modules-grid {
+  display: grid;
+  gap: $spacing-xl;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: $spacing-3xl $spacing-md;
+
+  @include respond-to('md') {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.module-card {
+  background: white;
+  border: 1px solid #fce7f3;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  @include transition(all);
+
+  &:hover {
+    box-shadow: $shadow-lg;
+    transform: translateY(-2px);
+  }
+}
+
+.module-header {
+  padding: $spacing-xl;
+}
+
+.blue-gradient {
+  @include gradient(#3b82f6, #2563eb);
+}
+
+.green-gradient {
+  @include gradient(#10b981, #059669);
+}
+
+.purple-gradient {
+  @include gradient(#8b5cf6, #7c3aed);
+}
+
+.orange-gradient {
+  @include gradient(#f59e0b, #d97706);
+}
+
+.module-icon-wrapper {
+  width: 4rem;
+  height: 4rem;
+  @include flex-center;
+  margin-bottom: $spacing-md;
+}
+
+.module-icon {
+  width: 2rem;
+  height: 2rem;
+  color: white;
+}
+
+.module-info {
+  padding: 0 $spacing-xl $spacing-xl;
+}
+
+.module-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: $spacing-sm;
+}
+
+.task-card {
+  background: white;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  @include card-shadow;
+}

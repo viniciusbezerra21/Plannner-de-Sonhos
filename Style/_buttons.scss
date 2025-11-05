@@ -1,0 +1,159 @@
+// Botões
+.btn-primary {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  padding: 0.75rem 2rem;
+  border-radius: $radius-full;
+  font-weight: 500;
+  transition: all $transition-fast;
+  box-shadow: $shadow-lg;
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-sm;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.6s;
+  }
+
+  &:hover {
+    animation: glow 0.5s ease-in-out;
+
+    &::before {
+      left: 100%;
+    }
+  }
+}
+
+.btn-outline {
+  border: 1px solid hsl(var(--primary));
+  color: hsl(var(--primary));
+  background: transparent;
+  padding: 0.75rem 2rem;
+  border-radius: $radius-full;
+  font-weight: 500;
+  transition: all $transition-fast;
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-sm;
+  text-decoration: none;
+  cursor: pointer;
+  font-size: 1rem;
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: hsl(var(--primary) / 0.1);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.4s ease, height 0.4s ease;
+  }
+
+  &:hover {
+    background-color: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+
+    &::after {
+      width: 300px;
+      height: 300px;
+    }
+  }
+}
+
+// Botões de navegação
+.nav-btn {
+  background: none;
+  border: none;
+  padding: $spacing-sm;
+  border-radius: $radius-md;
+  cursor: pointer;
+  transition: background-color $transition-fast;
+
+  &:hover {
+    background: #f3f4f6;
+  }
+}
+
+// Botões de visualização
+.view-btn {
+  padding: 0.25rem 0.75rem;
+  border-radius: $radius-md;
+  font-size: 0.875rem;
+  font-weight: 500;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all $transition-fast;
+  color: #6b7280;
+
+  &:hover {
+    background: #f3f4f6;
+  }
+
+  &.active {
+    background: #fdf2fd;
+    color: hsl(var(--wedding-purple));
+  }
+}
+
+// Botões de ação
+.action-btn {
+  background: none;
+  border: none;
+  padding: $spacing-sm;
+  border-radius: $radius-md;
+  cursor: pointer;
+  transition: background-color $transition-fast;
+
+  &:hover {
+    background: #f3f4f6;
+  }
+}
+
+// Ações rápidas
+.quick-action {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: $radius-md;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background-color $transition-fast;
+  text-align: left;
+  width: 100%;
+
+  &:hover {
+    background: #f9fafb;
+  }
+
+  svg {
+    width: 1rem;
+    height: 1rem;
+    color: #ec4899;
+    flex-shrink: 0;
+  }
+
+  span {
+    color: #374151;
+  }
+}

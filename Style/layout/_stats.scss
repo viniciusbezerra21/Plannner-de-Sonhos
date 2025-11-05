@@ -1,0 +1,52 @@
+.stats {
+  padding: $spacing-3xl $spacing-md;
+  background: hsl(var(--muted));
+}
+
+.stats-grid {
+  display: grid;
+  gap: $spacing-xl;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  @include respond-to('md') {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-number {
+  font-size: 3rem;
+  font-weight: 800;
+  color: hsl(var(--primary));
+  margin-bottom: $spacing-sm;
+  position: relative;
+  display: inline-block;
+
+  &::after {
+    content: '+';
+    position: absolute;
+    right: -1.5rem;
+    top: 0;
+    font-size: 2rem;
+    color: hsl(var(--primary));
+    animation: pulse 2s infinite;
+  }
+}
+
+.stat-label {
+  font-size: 1.125rem;
+  color: hsl(var(--muted-foreground));
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}

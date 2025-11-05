@@ -6,9 +6,37 @@ $cookieName = "lembrar_me";
 $cookieTime = time() + (86400 * 30);
 $mensagem = "";
 
+if (!isset($_SESSION['usuario_id']) && isset($_COOKIE[$cookieName])) {
+  $cookieToken = $_COOKIE[$cookieName];
+  try {
+    $stmt = $pdo->prepare("SELECT id_usuario, nome, cargo, foto_perfil, email FROM usuarios WHERE remember_token = ?");
+    $stmt->execute([$cookieToken]);
+    $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($usuario) {
+      $_SESSION['usuario_id'] = (int) $usuario['id_usuario'];
+      $_SESSION['nome'] = $usuario['nome'];
+      $_SESSION['cargo'] = $usuario['cargo'];
+      $_SESSION['foto_perfil'] = $usuario['foto_perfil'] ?? 'default.png';
+      
+      if ($usuario["cargo"] === "dev") {
+        header("Location: ../pages/dev.php");
+      } else {
+        header("Location: ../index.php");
+      }
+      exit;
+    } else {
+      setcookie($cookieName, "", time() - 3600, "/", "", false, true);
+    }
+  } catch (PDOException $e) {
+    error_log("Cookie restore error: " . $e->getMessage());
+  }
+}
+
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["acao"]) && $_POST["acao"] === "login") {
   $email = $_POST["email"];
   $senha = $_POST["senha"];
+  $lembrarMe = isset($_POST["lembrar_me"]) && $_POST["lembrar_me"] === "1";
 
   $stmt = $pdo->prepare("SELECT id_usuario, nome, email, senha, cargo, foto_perfil FROM usuarios WHERE email = ? OR nome = ?");
   $stmt->execute([$email, $email]);
@@ -23,10 +51,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["acao"]) && $_POST["ac
     $_SESSION["cargo"] = $usuario["cargo"];
     $_SESSION["foto_perfil"] = $usuario['foto_perfil'] ?? 'default.png';
 
-    $token = bin2hex(random_bytes(16));
-    setcookie($cookieName, $token, $cookieTime, "/", "", false, true);
-    $stmt = $pdo->prepare("UPDATE usuarios SET remember_token = ? WHERE id_usuario = ?");
-    $stmt->execute([$token, $usuario["id_usuario"]]);
+    if ($lembrarMe) {
+      $token = bin2hex(random_bytes(16));
+      setcookie($cookieName, $token, $cookieTime, "/", "", false, true);
+      $stmt = $pdo->prepare("UPDATE usuarios SET remember_token = ? WHERE id_usuario = ?");
+      $stmt->execute([$token, $usuario["id_usuario"]]);
+    } else {
+      setcookie($cookieName, "", time() - 3600, "/", "", false, true);
+      $stmt = $pdo->prepare("UPDATE usuarios SET remember_token = NULL WHERE id_usuario = ?");
+      $stmt->execute([$usuario["id_usuario"]]);
+    }
 
     if ($usuario["cargo"] === "dev") {
       header("Location: ../pages/dev.php");
@@ -123,6 +157,28 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["acao"]) && $_POST["ac
     .input-group input:focus {
       border-color: hsl(var(--primary));
       outline: none;
+    }
+
+    .remember-me-container {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      padding: 0.5rem 0;
+    }
+
+    .remember-me-container input[type="checkbox"] {
+      width: 1.125rem;
+      height: 1.125rem;
+      cursor: pointer;
+      accent-color: hsl(var(--primary));
+    }
+
+    .remember-me-container label {
+      font-size: 0.9rem;
+      color: hsl(var(--foreground));
+      cursor: pointer;
+      user-select: none;
     }
 
     .mensagem-sucesso {
@@ -342,6 +398,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["acao"]) && $_POST["ac
                   </path>
                 </svg>
                 <input type="password" name="senha" placeholder="Senha" required />
+              </div>
+              <div class="remember-me-container">
+                <input type="checkbox" id="lembrar_me" name="lembrar_me" value="1" />
+                <label for="lembrar_me">Manter-me conectado</label>
               </div>
 
               <div class="form-actions">
