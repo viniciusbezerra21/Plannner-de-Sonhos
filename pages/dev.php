@@ -198,12 +198,59 @@ $tarefas = $pdo->query("
       min-height: 100vh;
     }
 
-    .dev-header {
+    /* Added header styles from first file */
+    .header {
       background: rgba(0, 0, 0, 0.3);
       backdrop-filter: blur(10px);
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       padding: 1rem 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+      transition: transform 0.2s;
+    }
+
+    .logo:hover {
+      transform: scale(1.05);
+    }
+
+    .heart-icon {
+      width: 2rem;
+      height: 2rem;
+      background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+
+    .logo-text {
+      font-family: "Poppins", sans-serif;
+      font-weight: 600;
+      font-size: 1.25rem;
+      color: white;
+    }
+    /* </CHANGE> */
 
     .dev-container {
       max-width: 1200px;
@@ -273,14 +320,7 @@ $tarefas = $pdo->query("
       max-height: 600px;
     }
 
-    .messages-card .card-header {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding-bottom: 1rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
+    .messages-card .card-header,
     .tasks-card .card-header {
       display: flex;
       align-items: center;
@@ -289,34 +329,18 @@ $tarefas = $pdo->query("
       border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     }
 
-    .messages-card .card-header h3 {
-      margin: 0;
-      font-size: 1.25rem;
-    }
-
+    .messages-card .card-header h3,
     .tasks-card .card-header h3 {
       margin: 0;
       font-size: 1.25rem;
     }
 
-    .messages-card .search-container {
-      padding: 0.5rem 0;
-    }
-
+    .messages-card .search-container,
     .tasks-card .search-container {
       padding: 0.5rem 0;
     }
 
-    .messages-card .search-input {
-      width: 100%;
-      padding: 0.75rem;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 0.5rem;
-      color: white;
-      font-size: 0.95rem;
-    }
-
+    .messages-card .search-input,
     .tasks-card .search-input {
       width: 100%;
       padding: 0.75rem;
@@ -327,22 +351,12 @@ $tarefas = $pdo->query("
       font-size: 0.95rem;
     }
 
-    .messages-card .search-input::placeholder {
-      color: rgba(255, 255, 255, 0.5);
-    }
-
+    .messages-card .search-input::placeholder,
     .tasks-card .search-input::placeholder {
       color: rgba(255, 255, 255, 0.5);
     }
 
-    .messages-card .messages-list {
-      flex: 1;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-
+    .messages-card .messages-list,
     .tasks-card .tasks-list {
       flex: 1;
       overflow-y: auto;
@@ -351,14 +365,7 @@ $tarefas = $pdo->query("
       gap: 0.75rem;
     }
 
-    .messages-card .message-item {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 0.5rem;
-      padding: 1rem;
-      transition: all 0.2s;
-    }
-
+    .messages-card .message-item,
     .tasks-card .task-item {
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.1);
@@ -367,23 +374,13 @@ $tarefas = $pdo->query("
       transition: all 0.2s;
     }
 
-    .messages-card .message-item:hover {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: hsl(var(--primary));
-    }
-
+    .messages-card .message-item:hover,
     .tasks-card .task-item:hover {
       background: rgba(255, 255, 255, 0.1);
       border-color: hsl(var(--primary));
     }
 
-    .messages-card .message-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.5rem;
-    }
-
+    .messages-card .message-header,
     .tasks-card .task-header {
       display: flex;
       justify-content: space-between;
@@ -391,15 +388,10 @@ $tarefas = $pdo->query("
       margin-bottom: 0.5rem;
     }
 
-    .messages-card .message-sender {
-      font-weight: 600;
-      color: hsl(var(--primary));
-    }
-
+    .messages-card .message-sender,
     .tasks-card .task-title {
       font-weight: 600;
       color: hsl(var(--primary));
-      font-size: 1rem;
     }
 
     .messages-card .message-time {
@@ -465,29 +457,18 @@ $tarefas = $pdo->query("
       font-style: italic;
     }
 
-    .messages-card .messages-list::-webkit-scrollbar {
-      width: 8px;
-    }
-
+    .messages-card .messages-list::-webkit-scrollbar,
     .tasks-card .tasks-list::-webkit-scrollbar {
       width: 8px;
     }
 
-    .messages-card .messages-list::-webkit-scrollbar-track {
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 4px;
-    }
-
+    .messages-card .messages-list::-webkit-scrollbar-track,
     .tasks-card .tasks-list::-webkit-scrollbar-track {
       background: rgba(255, 255, 255, 0.05);
       border-radius: 4px;
     }
 
-    .messages-card .messages-list::-webkit-scrollbar-thumb {
-      background: hsl(var(--primary));
-      border-radius: 4px;
-    }
-
+    .messages-card .messages-list::-webkit-scrollbar-thumb,
     .tasks-card .tasks-list::-webkit-scrollbar-thumb {
       background: hsl(var(--primary));
       border-radius: 4px;
@@ -497,12 +478,10 @@ $tarefas = $pdo->query("
       .dev-actions {
         grid-template-columns: repeat(2, 1fr);
       }
-
       .action-card.messages-card {
         grid-column: span 2;
         grid-row: span 1;
       }
-
       .action-card.tasks-card {
         grid-row: span 1;
         max-height: 400px;
@@ -513,13 +492,7 @@ $tarefas = $pdo->query("
       .dev-actions {
         grid-template-columns: 1fr;
       }
-
-      .action-card.messages-card {
-        grid-column: span 1;
-        grid-row: span 1;
-        max-height: 400px;
-      }
-
+      .action-card.messages-card,
       .action-card.tasks-card {
         grid-row: span 1;
         max-height: 400px;
@@ -550,13 +523,6 @@ $tarefas = $pdo->query("
     .btn-dev:hover {
       transform: translateY(-2px);
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-    }
-
-    .logo-text {
-      font-family: "Poppins", sans-serif;
-      font-weight: 600;
-      font-size: 1.25rem;
-      color: white;
     }
 
     .edit-form {
@@ -591,29 +557,85 @@ $tarefas = $pdo->query("
       margin: 0.25rem;
     }
 
+
+    .footer-dev {
+      background: none;
+      border-top: none;
+      padding: 3rem 1rem 2rem;
+    }
+
+    .footer-content-dev {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (min-width: 768px) {
+      .footer-content-dev {
+        grid-template-columns: 2fr 1fr 1fr;
+      }
+    }
+
+    .footer-brand-dev {
+      max-width: 24rem;
+    }
+
     .footer-description-dev {
-      color: white;
+      color: hsl(var(--muted-foreground));
       margin: 1rem 0;
       line-height: 1.6;
     }
 
-    .edit-form input::placeholder {
-      color: rgba(255, 255, 255, 0.7);
+    .footer-contact-dev {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: hsl(var(--muted-foreground));
     }
 
-    .btn-small {
-      padding: 0.25rem 0.5rem;
-      font-size: 0.8rem;
-      margin: 0.25rem;
+    .footer-links-dev h3 {
+      font-family: "Poppins", sans-serif;
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: hsl(var(--foreground));
+      margin-bottom: 1rem;
     }
 
-    .footer-description-dev {
-      color: white;
-      margin: 1rem 0;
-      line-height: 1.6;
+    .footer-links-dev ul {
+      list-style: none;
     }
 
-    /* Added popup notification styles */
+    .footer-links-dev li {
+      margin-bottom: 0.5rem;
+    }
+
+    .footer-links-dev a {
+      color: hsl(var(--muted-foreground));
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-links-dev a:hover {
+      color: hsl(var(--primary));
+    }
+
+    .footer-bottom-dev {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      align-items: center;
+      padding-top: 2rem;
+      color: hsl(var(--muted-foreground));
+    }
+
+    @media (min-width: 768px) {
+      .footer-bottom-dev {
+        flex-direction: row;
+        justify-content: space-between;
+      }
+    }
+
     .popup-notification {
       position: fixed;
       top: 50%;
@@ -709,14 +731,14 @@ $tarefas = $pdo->query("
       display: block;
     }
 
-    /* Fixed select visibility issue */
     select {
       color: white !important;
       background: rgba(255, 255, 255, 0.1) !important;
       -webkit-appearance: none;
       -moz-appearance: none;
       appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='white' d='M6 9L1 4h10z'/%3E%3C/svg%3E") !important;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath
+                  d='M6 9L1 4h10z'/%3E%3C/svg%3E") !important;
       background-repeat: no-repeat !important;
       background-position: right 0.75rem center !important;
       padding-right: 2.5rem !important;
@@ -732,24 +754,24 @@ $tarefas = $pdo->query("
       outline: 2px solid hsl(var(--primary));
       outline-offset: 2px;
     }
+    
   </style>
 </head>
 
 <body>
   <div id="pageContent">
-    <header class="dev-header">
-      <div class="dev-container">
+    <!-- Added proper header structure from first file -->
+    <header class="header">
+      <div class="container">
         <div class="header-content">
-
-          <a href="../index.php" class="logo"
-            style="display: flex; align-items: center; gap: 6px; text-decoration: none;">
+          <a href="../index.php" class="logo">
             <div class="heart-icon">
               <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
                 <path
                   d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>
             </div>
-            <span class="logo-text">Planner de Sonhos - DEV</span>
+            <span class="logo-text">Planner de Sonhos - Dev</span>
           </a>
 
           <nav style="display: flex; gap: 1rem; align-items: center;">
@@ -761,7 +783,6 @@ $tarefas = $pdo->query("
               <button type="submit" name="logout" class="btn-dev">Logout</button>
             </form>
           </nav>
-
         </div>
       </div>
     </header>
@@ -1178,6 +1199,46 @@ $tarefas = $pdo->query("
       </form>
     </div>
   </div>
+
+  <footer class="footer-dev" style="background: none; border-top: none;">
+    <div class="container">
+      <div class="footer-content-dev">
+        <div class="footer-brand-dev">
+          <a href="../index.php" class="logo">
+            <div class="heart-icon">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              </svg>
+            </div>
+            <span class="logo-text">Planner de Sonhos - Dev</span>
+          </a>
+          <p class="footer-description-dev">
+            A plataforma mais completa para cerimonialistas organizarem casamentos perfeitos. Simplifique sua gestão e encante seus clientes.
+          </p>
+          <div class="footer-contact-dev">
+            <svg style="width: 1rem; height: 1rem" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+              <polyline points="22,6 12,13 2,6" />
+            </svg>
+            <span>contato@plannerdesonhos.com</span>
+          </div>
+        </div>
+        <div class="footer-links-dev">
+          <h3>Links Rápidos</h3>
+          <ul>
+            <li><a href="../legal-pages/about.html">Sobre</a></li>
+            <li><a href="../legal-pages/privacity-politics.html">Política de Privacidade</a></li>
+            <li><a href="../legal-pages/uses-terms.html">Termos de Uso</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom-dev">
+        <p>&copy; 2025 Planner de Sonhos. Todos os direitos reservados.</p>
+      </div>
+    </div>
+</footer>
+
 
   <!-- Added popup notification elements -->
   <div class="popup-overlay" id="popupOverlay"></div>
