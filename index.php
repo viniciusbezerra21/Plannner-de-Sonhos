@@ -371,6 +371,7 @@ if (isset($_SESSION["usuario_id"])) {
                 <a href="pages/itens.php">Serviços</a>
                 <a href="pages/gestao-contratos.php">Gestão de Contratos</a>
                 <a href="pages/tarefas.php">Lista de Tarefas</a>
+                <a href="pages/cerimonialista.php">Cadastrar Fornecedores</a>
               </div>
             </div>
             <a href="pages/contato.php" class="nav-link">Contato</a>
