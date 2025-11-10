@@ -222,7 +222,7 @@ if ($cargo === 'cerimonialista') {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Planner de Sonhos - Gestão de Contratos</title>
+  <title >Planner de Sonhos - Gestão de Contratos</title>
   <link rel="stylesheet" href="../Style/styles.css" />
   <link rel="shortcut icon" href="../Style/assets/icon.png" type="image/x-icon">
   <link
@@ -308,6 +308,8 @@ if ($cargo === 'cerimonialista') {
 
     .btn-download {
       background: hsl(var(--primary));
+    .btn-edit {
+      background-color: hsl(var(--primary));
       color: white;
     }
 
@@ -326,6 +328,7 @@ if ($cargo === 'cerimonialista') {
 
     .btn-reject {
       background: #ef4444;
+
       color: white;
     }
 
@@ -660,8 +663,9 @@ if ($cargo === 'cerimonialista') {
     <section class="page-content">
       <div class="container">
         <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+        <div class="page-header" style="justify-content:space-between;align-items:flex-start;">
           <div>
-            <h1 class="page-title">
+            <h1 class="page-title"">
               Gestão de <span class="gradient-text">Contratos</span>
             </h1>
             <p class="page-description">
@@ -681,6 +685,7 @@ if ($cargo === 'cerimonialista') {
               Novo Contrato
             </button>
           <?php endif; ?>
+          <button  class="btn-primary" style="margin-top: 1.5rem;" onclick="openAddModal()">+ Novo Contrato</button>
         </div>
 
         <?php if ($cargo === 'cliente'): ?>
@@ -757,6 +762,10 @@ if ($cargo === 'cerimonialista') {
                     <a href="../contratos/<?php echo htmlspecialchars($contrato['arquivo_contrato']); ?>" 
                        download class="btn-small btn-download">
                       📄 Baixar Contrato
+                  <?php if ($contrato['arquivo_pdf']): ?>
+                    <a href="../Docs/<?php echo htmlspecialchars($contrato['arquivo_pdf']); ?>" download class="btn-small"
+                      style="scale: 0.8;">
+                       Baixar
                     </a>
                   <?php endif; ?>
 
@@ -780,9 +789,15 @@ if ($cargo === 'cerimonialista') {
                   <?php endif; ?>
 
                   <form method="post" style="display: inline;" onsubmit="return confirm('Tem certeza que deseja excluir este contrato?')">
+                  <button style="scale: 0.8;" class="btn-primary"
+                    onclick="openEditModal(<?php echo htmlspecialchars(json_encode($contrato)); ?>)">
+                     Editar
+                  </button>
+                  <form method="post" style="display: inline;"
+                    onsubmit="return confirm('Tem certeza que deseja excluir este contrato?')">
                     <input type="hidden" name="id_contrato" value="<?php echo $contrato['id_contrato']; ?>">
-                    <button type="submit" name="delete_contract" class="btn-small btn-delete">
-                      🗑️ Excluir
+                    <button type="submit" name="delete_contract" style="scale: 0.8; left: 120px;" class="btn-outline">
+                       Excluir
                     </button>
                   </form>
                 </div>
