@@ -58,8 +58,35 @@ $categorias = [
 
 $categoria_selecionada = isset($_GET['categoria']) ? $_GET['categoria'] : 'buffet';
 
+$itens_por_pagina = 12;
+$pagina_atual = isset($_GET['pagina']) ? max(1, (int)$_GET['pagina']) : 1;
+$offset = ($pagina_atual - 1) * $itens_por_pagina;
+
 $itens_disponiveis = [];
 $pacotes_disponiveis = [];
+
+$sql_count_itens = "
+  SELECT COUNT(DISTINCT i.id_item) as total
+  FROM itens i
+  INNER JOIN fornecedores f ON i.id_fornecedor = f.id_fornecedor
+  WHERE f.categoria = ?
+";
+$stmt_count = $pdo->prepare($sql_count_itens);
+$stmt_count->execute([$categoria_selecionada]);
+$total_itens = $stmt_count->fetch(PDO::FETCH_ASSOC)['total'];
+
+$sql_count_pacotes = "
+  SELECT COUNT(DISTINCT p.id_pacote) as total
+  FROM pacotes p
+  INNER JOIN fornecedores f ON p.id_fornecedor = f.id_fornecedor
+  WHERE f.categoria = ?
+";
+$stmt_count_pacotes = $pdo->prepare($sql_count_pacotes);
+$stmt_count_pacotes->execute([$categoria_selecionada]);
+$total_pacotes = $stmt_count_pacotes->fetch(PDO::FETCH_ASSOC)['total'];
+
+$total_servicos = $total_itens + $total_pacotes;
+$total_paginas = ceil($total_servicos / $itens_por_pagina);
 
 // Buscar itens da categoria selecionada
 $sql_itens = "
@@ -143,6 +170,8 @@ foreach ($itens_disponiveis as $item) {
     'avaliacoes' => $item['total_avaliacoes']
   ];
 }
+
+$servicos_paginados = array_slice($servicos_disponiveis, $offset, $itens_por_pagina);
 
 if (isset($_POST['logout'])) {
   try {
@@ -461,6 +490,72 @@ if (isset($_POST['add_to_budget'])) {
       border: 1px solid #c3e6cb;
     }
 
+    /* Estilos para paginação */
+    .pagination-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 2rem;
+      padding: 1rem 0;
+    }
+
+    .pagination-info {
+      color: hsl(var(--muted-foreground));
+      font-size: 0.9rem;
+      margin-right: 1rem;
+    }
+
+    .pagination-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 40px;
+      height: 40px;
+      padding: 0.5rem;
+      border: 1px solid hsl(var(--border));
+      background: hsl(var(--card));
+      color: hsl(var(--foreground));
+      border-radius: 0.5rem;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .pagination-button:hover:not(.disabled):not(.active) {
+      background: hsl(var(--muted));
+      border-color: hsl(var(--primary));
+      color: hsl(var(--primary));
+    }
+
+    .pagination-button.active {
+      background: hsl(var(--primary));
+      color: white;
+      border-color: hsl(var(--primary));
+      font-weight: 600;
+    }
+
+    .pagination-button.disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .pagination-button svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .pagination-ellipsis {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 40px;
+      height: 40px;
+      color: hsl(var(--muted-foreground));
+    }
+
     .profile-dropdown-wrapper {
       position: relative;
     }
@@ -612,6 +707,16 @@ if (isset($_POST['add_to_budget'])) {
       .suppliers-grid {
         grid-template-columns: 1fr;
       }
+
+      .pagination-container {
+        flex-wrap: wrap;
+      }
+
+      .pagination-info {
+        width: 100%;
+        text-align: center;
+        margin: 0 0 0.5rem 0;
+      }
     }
   </style>
 </head>
@@ -759,7 +864,7 @@ if (isset($_POST['add_to_budget'])) {
               </div>
             <?php else: ?>
               <div class="suppliers-grid">
-                <?php foreach ($servicos_disponiveis as $servico): ?>
+                <?php foreach ($servicos_paginados as $servico): ?>
                   <div class="supplier-card">
                     <div class="supplier-header">
                       <div style="flex: 1;">
@@ -841,6 +946,73 @@ if (isset($_POST['add_to_budget'])) {
                   </div>
                 <?php endforeach; ?>
               </div>
+
+              <?php if ($total_paginas > 1): ?>
+                <!-- Adicionar controles de paginação -->
+                <div class="pagination-container">
+                  <div class="pagination-info">
+                    Mostrando <?php echo $offset + 1; ?> - <?php echo min($offset + $itens_por_pagina, $total_servicos); ?> de <?php echo $total_servicos; ?> serviços
+                  </div>
+
+                  <?php if ($pagina_atual > 1): ?>
+                    <a href="itens.php?categoria=<?php echo urlencode($categoria_selecionada); ?>&pagina=<?php echo $pagina_atual - 1; ?>" 
+                       class="pagination-button">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                      </svg>
+                    </a>
+                  <?php else: ?>
+                    <span class="pagination-button disabled">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                      </svg>
+                    </span>
+                  <?php endif; ?>
+
+                  <?php
+                  $range = 2;
+                  $start = max(1, $pagina_atual - $range);
+                  $end = min($total_paginas, $pagina_atual + $range);
+
+                  if ($start > 1): ?>
+                    <a href="itens.php?categoria=<?php echo urlencode($categoria_selecionada); ?>&pagina=1" 
+                       class="pagination-button">1</a>
+                    <?php if ($start > 2): ?>
+                      <span class="pagination-ellipsis">...</span>
+                    <?php endif; ?>
+                  <?php endif; ?>
+
+                  <?php for ($i = $start; $i <= $end; $i++): ?>
+                    <a href="itens.php?categoria=<?php echo urlencode($categoria_selecionada); ?>&pagina=<?php echo $i; ?>" 
+                       class="pagination-button <?php echo ($i === $pagina_atual) ? 'active' : ''; ?>">
+                      <?php echo $i; ?>
+                    </a>
+                  <?php endfor; ?>
+
+                  <?php if ($end < $total_paginas): ?>
+                    <?php if ($end < $total_paginas - 1): ?>
+                      <span class="pagination-ellipsis">...</span>
+                    <?php endif; ?>
+                    <a href="itens.php?categoria=<?php echo urlencode($categoria_selecionada); ?>&pagina=<?php echo $total_paginas; ?>" 
+                       class="pagination-button"><?php echo $total_paginas; ?></a>
+                  <?php endif; ?>
+
+                  <?php if ($pagina_atual < $total_paginas): ?>
+                    <a href="itens.php?categoria=<?php echo urlencode($categoria_selecionada); ?>&pagina=<?php echo $pagina_atual + 1; ?>" 
+                       class="pagination-button">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                      </svg>
+                    </a>
+                  <?php else: ?>
+                    <span class="pagination-button disabled">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                      </svg>
+                    </span>
+                  <?php endif; ?>
+                </div>
+              <?php endif; ?>
             <?php endif; ?>
           </div>
         </div>
