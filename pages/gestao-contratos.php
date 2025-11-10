@@ -27,7 +27,7 @@ $user_data = ['nome' => 'Usuário', 'email' => '', 'foto_perfil' => 'default.png
 
 if (isset($_SESSION['usuario_id'])) {
   try {
-    $stmt = $pdo->prepare("SELECT nome, email, foto_perfil FROM usuarios WHERE id_usuario = ?");
+    $stmt = $pdo->prepare("SELECT nome, email, foto_perfil, cargo FROM usuarios WHERE id_usuario = ?");
     $stmt->execute([(int) $_SESSION['usuario_id']]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -35,7 +35,8 @@ if (isset($_SESSION['usuario_id'])) {
       $user_data = [
         'nome' => $result['nome'] ?? 'Usuário',
         'email' => $result['email'] ?? '',
-        'foto_perfil' => !empty($result['foto_perfil']) ? $result['foto_perfil'] : 'default.png'
+        'foto_perfil' => !empty($result['foto_perfil']) ? $result['foto_perfil'] : 'default.png',
+        'cargo' => $result['cargo'] ?? 'cliente'
       ];
 
       if (!empty($result['foto_perfil'])) {
@@ -43,12 +44,13 @@ if (isset($_SESSION['usuario_id'])) {
       } else {
         $_SESSION['foto_perfil'] = 'default.png';
       }
+      
+      $_SESSION['cargo'] = $result['cargo'] ?? 'cliente';
     }
   } catch (PDOException $e) {
     error_log("Error fetching user data: " . $e->getMessage());
   }
 }
-
 
 if (!isset($_SESSION['usuario_id'])) {
   header("Location: ../user/login.php");
@@ -56,15 +58,17 @@ if (!isset($_SESSION['usuario_id'])) {
 }
 
 $idUsuario = (int) $_SESSION['usuario_id'];
+$cargo = $_SESSION['cargo'] ?? 'cliente';
 
 if (isset($_POST['logout'])) {
   try {
     $stmt = $pdo->prepare("UPDATE usuarios SET remember_token = NULL WHERE id_usuario = ?");
-    $stmt->execute([$usuario_id]);
+    $stmt->execute([$idUsuario]);
   } catch (PDOException $e) {
     error_log("Logout error: " . $e->getMessage());
   }
 
+  $cookieName = "lembrar_me";
   setcookie($cookieName, "", time() - 3600, "/");
   session_unset();
   session_destroy();
@@ -72,81 +76,145 @@ if (isset($_POST['logout'])) {
   exit;
 }
 
-
-if (isset($_POST['add_contract'])) {
-  $nome_fornecedor = trim($_POST['nome_fornecedor']);
-  $categoria = trim($_POST['categoria']);
-  $data_assinatura = $_POST['data_assinatura'];
-  $data_validade = $_POST['data_validade'];
-  $valor = $_POST['valor'] ? floatval($_POST['valor']) : null;
-  $observacoes = trim($_POST['observacoes']);
-
-
-  $arquivo_pdf = '';
-  if (isset($_FILES['arquivo_pdf']) && $_FILES['arquivo_pdf']['error'] === UPLOAD_ERR_OK) {
-    $uploadDir = '../Docs/';
-    $fileName = time() . '_' . basename($_FILES['arquivo_pdf']['name']);
+if (isset($_POST['create_contract']) && $cargo === 'cerimonialista') {
+  $id_cliente = (int) $_POST['id_cliente'];
+  $nome_contrato = trim($_POST['nome_contrato']);
+  $descricao = trim($_POST['descricao']);
+  
+  $arquivo_contrato = '';
+  if (isset($_FILES['arquivo_contrato']) && $_FILES['arquivo_contrato']['error'] === UPLOAD_ERR_OK) {
+    $uploadDir = '../contratos/';
+    if (!is_dir($uploadDir)) {
+      mkdir($uploadDir, 0755, true);
+    }
+    
+    $fileExtension = pathinfo($_FILES['arquivo_contrato']['name'], PATHINFO_EXTENSION);
+    $fileName = 'contrato_' . time() . '_' . uniqid() . '.' . $fileExtension;
     $uploadPath = $uploadDir . $fileName;
 
-    if (move_uploaded_file($_FILES['arquivo_pdf']['tmp_name'], $uploadPath)) {
-      $arquivo_pdf = $fileName;
+    if (move_uploaded_file($_FILES['arquivo_contrato']['tmp_name'], $uploadPath)) {
+      $arquivo_contrato = $fileName;
     }
   }
 
-  if ($nome_fornecedor !== "" && $categoria !== "" && $data_assinatura !== "" && $data_validade !== "") {
-    $stmt = $pdo->prepare("INSERT INTO contratos (nome_fornecedor, categoria, arquivo_pdf, data_assinatura, data_validade, valor, observacoes, id_usuario) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->execute([$nome_fornecedor, $categoria, $arquivo_pdf, $data_assinatura, $data_validade, $valor, $observacoes, $idUsuario]);
+  if ($nome_contrato !== "" && $arquivo_contrato !== "") {
+    $stmt = $pdo->prepare("INSERT INTO contratos (id_usuario, id_cerimonialista, nome_contrato, descricao, arquivo_contrato, status) VALUES (?, ?, ?, ?, ?, 'pendente')");
+    $stmt->execute([$id_cliente, $idUsuario, $nome_contrato, $descricao, $arquivo_contrato]);
   }
 
   header("Location: gestao-contratos.php");
   exit;
 }
 
+if (isset($_POST['sign_contract']) && $cargo === 'cliente') {
+  $id_contrato = (int) $_POST['id_contrato'];
+  
+  // Verificar se o contrato pertence ao usuário
+  $stmt = $pdo->prepare("SELECT * FROM contratos WHERE id_contrato = ? AND id_usuario = ? AND status = 'pendente'");
+  $stmt->execute([$id_contrato, $idUsuario]);
+  $contrato = $stmt->fetch(PDO::FETCH_ASSOC);
+  
+  if ($contrato) {
+    $arquivo_assinado = '';
+    if (isset($_FILES['arquivo_assinado']) && $_FILES['arquivo_assinado']['error'] === UPLOAD_ERR_OK) {
+      $uploadDir = '../contratos/';
+      if (!is_dir($uploadDir)) {
+        mkdir($uploadDir, 0755, true);
+      }
+      
+      $fileExtension = pathinfo($_FILES['arquivo_assinado']['name'], PATHINFO_EXTENSION);
+      $fileName = 'assinado_' . time() . '_' . uniqid() . '.' . $fileExtension;
+      $uploadPath = $uploadDir . $fileName;
+
+      if (move_uploaded_file($_FILES['arquivo_assinado']['tmp_name'], $uploadPath)) {
+        $arquivo_assinado = $fileName;
+        
+        $stmt = $pdo->prepare("UPDATE contratos SET arquivo_assinado = ?, status = 'assinado', data_assinatura = NOW() WHERE id_contrato = ?");
+        $stmt->execute([$arquivo_assinado, $id_contrato]);
+      }
+    }
+  }
+
+  header("Location: gestao-contratos.php");
+  exit;
+}
+
+if (isset($_POST['reject_contract']) && $cargo === 'cliente') {
+  $id_contrato = (int) $_POST['id_contrato'];
+  
+  $stmt = $pdo->prepare("UPDATE contratos SET status = 'rejeitado' WHERE id_contrato = ? AND id_usuario = ?");
+  $stmt->execute([$id_contrato, $idUsuario]);
+
+  header("Location: gestao-contratos.php");
+  exit;
+}
 
 if (isset($_POST['delete_contract'])) {
   $id_contrato = (int) $_POST['id_contrato'];
-
-
-  $stmt = $pdo->prepare("SELECT arquivo_pdf FROM contratos WHERE id_contrato = ? AND id_usuario = ?");
-  $stmt->execute([$id_contrato, $idUsuario]);
+  
+  // Verificar permissão
+  if ($cargo === 'cerimonialista') {
+    $stmt = $pdo->prepare("SELECT * FROM contratos WHERE id_contrato = ? AND id_cerimonialista = ?");
+    $stmt->execute([$id_contrato, $idUsuario]);
+  } else {
+    $stmt = $pdo->prepare("SELECT * FROM contratos WHERE id_contrato = ? AND id_usuario = ?");
+    $stmt->execute([$id_contrato, $idUsuario]);
+  }
+  
   $contrato = $stmt->fetch(PDO::FETCH_ASSOC);
-
-  if ($contrato && $contrato['arquivo_pdf']) {
-    $filePath = '../Docs/' . $contrato['arquivo_pdf'];
-    if (file_exists($filePath)) {
-      unlink($filePath);
+  
+  if ($contrato) {
+    // Deletar arquivos
+    if ($contrato['arquivo_contrato']) {
+      $filePath = '../contratos/' . $contrato['arquivo_contrato'];
+      if (file_exists($filePath)) {
+        unlink($filePath);
+      }
     }
+    if ($contrato['arquivo_assinado']) {
+      $filePath = '../contratos/' . $contrato['arquivo_assinado'];
+      if (file_exists($filePath)) {
+        unlink($filePath);
+      }
+    }
+    
+    // Deletar registro
+    $stmt = $pdo->prepare("DELETE FROM contratos WHERE id_contrato = ?");
+    $stmt->execute([$id_contrato]);
   }
 
-  $stmt = $pdo->prepare("DELETE FROM contratos WHERE id_contrato = ? AND id_usuario = ?");
-  $stmt->execute([$id_contrato, $idUsuario]);
-
   header("Location: gestao-contratos.php");
   exit;
 }
 
-
-if (isset($_POST['edit_contract'])) {
-  $id_contrato = (int) $_POST['id_contrato'];
-  $nome_fornecedor = trim($_POST['nome_fornecedor']);
-  $categoria = trim($_POST['categoria']);
-  $data_assinatura = $_POST['data_assinatura'];
-  $data_validade = $_POST['data_validade'];
-  $valor = $_POST['valor'] ? floatval($_POST['valor']) : null;
-  $status = $_POST['status'];
-  $observacoes = trim($_POST['observacoes']);
-
-  $stmt = $pdo->prepare("UPDATE contratos SET nome_fornecedor = ?, categoria = ?, data_assinatura = ?, data_validade = ?, valor = ?, status = ?, observacoes = ? WHERE id_contrato = ? AND id_usuario = ?");
-  $stmt->execute([$nome_fornecedor, $categoria, $data_assinatura, $data_validade, $valor, $status, $observacoes, $id_contrato, $idUsuario]);
-
-  header("Location: gestao-contratos.php");
-  exit;
+if ($cargo === 'cerimonialista') {
+  // Cerimonialista vê contratos que ele criou
+  $stmt = $pdo->prepare("
+    SELECT c.*, u.nome as nome_cliente, u.email as email_cliente 
+    FROM contratos c 
+    JOIN usuarios u ON c.id_usuario = u.id_usuario 
+    WHERE c.id_cerimonialista = ? 
+    ORDER BY c.data_criacao DESC
+  ");
+  $stmt->execute([$idUsuario]);
+} else {
+  // Cliente vê contratos enviados para ele
+  $stmt = $pdo->prepare("
+    SELECT c.*, u.nome as nome_cerimonialista 
+    FROM contratos c 
+    JOIN usuarios u ON c.id_cerimonialista = u.id_usuario 
+    WHERE c.id_usuario = ? 
+    ORDER BY c.data_criacao DESC
+  ");
+  $stmt->execute([$idUsuario]);
 }
-
-
-$stmt = $pdo->prepare("SELECT * FROM contratos WHERE id_usuario = ? ORDER BY data_assinatura DESC");
-$stmt->execute([$idUsuario]);
 $contratos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$clientes = [];
+if ($cargo === 'cerimonialista') {
+  $stmt = $pdo->query("SELECT id_usuario, nome, email FROM usuarios WHERE cargo = 'cliente' ORDER BY nome");
+  $clientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -169,6 +237,7 @@ $contratos = $stmt->fetchAll(PDO::FETCH_ASSOC);
       justify-content: center;
       align-items: center;
       z-index: 2000;
+      backdrop-filter: blur(4px);
     }
 
     .modal-overlay.active {
@@ -220,6 +289,7 @@ $contratos = $stmt->fetchAll(PDO::FETCH_ASSOC);
     .contract-actions {
       display: flex;
       gap: 0.5rem;
+      flex-wrap: wrap;
       margin-top: 1rem;
     }
 
@@ -233,16 +303,43 @@ $contratos = $stmt->fetchAll(PDO::FETCH_ASSOC);
       display: inline-flex;
       align-items: center;
       gap: 0.25rem;
+      transition: all 0.2s;
     }
 
-    .btn-edit {
-      background: #3b82f6;
+    .btn-download {
+      background: hsl(var(--primary));
       color: white;
+    }
+
+    .btn-download:hover {
+      opacity: 0.9;
+    }
+
+    .btn-sign {
+      background: #10b981;
+      color: white;
+    }
+
+    .btn-sign:hover {
+      background: #059669;
+    }
+
+    .btn-reject {
+      background: #ef4444;
+      color: white;
+    }
+
+    .btn-reject:hover {
+      background: #dc2626;
     }
 
     .btn-delete {
-      background: #ef4444;
+      background: #6b7280;
       color: white;
+    }
+
+    .btn-delete:hover {
+      background: #4b5563;
     }
 
     .status-badge {
@@ -251,21 +348,61 @@ $contratos = $stmt->fetchAll(PDO::FETCH_ASSOC);
       font-size: 0.75rem;
       font-weight: 600;
       text-transform: uppercase;
+      display: inline-block;
     }
 
-    .status-ativo {
+    .status-pendente {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .status-assinado {
       background: #dcfce7;
       color: #166534;
     }
 
-    .status-vencido {
-      background: #fef2f2;
-      color: #dc2626;
+    .status-rejeitado {
+      background: #fee2e2;
+      color: #991b1b;
     }
 
-    .status-cancelado {
-      background: #f3f4f6;
-      color: #6b7280;
+    .contract-card {
+      background: white;
+      border: 1px solid hsl(var(--border));
+      border-radius: 1rem;
+      padding: 1.5rem;
+      transition: all 0.2s;
+    }
+
+    .contract-card:hover {
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .contract-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 1rem;
+    }
+
+    .contract-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: hsl(var(--foreground));
+      margin-bottom: 0.25rem;
+    }
+
+    .contract-meta {
+      color: hsl(var(--muted-foreground));
+      font-size: 0.875rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .contract-description {
+      color: hsl(var(--muted-foreground));
+      margin-bottom: 1rem;
+      line-height: 1.5;
     }
 
     .profile-dropdown-wrapper {
@@ -395,6 +532,24 @@ $contratos = $stmt->fetchAll(PDO::FETCH_ASSOC);
     .profile-dropdown-item.logout svg {
       stroke: hsl(var(--destructive));
     }
+
+    .info-banner {
+      background: linear-gradient(135deg, hsl(var(--primary) / 0.1), hsl(var(--secondary) / 0.1));
+      border: 1px solid hsl(var(--border));
+      border-radius: 0.75rem;
+      padding: 1rem;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .info-banner svg {
+      width: 24px;
+      height: 24px;
+      color: hsl(var(--primary));
+      flex-shrink: 0;
+    }
   </style>
 </head>
 
@@ -504,68 +659,127 @@ $contratos = $stmt->fetchAll(PDO::FETCH_ASSOC);
   <main>
     <section class="page-content">
       <div class="container">
-        <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;">
+        <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
           <div>
             <h1 class="page-title">
               Gestão de <span class="gradient-text">Contratos</span>
             </h1>
             <p class="page-description">
-              Visualize, baixe e mantenha todos os contratos organizados em um só lugar.
+              <?php if ($cargo === 'cerimonialista'): ?>
+                Crie e envie contratos para seus clientes assinarem digitalmente.
+              <?php else: ?>
+                Visualize e assine os contratos enviados pelo seu cerimonialista.
+              <?php endif; ?>
             </p>
           </div>
-          <button class="btn-primary" onclick="openAddModal()">+ Novo Contrato</button>
+          <?php if ($cargo === 'cerimonialista'): ?>
+            <button class="btn-primary" onclick="openCreateModal()">
+              <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              Novo Contrato
+            </button>
+          <?php endif; ?>
         </div>
 
-        <div class="contracts-grid"
-          style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem;">
+        <?php if ($cargo === 'cliente'): ?>
+          <div class="info-banner">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <div>
+              <strong>Como assinar um contrato:</strong> Baixe o contrato, assine-o (digitalmente ou impresso e escaneado), 
+              e faça o upload do arquivo assinado clicando em "Assinar Contrato".
+            </div>
+          </div>
+        <?php endif; ?>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem;">
           <?php if (empty($contratos)): ?>
-            <div class="card" style="grid-column: 1 / -1; text-align: center; padding: 2rem;">
-              <p>Você ainda não tem contratos cadastrados.</p>
+            <div class="card" style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
+              <svg style="width: 64px; height: 64px; margin: 0 auto 1rem; color: hsl(var(--muted-foreground));" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+              <h3 style="margin-bottom: 0.5rem;">Nenhum contrato encontrado</h3>
+              <p style="color: hsl(var(--muted-foreground));">
+                <?php if ($cargo === 'cerimonialista'): ?>
+                  Comece criando um novo contrato para seus clientes.
+                <?php else: ?>
+                  Aguarde o envio de contratos pelo seu cerimonialista.
+                <?php endif; ?>
+              </p>
             </div>
           <?php else: ?>
             <?php foreach ($contratos as $contrato): ?>
-              <div class="card" style="display: flex; flex-direction: column; text-align: center; padding: 1rem;">
-                <?php if ($contrato['arquivo_pdf']): ?>
-                  <iframe src="../Docs/<?php echo htmlspecialchars($contrato['arquivo_pdf']); ?>"
-                    style="width: 100%; height: 200px; border-radius: 0.5rem; margin-bottom: 1rem; border: 1px solid hsl(var(--border));">
-                  </iframe>
-                <?php else: ?>
-                  <div
-                    style="width: 100%; height: 200px; border-radius: 0.5rem; margin-bottom: 1rem; border: 1px solid hsl(var(--border)); display: flex; align-items: center; justify-content: center; background: #f8f9fa;">
-                    <span>📄 Sem arquivo</span>
+              <div class="contract-card">
+                <div class="contract-header">
+                  <div style="flex: 1;">
+                    <h3 class="contract-title"><?php echo htmlspecialchars($contrato['nome_contrato']); ?></h3>
+                    <div class="contract-meta">
+                      <?php if ($cargo === 'cerimonialista'): ?>
+                        Cliente: <?php echo htmlspecialchars($contrato['nome_cliente']); ?>
+                      <?php else: ?>
+                        Cerimonialista: <?php echo htmlspecialchars($contrato['nome_cerimonialista']); ?>
+                      <?php endif; ?>
+                    </div>
+                    <div class="contract-meta">
+                      Criado em: <?php echo date("d/m/Y H:i", strtotime($contrato['data_criacao'])); ?>
+                    </div>
+                    <?php if ($contrato['data_assinatura']): ?>
+                      <div class="contract-meta">
+                        Assinado em: <?php echo date("d/m/Y H:i", strtotime($contrato['data_assinatura'])); ?>
+                      </div>
+                    <?php endif; ?>
                   </div>
-                <?php endif; ?>
-
-                <h3 style="margin-bottom: 0.5rem"><?php echo htmlspecialchars($contrato['nome_fornecedor']); ?></h3>
-
-                <div style="display: flex; justify-content: center; margin-bottom: 0.5rem;">
                   <span class="status-badge status-<?php echo $contrato['status']; ?>">
-                    <?php echo ucfirst($contrato['status']); ?>
+                    <?php 
+                      $status_labels = [
+                        'pendente' => 'Pendente',
+                        'assinado' => 'Assinado',
+                        'rejeitado' => 'Rejeitado'
+                      ];
+                      echo $status_labels[$contrato['status']];
+                    ?>
                   </span>
                 </div>
 
-                <p style="color: hsl(var(--muted-foreground)); font-size: 0.9rem; margin-bottom: 1rem;">
-                  <?php echo htmlspecialchars($contrato['categoria']); ?> |
-                  Assinado: <?php echo date("d/m/Y", strtotime($contrato['data_assinatura'])); ?> |
-                  Válido até: <?php echo date("d/m/Y", strtotime($contrato['data_validade'])); ?>
-                  <?php if ($contrato['valor']): ?>
-                    <br>Valor: R$ <?php echo number_format($contrato['valor'], 2, ',', '.'); ?>
-                  <?php endif; ?>
-                </p>
+                <?php if ($contrato['descricao']): ?>
+                  <div class="contract-description">
+                    <?php echo nl2br(htmlspecialchars($contrato['descricao'])); ?>
+                  </div>
+                <?php endif; ?>
 
                 <div class="contract-actions">
-                  <?php if ($contrato['arquivo_pdf']): ?>
-                    <a href="../Docs/<?php echo htmlspecialchars($contrato['arquivo_pdf']); ?>" download class="btn-small"
-                      style="background: hsl(var(--primary)); color: white;">
-                      📄 Baixar
+                  <?php if ($contrato['arquivo_contrato']): ?>
+                    <a href="../contratos/<?php echo htmlspecialchars($contrato['arquivo_contrato']); ?>" 
+                       download class="btn-small btn-download">
+                      📄 Baixar Contrato
                     </a>
                   <?php endif; ?>
-                  <button class="btn-small btn-edit"
-                    onclick="openEditModal(<?php echo htmlspecialchars(json_encode($contrato)); ?>)">
-                    ✏️ Editar
-                  </button>
-                  <form method="post" style="display: inline;"
-                    onsubmit="return confirm('Tem certeza que deseja excluir este contrato?')">
+
+                  <?php if ($contrato['arquivo_assinado']): ?>
+                    <a href="../contratos/<?php echo htmlspecialchars($contrato['arquivo_assinado']); ?>" 
+                       download class="btn-small btn-download">
+                      ✅ Baixar Assinado
+                    </a>
+                  <?php endif; ?>
+
+                  <?php if ($cargo === 'cliente' && $contrato['status'] === 'pendente'): ?>
+                    <button class="btn-small btn-sign" onclick="openSignModal(<?php echo $contrato['id_contrato']; ?>)">
+                      ✍️ Assinar Contrato
+                    </button>
+                    <form method="post" style="display: inline;" onsubmit="return confirm('Tem certeza que deseja rejeitar este contrato?')">
+                      <input type="hidden" name="id_contrato" value="<?php echo $contrato['id_contrato']; ?>">
+                      <button type="submit" name="reject_contract" class="btn-small btn-reject">
+                        ❌ Rejeitar
+                      </button>
+                    </form>
+                  <?php endif; ?>
+
+                  <form method="post" style="display: inline;" onsubmit="return confirm('Tem certeza que deseja excluir este contrato?')">
                     <input type="hidden" name="id_contrato" value="<?php echo $contrato['id_contrato']; ?>">
                     <button type="submit" name="delete_contract" class="btn-small btn-delete">
                       🗑️ Excluir
@@ -580,137 +794,93 @@ $contratos = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </section>
   </main>
 
-
-  <div class="modal-overlay" id="addModal">
+  <?php if ($cargo === 'cerimonialista'): ?>
+  <!-- Modal Criar Contrato -->
+  <div class="modal-overlay" id="createModal">
     <div class="contract-modal">
       <form method="post" enctype="multipart/form-data">
-        <h2 style="margin-bottom: 1.5rem; color: hsl(var(--primary));">Adicionar Novo Contrato</h2>
+        <h2 style="margin-bottom: 1.5rem; color: hsl(var(--primary));">Criar Novo Contrato</h2>
 
         <div class="form-group">
-          <label for="nome_fornecedor">Nome do Fornecedor *</label>
-          <input type="text" id="nome_fornecedor" name="nome_fornecedor" required>
-        </div>
-
-        <div class="form-group">
-          <label for="categoria">Categoria *</label>
-          <select id="categoria" name="categoria" required>
-            <option value="">Selecione uma categoria</option>
-            <option value="Decoração">Decoração</option>
-            <option value="Buffet">Buffet</option>
-            <option value="Fotografia">Fotografia</option>
-            <option value="Música">Música</option>
-            <option value="Transporte">Transporte</option>
-            <option value="Vestido/Terno">Vestido/Terno</option>
-            <option value="Flores">Flores</option>
-            <option value="Outros">Outros</option>
+          <label for="id_cliente">Cliente *</label>
+          <select id="id_cliente" name="id_cliente" required>
+            <option value="">Selecione um cliente</option>
+            <?php foreach ($clientes as $cliente): ?>
+              <option value="<?php echo $cliente['id_usuario']; ?>">
+                <?php echo htmlspecialchars($cliente['nome']) . ' (' . htmlspecialchars($cliente['email']) . ')'; ?>
+              </option>
+            <?php endforeach; ?>
           </select>
         </div>
 
         <div class="form-group">
-          <label for="arquivo_pdf">Arquivo PDF</label>
-          <input type="file" id="arquivo_pdf" name="arquivo_pdf" accept=".pdf">
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-          <div class="form-group">
-            <label for="data_assinatura">Data de Assinatura *</label>
-            <input type="date" id="data_assinatura" name="data_assinatura" required>
-          </div>
-
-          <div class="form-group">
-            <label for="data_validade">Data de Validade *</label>
-            <input type="date" id="data_validade" name="data_validade" required>
-          </div>
+          <label for="nome_contrato">Nome do Contrato *</label>
+          <input type="text" id="nome_contrato" name="nome_contrato" 
+                 placeholder="Ex: Contrato de Serviços de Cerimonial" required>
         </div>
 
         <div class="form-group">
-          <label for="valor">Valor (R$)</label>
-          <input type="number" id="valor" name="valor" step="0.01" min="0">
+          <label for="descricao">Descrição</label>
+          <textarea id="descricao" name="descricao" 
+                    placeholder="Descreva os detalhes do contrato..."></textarea>
         </div>
 
         <div class="form-group">
-          <label for="observacoes">Observações</label>
-          <textarea id="observacoes" name="observacoes"
-            placeholder="Observações adicionais sobre o contrato..."></textarea>
+          <label for="arquivo_contrato">Arquivo do Contrato (PDF) *</label>
+          <input type="file" id="arquivo_contrato" name="arquivo_contrato" 
+                 accept=".pdf,.doc,.docx" required>
+          <small style="color: hsl(var(--muted-foreground)); display: block; margin-top: 0.25rem;">
+            Formatos aceitos: PDF, DOC, DOCX
+          </small>
         </div>
 
         <div class="form-row">
-          <button type="submit" name="add_contract" class="btn-primary">Salvar Contrato</button>
-          <button type="button" class="btn-outline" onclick="closeModal('addModal')">Cancelar</button>
+          <button type="submit" name="create_contract" class="btn-primary">Criar e Enviar</button>
+          <button type="button" class="btn-outline" onclick="closeModal('createModal')">Cancelar</button>
         </div>
       </form>
     </div>
   </div>
+  <?php endif; ?>
 
-
-  <div class="modal-overlay" id="editModal">
+  <?php if ($cargo === 'cliente'): ?>
+  <!-- Modal Assinar Contrato -->
+  <div class="modal-overlay" id="signModal">
     <div class="contract-modal">
-      <form method="post">
-        <h2 style="margin-bottom: 1.5rem; color: hsl(var(--primary));">Editar Contrato</h2>
+      <form method="post" enctype="multipart/form-data">
+        <h2 style="margin-bottom: 1.5rem; color: hsl(var(--primary));">Assinar Contrato</h2>
 
-        <input type="hidden" id="edit_id_contrato" name="id_contrato">
+        <input type="hidden" id="sign_id_contrato" name="id_contrato">
 
-        <div class="form-group">
-          <label for="edit_nome_fornecedor">Nome do Fornecedor *</label>
-          <input type="text" id="edit_nome_fornecedor" name="nome_fornecedor" required>
-        </div>
-
-        <div class="form-group">
-          <label for="edit_categoria">Categoria *</label>
-          <select id="edit_categoria" name="categoria" required>
-            <option value="">Selecione uma categoria</option>
-            <option value="Decoração">Decoração</option>
-            <option value="Buffet">Buffet</option>
-            <option value="Fotografia">Fotografia</option>
-            <option value="Música">Música</option>
-            <option value="Transporte">Transporte</option>
-            <option value="Vestido/Terno">Vestido/Terno</option>
-            <option value="Flores">Flores</option>
-            <option value="Outros">Outros</option>
-          </select>
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-          <div class="form-group">
-            <label for="edit_data_assinatura">Data de Assinatura *</label>
-            <input type="date" id="edit_data_assinatura" name="data_assinatura" required>
-          </div>
-
-          <div class="form-group">
-            <label for="edit_data_validade">Data de Validade *</label>
-            <input type="date" id="edit_data_validade" name="data_validade" required>
-          </div>
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-          <div class="form-group">
-            <label for="edit_valor">Valor (R$)</label>
-            <input type="number" id="edit_valor" name="valor" step="0.01" min="0">
-          </div>
-
-          <div class="form-group">
-            <label for="edit_status">Status</label>
-            <select id="edit_status" name="status">
-              <option value="ativo">Ativo</option>
-              <option value="vencido">Vencido</option>
-              <option value="cancelado">Cancelado</option>
-            </select>
+        <div class="info-banner" style="margin-bottom: 1.5rem;">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          <div style="font-size: 0.875rem;">
+            Baixe o contrato original, assine-o (digitalmente ou impresso e escaneado), 
+            e faça o upload do arquivo assinado abaixo.
           </div>
         </div>
 
         <div class="form-group">
-          <label for="edit_observacoes">Observações</label>
-          <textarea id="edit_observacoes" name="observacoes"
-            placeholder="Observações adicionais sobre o contrato..."></textarea>
+          <label for="arquivo_assinado">Contrato Assinado (PDF) *</label>
+          <input type="file" id="arquivo_assinado" name="arquivo_assinado" 
+                 accept=".pdf" required>
+          <small style="color: hsl(var(--muted-foreground)); display: block; margin-top: 0.25rem;">
+            Faça upload do contrato com sua assinatura (PDF)
+          </small>
         </div>
 
         <div class="form-row">
-          <button type="submit" name="edit_contract" class="btn-primary">Salvar Alterações</button>
-          <button type="button" class="btn-outline" onclick="closeModal('editModal')">Cancelar</button>
+          <button type="submit" name="sign_contract" class="btn-primary">Confirmar Assinatura</button>
+          <button type="button" class="btn-outline" onclick="closeModal('signModal')">Cancelar</button>
         </div>
       </form>
     </div>
   </div>
+  <?php endif; ?>
 
   <footer class="footer">
     <div class="container">
@@ -779,32 +949,23 @@ $contratos = $stmt->fetchAll(PDO::FETCH_ASSOC);
   </footer>
 
   <script>
-    function openAddModal() {
-      document.getElementById("addModal").classList.add("active");
+    function openCreateModal() {
+      document.getElementById("createModal").classList.add("active");
     }
 
-    function openEditModal(contrato) {
-      document.getElementById("edit_id_contrato").value = contrato.id_contrato;
-      document.getElementById("edit_nome_fornecedor").value = contrato.nome_fornecedor;
-      document.getElementById("edit_categoria").value = contrato.categoria;
-      document.getElementById("edit_data_assinatura").value = contrato.data_assinatura;
-      document.getElementById("edit_data_validade").value = contrato.data_validade;
-      document.getElementById("edit_valor").value = contrato.valor || '';
-      document.getElementById("edit_status").value = contrato.status;
-      document.getElementById("edit_observacoes").value = contrato.observacoes || '';
-
-      document.getElementById("editModal").classList.add("active");
+    function openSignModal(idContrato) {
+      document.getElementById("sign_id_contrato").value = idContrato;
+      document.getElementById("signModal").classList.add("active");
     }
 
     function closeModal(modalId) {
       document.getElementById(modalId).classList.remove("active");
     }
 
-
     document.addEventListener("click", function (event) {
       const modals = document.querySelectorAll(".modal-overlay");
       modals.forEach(modal => {
-        if (modal.classList.contains("active") && !event.target.closest(".contract-modal") && !event.target.closest("button[onclick*='Modal']")) {
+        if (event.target === modal) {
           modal.classList.remove("active");
         }
       });
@@ -841,6 +1002,13 @@ $contratos = $stmt->fetchAll(PDO::FETCH_ASSOC);
       dropdown.classList.toggle("active");
     }
 
+    document.addEventListener('click', function (event) {
+      const profileWrapper = document.querySelector('.profile-dropdown-wrapper');
+      const dropdown = document.getElementById("profileDropdown");
+      if (profileWrapper && dropdown && !profileWrapper.contains(event.target)) {
+        dropdown.classList.remove("active");
+      }
+    });
   </script>
 </body>
 
