@@ -358,14 +358,17 @@ $placeholders = [
     <section class="page-content" style="padding-top: 6rem">
       <div class="container">
         <div class="login-container">
-          <div class="login-content">
+        <div class="login-content">
             <h1>Bem-vindo!</h1>
-            <p><?php echo $descriptions[$userType]; ?></p>
+            <p>Faça login para gerenciar seus eventos e casamento com facilidade. Acesse seu calendário, orçamento,
+              fornecedores e muito mais.</p>
 
             <div style="background: hsl(var(--muted)); border-radius: 0.75rem; padding: 1.5rem; margin-top: 2rem;">
               <h3 style="margin-top: 0; color: hsl(var(--foreground));">Novo por aqui?</h3>
-              <p style="color: hsl(var(--muted-foreground)); margin-bottom: 1rem;">Crie sua conta em poucos cliques.</p>
-              <a href="signup-unified.php" class="btn-primary" style="display: inline-block; padding: 0.75rem 1.5rem;">Criar Conta</a>
+              <p style="color: hsl(var(--muted-foreground)); margin-bottom: 1rem;">Crie sua conta para começar a
+                organizar o casamento dos seus sonhos.</p>
+              <a href="cadastro.php" class="btn-primary" style="display: inline-block; padding: 0.75rem 1.5rem;">Criar
+                Conta</a>
             </div>
           </div>
 

@@ -350,7 +350,7 @@ if (isset($_SESSION["usuario_id"])) {
       <span class="login-modal-close" onclick="closeLoginModal()">&times;</span>
       <h2>Você precisa estar logado</h2>
       <p>Faça login para acessar esta funcionalidade.</p>
-      <a href="user/login.php" class="btn-primary">Login</a>
+      <a href="user/login-unified.php" class="btn-primary">Login</a>
     </div>
   </div>
   <header class="header">
@@ -378,7 +378,13 @@ if (isset($_SESSION["usuario_id"])) {
                 <a href="pages/itens.php">Serviços</a>
                 <a href="pages/gestao-contratos.php">Gestão de Contratos</a>
                 <a href="pages/tarefas.php">Lista de Tarefas</a>
-                <a href="pages/cerimonialista.php">Cadastrar Fornecedores</a>
+                <a href="pages/mensagens.php">Mensagens</a>
+                <a href="pages/avaliacoes.php">Avaliações</a>
+                <a href="pages/notificacoes.php">Notificações</a>
+                <a href="pages/historico.php">Histórico</a>
+                <a href="pages/disponibilidade.php">Disponibilidade</a>
+                <a href="pages/candidaturas.php">Candidaturas</a>
+                <a href="pages/configurar-orcamento.php">Configurar Alertas</a>
               </div>
             </div>
             <a href="pages/contato.php" class="nav-link">Contato</a>
@@ -446,7 +452,7 @@ if (isset($_SESSION["usuario_id"])) {
             </div>
           <?php else: ?>
 
-            <a href="user/login.php" class="btn-primary" style="align-items: center">Login</a>
+            <a href="user/login-unified.php" class="btn-primary" style="align-items: center">Login</a>
           <?php endif; ?>
         </nav>
       </div>
@@ -497,7 +503,7 @@ if (isset($_SESSION["usuario_id"])) {
                   Explorar Funcionalidades
                 </a>
               <?php else: ?>
-                <a href="user/login.php" class="btn-primary">
+                <a href="user/login-unified.php" class="btn-primary">
                   Explorar Funcionalidades
                 </a>
               <?php endif; ?>
@@ -722,7 +728,7 @@ if (isset($_SESSION["usuario_id"])) {
               </svg>
             </a>
           <?php else: ?>
-            <a href="user/login.php" class="btn-primary">
+            <a href="user/login-unified.php" class="btn-primary">
               Explorar Funcionalidades
               <svg style="width: 1rem; height: 1rem" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path d="M5 12h14M12 5l7 7-7 7" />

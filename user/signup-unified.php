@@ -15,7 +15,6 @@ if (!in_array($userType, ['cliente', 'fornecedor', 'cerimonialista'])) {
 // Guardar dados da sessão
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if ($step == 1) {
-        // Validar step 1
         if ($userType === 'cliente') {
             $nome = $_POST["nome"] ?? '';
             $nome_conj = $_POST["nome_conj"] ?? '';
@@ -26,13 +25,24 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             $_SESSION['signup_data'] = compact('nome', 'nome_conj', 'genero', 'idade', 'telefone', 'email');
             $_SESSION['signup_step'] = 2;
-        } else {
-            // Fornecedor e Cerimonialista
+        } elseif ($userType === 'fornecedor') {
             $nome = $_POST["nome"] ?? '';
             $telefone = $_POST["telefone"] ?? '';
             $email = $_POST["email"] ?? '';
+            $cnpj = $_POST["cnpj"] ?? '';
+            $endereco = $_POST["endereco"] ?? '';
+            $categoria = $_POST["categoria"] ?? 'geral';
 
-            $_SESSION['signup_data'] = compact('nome', 'telefone', 'email');
+            $_SESSION['signup_data'] = compact('nome', 'telefone', 'email', 'cnpj', 'endereco', 'categoria');
+            $_SESSION['signup_step'] = 2;
+        } else {
+            $nome = $_POST["nome"] ?? '';
+            $telefone = $_POST["telefone"] ?? '';
+            $email = $_POST["email"] ?? '';
+            $especializacao = $_POST["especializacao"] ?? '';
+            $experiencia_anos = $_POST["experiencia_anos"] ?? 0;
+
+            $_SESSION['signup_data'] = compact('nome', 'telefone', 'email', 'especializacao', 'experiencia_anos');
             $_SESSION['signup_step'] = 2;
         }
     } elseif ($step == 2) {
@@ -50,23 +60,40 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             if ($userType === 'cliente') {
                 $_SESSION['signup_step'] = 3;
             } else {
-                $_SESSION['signup_step'] = 3; // Planos
+                $_SESSION['signup_step'] = 3;
             }
         }
     } elseif ($step == 3 && $userType === 'cliente') {
-        // Cliente: Data do casamento
         $data_casamento = $_POST["data_casamento"] ?? '';
-        $_SESSION['signup_data']['data_casamento'] = $data_casamento;
+        $orcamento_total = (float) str_replace(',', '.', $_POST["orcamento_total"] ?? 0);
+        $local_casamento = $_POST["local_casamento"] ?? '';
+        $tipo_cerimonia = $_POST["tipo_cerimonia"] ?? '';
+        $quantidade_convidados = (int) $_POST["quantidade_convidados"] ?? 0;
         
-        // Finalizar cadastro
+        $_SESSION['signup_data']['data_casamento'] = $data_casamento;
+        $_SESSION['signup_data']['orcamento_total'] = $orcamento_total;
+        $_SESSION['signup_data']['local_casamento'] = $local_casamento;
+        $_SESSION['signup_data']['tipo_cerimonia'] = $tipo_cerimonia;
+        $_SESSION['signup_data']['quantidade_convidados'] = $quantidade_convidados;
+        
         finalizarCadastroCliente();
         exit;
     } elseif ($step == 3 && in_array($userType, ['fornecedor', 'cerimonialista'])) {
-        // Plano
         $plano = $_POST["plano"] ?? 'padrao';
-        $_SESSION['signup_data']['plano'] = $plano;
         
-        // Finalizar cadastro
+        if ($userType === 'fornecedor') {
+            $preco_minimo = (float) str_replace(',', '.', $_POST["preco_minimo"] ?? 0);
+            $horario_funcionamento = $_POST["horario_funcionamento"] ?? '';
+            $_SESSION['signup_data']['preco_minimo'] = $preco_minimo;
+            $_SESSION['signup_data']['horario_funcionamento'] = $horario_funcionamento;
+        } else {
+            $valor_minimo = (float) str_replace(',', '.', $_POST["valor_minimo"] ?? 0);
+            $tipos_cerimonia = $_POST["tipos_cerimonia"] ?? [];
+            $_SESSION['signup_data']['valor_minimo'] = $valor_minimo;
+            $_SESSION['signup_data']['tipos_cerimonia'] = json_encode($tipos_cerimonia);
+        }
+        
+        $_SESSION['signup_data']['plano'] = $plano;
         finalizarCadastroProfissional($userType);
         exit;
     }
@@ -78,13 +105,27 @@ function finalizarCadastroCliente() {
     $data = $_SESSION['signup_data'];
     
     try {
-        $sql = "INSERT INTO usuarios (nome, nome_conjuge, genero, idade, telefone, email, senha, tipo_usuario, cargo, foto_perfil) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, 'cliente', 'cliente', 'default.png')";
+        $sql = "INSERT INTO usuarios (nome, nome_conjuge, genero, idade, telefone, email, senha, tipo_usuario, cargo, foto_perfil, orcamento_total, orcamento_gasto, local_casamento, tipo_cerimonia, quantidade_convidados, data_casamento, progresso) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, 'cliente', 'cliente', 'default.png', ?, 0, ?, ?, ?, ?, 0)";
         $stmt = $pdo->prepare($sql);
-        $stmt->execute([$data['nome'], $data['nome_conj'], $data['genero'], $data['idade'], 
-                       $data['telefone'], $data['email'], $data['senha']]);
+        $stmt->execute([
+            $data['nome'], $data['nome_conj'], $data['genero'], $data['idade'], 
+            $data['telefone'], $data['email'], $data['senha'],
+            $data['orcamento_total'], $data['local_casamento'], $data['tipo_cerimonia'],
+            $data['quantidade_convidados'], $data['data_casamento']
+        ]);
 
         $id_usuario = $pdo->lastInsertId();
+        
+        $categorias = ['Decoração', 'Catering', 'Fotografia', 'Música', 'Convites', 'Transporte', 'Hospedagem', 'Maquiagem'];
+        $orcamento_por_categoria = $data['orcamento_total'] / count($categorias);
+        
+        foreach ($categorias as $categoria) {
+            $sql_cat = "INSERT INTO configuracoes_orcamento (id_usuario, categoria, orcamento_alocado, orcamento_gasto) VALUES (?, ?, ?, 0)";
+            $stmt_cat = $pdo->prepare($sql_cat);
+            $stmt_cat->execute([$id_usuario, $categoria, $orcamento_por_categoria]);
+        }
+        
         $_SESSION["usuario_id"] = $id_usuario;
         $_SESSION["nome"] = $data['nome'];
         $_SESSION["tipo_usuario"] = 'cliente';
@@ -107,10 +148,14 @@ function finalizarCadastroProfissional($userType) {
     
     try {
         if ($userType === 'fornecedor') {
-            $sql = "INSERT INTO fornecedores (nome_fornecedor, telefone, email, senha, plano, categoria) 
-                    VALUES (?, ?, ?, ?, ?, 'geral')";
+            $sql = "INSERT INTO fornecedores (nome_fornecedor, telefone, email, senha, plano, categoria, cnpj, endereco, preco_minimo, horario_funcionamento, verificado) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)";
             $stmt = $pdo->prepare($sql);
-            $stmt->execute([$data['nome'], $data['telefone'], $data['email'], $data['senha'], $data['plano']]);
+            $stmt->execute([
+                $data['nome'], $data['telefone'], $data['email'], $data['senha'], $data['plano'],
+                $data['categoria'], $data['cnpj'], $data['endereco'], 
+                $data['preco_minimo'], $data['horario_funcionamento']
+            ]);
 
             $id_fornecedor = $pdo->lastInsertId();
             $_SESSION["fornecedor_id"] = $id_fornecedor;
@@ -121,11 +166,14 @@ function finalizarCadastroProfissional($userType) {
 
             header("Location: ../supplier/dashboard.php");
         } else {
-            // Cerimonialista
-            $sql = "INSERT INTO usuarios (nome, email, senha, tipo_usuario, cargo, foto_perfil, plano, telefone) 
-                    VALUES (?, ?, ?, 'cerimonialista', 'cerimonialista', 'default.png', ?, ?)";
+            $sql = "INSERT INTO usuarios (nome, email, senha, tipo_usuario, cargo, foto_perfil, plano, telefone, especializacao, experiencia_anos, valor_minimo, tipos_cerimonia) 
+                    VALUES (?, ?, ?, 'cerimonialista', 'cerimonialista', 'default.png', ?, ?, ?, ?, ?, ?)";
             $stmt = $pdo->prepare($sql);
-            $stmt->execute([$data['nome'], $data['email'], $data['senha'], $data['plano'], $data['telefone']]);
+            $stmt->execute([
+                $data['nome'], $data['email'], $data['senha'], $data['plano'], $data['telefone'],
+                $data['especializacao'], $data['experiencia_anos'], 
+                $data['valor_minimo'], $data['tipos_cerimonia']
+            ]);
 
             $id_usuario = $pdo->lastInsertId();
             $_SESSION["usuario_id"] = $id_usuario;
@@ -215,7 +263,8 @@ $signupStep = $_SESSION['signup_step'] ?? 1;
     }
 
     .input-group input,
-    .input-group select {
+    .input-group select,
+    .input-group textarea {
       width: 100%;
       padding: 0.75rem;
       border: 1px solid hsl(var(--border));
@@ -227,7 +276,8 @@ $signupStep = $_SESSION['signup_step'] ?? 1;
     }
 
     .input-group input:focus,
-    .input-group select:focus {
+    .input-group select:focus,
+    .input-group textarea:focus {
       outline: none;
       border-color: hsl(var(--primary));
       box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1);
@@ -370,6 +420,23 @@ $signupStep = $_SESSION['signup_step'] ?? 1;
       border-color: hsl(var(--primary));
     }
 
+    .checkbox-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+      width: auto;
+    }
+
     @media (max-width: 768px) {
       .form-row {
         grid-template-columns: 1fr;
@@ -381,6 +448,10 @@ $signupStep = $_SESSION['signup_step'] ?? 1;
 
       .form-actions {
         flex-direction: column;
+      }
+
+      .checkbox-group {
+        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -423,7 +494,7 @@ $signupStep = $_SESSION['signup_step'] ?? 1;
 
           <div class="progress-bar">
             <?php
-            $totalSteps = ($userType === 'cliente') ? 3 : 3;
+            $totalSteps = 3;
             $progressPercent = ($signupStep / $totalSteps) * 100;
             ?>
             <div class="progress-fill" style="width: <?php echo $progressPercent; ?>%"></div>
@@ -473,20 +544,80 @@ $signupStep = $_SESSION['signup_step'] ?? 1;
                     <label>E-mail</label>
                     <input type="email" name="email" placeholder="Seu e-mail" required />
                   </div>
-                <?php else: ?>
+
+                <?php elseif ($userType === 'fornecedor'): ?>
+                  <!-- Enhanced supplier fields -->
                   <div class="input-group">
-                    <label>Nome</label>
-                    <input type="text" name="nome" placeholder="Nome completo" required />
+                    <label>Nome da Empresa</label>
+                    <input type="text" name="nome" placeholder="Nome da empresa" required />
                   </div>
 
                   <div class="input-group">
-                    <label>E-mail</label>
-                    <input type="email" name="email" placeholder="Seu e-mail" required />
+                    <label>CNPJ</label>
+                    <input type="text" name="cnpj" placeholder="XX.XXX.XXX/0001-XX" />
+                  </div>
+
+                  <div class="input-group">
+                    <label>Endereço</label>
+                    <input type="text" name="endereco" placeholder="Rua, número, cidade" />
+                  </div>
+
+                  <div class="input-group">
+                    <label>Categoria</label>
+                    <select name="categoria" required>
+                      <option value="geral">Geral</option>
+                      <option value="decoracao">Decoração</option>
+                      <option value="catering">Catering</option>
+                      <option value="fotografia">Fotografia</option>
+                      <option value="musica">Música</option>
+                      <option value="convites">Convites</option>
+                      <option value="transporte">Transporte</option>
+                    </select>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="input-group">
+                      <label>E-mail</label>
+                      <input type="email" name="email" placeholder="E-mail empresarial" required />
+                    </div>
+                    <div class="input-group">
+                      <label>Telefone</label>
+                      <input type="tel" name="telefone" placeholder="Telefone" required />
+                    </div>
+                  </div>
+
+                <?php else: ?>
+                  <!-- Enhanced ceremonialista fields -->
+                  <div class="input-group">
+                    <label>Nome Completo</label>
+                    <input type="text" name="nome" placeholder="Seu nome completo" required />
+                  </div>
+
+                  <div class="input-group">
+                    <label>Especialização</label>
+                    <select name="especializacao" required>
+                      <option value="">Selecione</option>
+                      <option value="civil">Casamento Civil</option>
+                      <option value="religioso">Casamento Religioso</option>
+                      <option value="simbolico">Casamento Simbólico</option>
+                      <option value="completo">Múltiplas Especialidades</option>
+                    </select>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="input-group">
+                      <label>Anos de Experiência</label>
+                      <input type="number" name="experiencia_anos" min="0" placeholder="Ex: 5" required />
+                    </div>
+                    <div class="input-group">
+                      <label>E-mail</label>
+                      <input type="email" name="email" placeholder="E-mail" required />
+                    </div>
                   </div>
 
                   <div class="input-group">
                     <label>Telefone</label>
-                    <input type="tel" name="telefone" placeholder="Seu telefone" required />
+                    <input type="tel" name="telefone" placeholder="Telefone" required />
                   </div>
                 <?php endif; ?>
 
@@ -522,7 +653,8 @@ $signupStep = $_SESSION['signup_step'] ?? 1;
 
             <?php elseif ($signupStep == 3): ?>
               <?php if ($userType === 'cliente'): ?>
-                <h2>Data do Casamento</h2>
+                <!-- Enhanced client step 3 with budget and wedding details -->
+                <h2>Detalhes do Casamento</h2>
                 <form method="POST">
                   <input type="hidden" name="step" value="3">
 
@@ -531,8 +663,34 @@ $signupStep = $_SESSION['signup_step'] ?? 1;
                     <input type="date" name="data_casamento" required />
                   </div>
 
+                  <div class="input-group">
+                    <label>Local do Casamento</label>
+                    <input type="text" name="local_casamento" placeholder="Cidade/Estado ou Local específico" />
+                  </div>
+
+                  <div class="form-row">
+                    <div class="input-group">
+                      <label>Tipo de Cerimônia</label>
+                      <select name="tipo_cerimonia">
+                        <option value="">Selecione</option>
+                        <option value="civil">Civil</option>
+                        <option value="religioso">Religioso</option>
+                        <option value="simbolico">Simbólico</option>
+                      </select>
+                    </div>
+                    <div class="input-group">
+                      <label>Quantidade de Convidados</label>
+                      <input type="number" name="quantidade_convidados" min="1" placeholder="Ex: 100" />
+                    </div>
+                  </div>
+
+                  <div class="input-group">
+                    <label>Orçamento Total (R$)</label>
+                    <input type="text" name="orcamento_total" placeholder="Ex: 50.000,00" required />
+                  </div>
+
                   <p style="color: hsl(var(--muted-foreground)); margin-bottom: 1rem;">
-                    Você poderá consultar os cerimonialistas disponíveis para essa data.
+                    O orçamento será dividido entre as categorias automaticamente.
                   </p>
 
                   <div class="form-actions">
@@ -541,34 +699,94 @@ $signupStep = $_SESSION['signup_step'] ?? 1;
                   </div>
                 </form>
 
-              <?php else: ?>
-                <h2>Escolha seu Plano</h2>
-                <p style="color: hsl(var(--muted-foreground)); margin-bottom: 1.5rem; text-align: center;">
-                  Selecione o plano que melhor se adequa ao seu negócio
-                </p>
-
+              <?php elseif ($userType === 'fornecedor'): ?>
+                <!-- Enhanced supplier step 3 with pricing and availability -->
+                <h2>Configurações da Empresa</h2>
                 <form method="POST">
                   <input type="hidden" name="step" value="3">
 
+                  <div class="input-group">
+                    <label>Preço Mínimo (R$)</label>
+                    <input type="text" name="preco_minimo" placeholder="Ex: 1.000,00" />
+                  </div>
+
+                  <div class="input-group">
+                    <label>Horário de Funcionamento</label>
+                    <input type="text" name="horario_funcionamento" placeholder="Ex: Seg-Dom 08h-22h" />
+                  </div>
+
+                  <h3 style="margin-top: 1.5rem; margin-bottom: 1rem;">Escolha seu Plano</h3>
                   <div class="plan-selector">
-                    <!-- Premium Primeiro (para dar impressão de benefício) -->
                     <label class="plan-card selected">
                       <input type="radio" name="plano" value="premium" checked />
                       <div class="plan-badge">RECOMENDADO</div>
                       <div class="plan-name">Premium</div>
                       <div class="plan-price">R$ 99/mês</div>
-                      <div class="plan-description">
-                        Acesso completo a todas as funcionalidades
-                      </div>
+                      <div class="plan-description">Todas as funcionalidades</div>
                     </label>
 
                     <label class="plan-card">
                       <input type="radio" name="plano" value="padrao" />
                       <div class="plan-name">Padrão</div>
                       <div class="plan-price">Grátis</div>
-                      <div class="plan-description">
-                        Funcionalidades básicas
+                      <div class="plan-description">Funcionalidades básicas</div>
+                    </label>
+                  </div>
+
+                  <div class="form-actions">
+                    <button type="button" class="btn-back" onclick="history.back()">Voltar</button>
+                    <button type="submit" class="btn-submit">Concluir Cadastro</button>
+                  </div>
+                </form>
+
+              <?php else: ?>
+                <!-- Enhanced ceremonialista step 3 with pricing and services -->
+                <h2>Configurações Profissionais</h2>
+                <form method="POST">
+                  <input type="hidden" name="step" value="3">
+
+                  <div class="input-group">
+                    <label>Valor Mínimo (R$)</label>
+                    <input type="text" name="valor_minimo" placeholder="Ex: 500,00" />
+                  </div>
+
+                  <div class="input-group">
+                    <label>Tipos de Cerimônia que Realiza</label>
+                    <div class="checkbox-group">
+                      <div class="checkbox-item">
+                        <input type="checkbox" name="tipos_cerimonia[]" value="civil" />
+                        <label style="margin: 0;">Civil</label>
                       </div>
+                      <div class="checkbox-item">
+                        <input type="checkbox" name="tipos_cerimonia[]" value="religioso" />
+                        <label style="margin: 0;">Religioso</label>
+                      </div>
+                      <div class="checkbox-item">
+                        <input type="checkbox" name="tipos_cerimonia[]" value="simbolico" />
+                        <label style="margin: 0;">Simbólico</label>
+                      </div>
+                      <div class="checkbox-item">
+                        <input type="checkbox" name="tipos_cerimonia[]" value="laico" />
+                        <label style="margin: 0;">Laico</label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <h3 style="margin-top: 1.5rem; margin-bottom: 1rem;">Escolha seu Plano</h3>
+                  <div class="plan-selector">
+                    <label class="plan-card selected">
+                      <input type="radio" name="plano" value="premium" checked />
+                      <div class="plan-badge">RECOMENDADO</div>
+                      <div class="plan-name">Premium</div>
+                      <div class="plan-price">R$ 99/mês</div>
+                      <div class="plan-description">Todas as funcionalidades</div>
+                    </label>
+
+                    <label class="plan-card">
+                      <input type="radio" name="plano" value="padrao" />
+                      <div class="plan-name">Padrão</div>
+                      <div class="plan-price">Grátis</div>
+                      <div class="plan-description">Funcionalidades básicas</div>
                     </label>
                   </div>
 

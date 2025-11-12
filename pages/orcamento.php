@@ -4,7 +4,6 @@ require_once "../config/conexao.php";
 
 $cookieName = "lembrar_me";
 
-
 if (!isset($_SESSION['usuario_id']) && isset($_COOKIE[$cookieName])) {
   $cookieUserId = (int) $_COOKIE[$cookieName];
   if ($cookieUserId > 0) {
@@ -16,14 +15,12 @@ if (!isset($_SESSION['usuario_id']) && isset($_COOKIE[$cookieName])) {
       $_SESSION['nome'] = $u['nome'];
       $_SESSION['cargo'] = $u['cargo'] ?? 'cliente';
     } else {
-
       setcookie($cookieName, "", time() - 3600, "/");
     }
   }
 }
 
 $user_data = ['nome' => 'Usuário', 'email' => '', 'foto_perfil' => 'default.png'];
-
 
 if (isset($_SESSION['usuario_id'])) {
   try {
@@ -69,7 +66,6 @@ if (isset($_POST['logout'])) {
 
 $idUsuario = (int) $_SESSION['usuario_id'];
 
-
 if (isset($_POST['save_rating'])) {
   $idOrc = (int) $_POST['id_orcamento'];
   $rating = (int) $_POST['rating'];
@@ -89,7 +85,6 @@ if (isset($_POST['save_rating'])) {
   exit;
 }
 
-
 if (isset($_POST['add_item'])) {
   $item = trim($_POST['item'] ?? '');
   $fornecedor = trim($_POST['fornecedor'] ?? '');
@@ -105,7 +100,6 @@ if (isset($_POST['add_item'])) {
   exit;
 }
 
-
 if (isset($_POST['delete_item'])) {
   $idOrc = (int) $_POST['delete_item'];
   $stmt = $pdo->prepare("DELETE FROM orcamentos WHERE id_orcamento = ? AND id_usuario = ?");
@@ -114,10 +108,18 @@ if (isset($_POST['delete_item'])) {
   exit;
 }
 
-
 $stmt = $pdo->prepare("SELECT * FROM orcamentos WHERE id_usuario = ? ORDER BY id_orcamento DESC");
 $stmt->execute([$idUsuario]);
 $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$budget_overview = ['total_alocado' => 0, 'total_gasto' => 0];
+if (!empty($itens)) {
+  $total_gasto = 0;
+  foreach ($itens as $item) {
+    $total_gasto += ($item['quantidade'] * $item['valor_unitario']);
+  }
+  $budget_overview['total_gasto'] = $total_gasto;
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -273,7 +275,6 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
       }
     }
 
-
     .estrela-rating {
       display: flex;
       gap: 4px;
@@ -287,7 +288,6 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
       cursor: pointer;
       transition: all 0.2s ease-in-out;
     }
-
 
     .estrela-icon.active {
       fill: #ffc107;
@@ -433,10 +433,55 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
     .profile-dropdown-item.logout svg {
       stroke: hsl(var(--destructive));
     }
+
+    .budget-overview {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .budget-card {
+      background: hsl(var(--card));
+      border: 1px solid hsl(var(--border));
+      border-radius: 1rem;
+      padding: 1.5rem;
+      text-align: center;
+    }
+
+    .budget-label {
+      font-size: 0.875rem;
+      color: hsl(var(--muted-foreground));
+      margin-bottom: 0.5rem;
+    }
+
+    .budget-value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: hsl(var(--primary));
+    }
+
+    .budget-bar {
+      width: 100%;
+      height: 8px;
+      background: hsl(var(--border));
+      border-radius: 9999px;
+      margin-top: 1rem;
+      overflow: hidden;
+    }
+
+    .budget-bar-fill {
+      height: 100%;
+      background: hsl(var(--primary));
+      transition: width 0.3s ease;
+    }
   </style>
 </head>
 
 <body>
+
+  <?php include '../components/header.php'; ?>
+  <?php include '../components/widget-alertas-orcamento.php'; ?>
 
   <header class="header">
     <div class="container">
@@ -461,6 +506,13 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
               <a href="itens.php">Serviços</a>
               <a href="gestao-contratos.php">Gestão de Contratos</a>
               <a href="tarefas.php">Lista de Tarefas</a>
+              <a href="mensagens.php">Mensagens</a>
+              <a href="avaliacoes.php">Avaliações</a>
+              <a href="notificacoes.php">Notificações</a>
+              <a href="historico.php">Histórico</a>
+              <a href="disponibilidade.php">Disponibilidade</a>
+              <a href="candidaturas.php">Candidaturas</a>
+              <a href="configurar-orcamento.php">Alertas Orçamento</a>
             </div>
           </div>
           <a href="contato.php" class="nav-link">Contato</a>
@@ -475,7 +527,6 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <img src="../user/fotos/<?php echo htmlspecialchars($_SESSION['foto_perfil'] ?? 'default.png'); ?>"
                       alt="Avatar" class="profile-dropdown-avatar">
                     <div class="profile-dropdown-info">
-
                       <div class="profile-dropdown-name">
                         <?php echo htmlspecialchars($user_data['nome']); ?>
                       </div>
@@ -522,7 +573,6 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
               </div>
             </div>
-
           <?php else: ?>
             <a href="../user/login.php" class="btn-primary" style="align-items: center">Login</a>
           <?php endif; ?>
@@ -540,6 +590,30 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
           <p class="page-description">
             Organize e visualize todos os custos e fornecedores do seu evento.
           </p>
+        </div>
+
+        <!-- Add budget overview cards -->
+        <div class="budget-overview">
+          <div class="budget-card">
+            <div class="budget-label">Orçamento Total</div>
+            <div class="budget-value">R$ <?= isset($budget_overview['total_alocado']) ? number_format($budget_overview['total_alocado'], 2, ',', '.') : '0,00' ?></div>
+          </div>
+          <div class="budget-card">
+            <div class="budget-label">Gasto</div>
+            <div class="budget-value">R$ <?= isset($budget_overview['total_gasto']) ? number_format($budget_overview['total_gasto'], 2, ',', '.') : '0,00' ?></div>
+          </div>
+          <div class="budget-card">
+            <div class="budget-label">Disponível</div>
+            <div class="budget-value">R$ <?= isset($budget_overview['total_alocado'], $budget_overview['total_gasto']) ? number_format($budget_overview['total_alocado'] - $budget_overview['total_gasto'], 2, ',', '.') : '0,00' ?></div>
+            <?php
+            $percentual = isset($budget_overview['total_alocado'], $budget_overview['total_gasto']) && $budget_overview['total_alocado'] > 0 
+              ? ($budget_overview['total_gasto'] / $budget_overview['total_alocado']) * 100 
+              : 0;
+            ?>
+            <div class="budget-bar">
+              <div class="budget-bar-fill" style="width: <?= min(100, $percentual) ?>%"></div>
+            </div>
+          </div>
         </div>
 
         <div class="card"
@@ -608,8 +682,7 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
               <tfoot>
                 <tr style="font-weight: bold; border-top: 2px solid hsl(var(--border));">
                   <td colspan="5" style="text-align:right; padding: 0.75rem;">Total Geral:</td>
-                  <td style="padding: 0.75rem;">R$ <?= isset($total) ? number_format($total, 2, ',', '.') : "0,00" ?>
-                  </td>
+                  <td style="padding: 0.75rem;">R$ <?= isset($total) ? number_format($total, 2, ',', '.') : "0,00" ?></td>
                   <td></td>
                 </tr>
               </tfoot>
@@ -712,7 +785,6 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
       }
     }
 
-
     document.addEventListener('click', function (event) {
       const profileWrapper = document.querySelector('.profile-dropdown-wrapper');
       const dropdown = document.getElementById("profileDropdown");
@@ -751,7 +823,6 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         console.log('[v0] Setting up rating for item with current rating:', currentRating);
 
-
         updateStarDisplay(stars, currentRating);
 
         stars.forEach((star) => {
@@ -764,7 +835,6 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             ratingInput.value = starRating;
             updateStarDisplay(stars, starRating);
-
 
             const formData = new FormData(form);
             formData.append('save_rating', '1');
@@ -797,13 +867,7 @@ $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 console.error('[v0] Network error:', error);
               });
           });
-
-
-          star.addEventListener('mouseenter', function () {
-            updateStarDisplay(stars, starRating, true);
-          });
         });
-
 
         rating.addEventListener('mouseleave', function () {
           updateStarDisplay(stars, parseInt(ratingInput.value) || 0);

@@ -829,6 +829,15 @@ $eventosJson = json_encode($eventos);
               <a href="itens.php">Serviços</a>
               <a href="gestao-contratos.php">Gestão de Contratos</a>
               <a href="tarefas.php">Lista de Tarefas</a>
+              <!-- Adicionando links para novas funcionalidades -->
+              <a href="mensagens.php">Mensagens</a>
+              <a href="avaliacoes.php">Avaliações</a>
+              <a href="notificacoes.php">Notificações</a>
+              <a href="historico.php">Histórico</a>
+              <a href="disponibilidade.php">Disponibilidade</a>
+              <a href="candidaturas.php">Candidaturas</a>
+              <a href="configurar-orcamento.php">Alertas Orçamento</a>
+              <!-- </CHANGE> -->
             </div>
           </div>
           <a href="contato.php" class="nav-link">Contato</a>

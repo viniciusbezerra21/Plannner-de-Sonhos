@@ -341,6 +341,13 @@ $idUsuario = (int) $_SESSION['usuario_id'] ?? 0;
               <a href="itens.php">Serviços</a>
               <a href="gestao-contratos.php">Gestão de Contratos</a>
               <a href="tarefas.php">Lista de Tarefas</a>
+              <a href="mensagens.php">Mensagens</a>
+              <a href="avaliacoes.php">Avaliações</a>
+              <a href="notificacoes.php">Notificações</a>
+              <a href="historico.php">Histórico</a>
+              <a href="disponibilidade.php">Disponibilidade</a>
+              <a href="candidaturas.php">Candidaturas</a>
+              <a href="configurar-orcamento.php">Configurar Orçamento</a>
             </div>
           </div>
           <a href="contato.php" class="nav-link">Contato</a>
@@ -536,7 +543,7 @@ $idUsuario = (int) $_SESSION['usuario_id'] ?? 0;
                 <li>
                   <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
                     <path
-                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.06L12 2z" />
                   </svg>
                   Armazenamento seguro
                 </li>
@@ -550,7 +557,7 @@ $idUsuario = (int) $_SESSION['usuario_id'] ?? 0;
                 <li>
                   <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
                     <path
-                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.06L12 2z" />
                   </svg>
                   Assinatura digital
                 </li>
@@ -601,6 +608,282 @@ $idUsuario = (int) $_SESSION['usuario_id'] ?? 0;
               </ul>
             </div>
           </a>
+          <a href="mensagens.php">
+            <div class="feature-detailed-card">
+              <div class="feature-detailed-header">
+                <div class="feature-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="feature-detailed-title">Sistema de Mensagens</h3>
+                  <p class="feature-detailed-description">
+                    Comunique-se diretamente com fornecedores, cerimonialistas e clientes através de mensagens instantâneas.
+                  </p>
+                </div>
+              </div>
+              <ul class="feature-benefits">
+                <li>
+                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  Chat em tempo real
+                </li>
+                <li>
+                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  Notificações de mensagens não lidas
+                </li>
+                <li>
+                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  Histórico completo de conversas
+                </li>
+              </ul>
+            </div>
+          </a>
+
+          <a href="avaliacoes.php">
+            <div class="feature-detailed-card">
+              <div class="feature-detailed-header">
+                <div class="feature-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="feature-detailed-title">Sistema de Avaliações</h3>
+                  <p class="feature-detailed-description">
+                    Avalie e seja avaliado por clientes, fornecedores e cerimonialistas com sistema completo de notas.
+                  </p>
+                </div>
+              </div>
+              <ul class="feature-benefits">
+                <li>
+                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  5 categorias de avaliação
+                </li>
+                <li>
+                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  Comentários e feedbacks
+                </li>
+                <li>
+                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  Estatísticas detalhadas
+                </li>
+              </ul>
+            </div>
+          </a>
+
+          <a href="notificacoes.php">
+            <div class="feature-detailed-card">
+              <div class="feature-detailed-header">
+                <div class="feature-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="feature-detailed-title">Notificações em Tempo Real</h3>
+                  <p class="feature-detailed-description">
+                    Receba alertas instantâneos sobre atividades importantes no seu planejamento.
+                  </p>
+                </div>
+              </div>
+              <ul class="feature-benefits">
+                <li>
+                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  Alertas personalizados
+                </li>
+                <li>
+                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  Histórico completo
+                </li>
+                <li>
+                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  Filtros por tipo
+                </li>
+              </ul>
+            </div>
+          </a>
+
+          <a href="historico.php">
+            <div class="feature-detailed-card">
+              <div class="feature-detailed-header">
+                <div class="feature-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 16 14" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="feature-detailed-title">Histórico de Interações</h3>
+                  <p class="feature-detailed-description">
+                    Acompanhe todas as interações e atividades realizadas no sistema em uma timeline organizada.
+                  </p>
+                </div>
+              </div>
+              <ul class="feature-benefits">
+                <li>
+                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  Timeline visual
+                </li>
+                <li>
+                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  Busca avançada
+                </li>
+                <li>
+                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  Estatísticas de atividades
+                </li>
+              </ul>
+            </div>
+          </a>
+
+          <a href="disponibilidade.php">
+            <div class="feature-detailed-card">
+              <div class="feature-detailed-header">
+                <div class="feature-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                    <line x1="16" y1="2" x2="16" y2="6" />
+                    <line x1="8" y1="2" x2="8" y2="6" />
+                    <line x1="3" y1="10" x2="21" y2="10" />
+                    <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="feature-detailed-title">Calendário de Disponibilidade</h3>
+                  <p class="feature-detailed-description">
+                    Fornecedores podem gerenciar sua agenda e disponibilidade para novos eventos.
+                  </p>
+                </div>
+              </div>
+              <ul class="feature-benefits">
+                <li>
+                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  Gestão de agenda
+                </li>
+                <li>
+                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  Visualização mensal
+                </li>
+                <li>
+                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  Horários personalizados
+                </li>
+              </ul>
+            </div>
+          </a>
+
+          <a href="candidaturas.php">
+            <div class="feature-detailed-card">
+              <div class="feature-detailed-header">
+                <div class="feature-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                    <circle cx="8.5" cy="7" r="4" />
+                    <line x1="20" y1="8" x2="20" y2="14" />
+                    <line x1="23" y1="11" x2="17" y2="11" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="feature-detailed-title">Sistema de Candidaturas</h3>
+                  <p class="feature-detailed-description">
+                    Fornecedores podem se candidatar para trabalhar com cerimonialistas e gerenciar associações.
+                  </p>
+                </div>
+              </div>
+              <ul class="feature-benefits">
+                <li>
+                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  Candidaturas automáticas
+                </li>
+                <li>
+                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  Aprovação/Rejeição
+                </li>
+                <li>
+                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  Gestão de parcerias
+                </li>
+              </ul>
+            </div>
+          </a>
+
+          <a href="configurar-orcamento.php">
+            <div class="feature-detailed-card">
+              <div class="feature-detailed-header">
+                <div class="feature-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                    <line x1="12" y1="9" x2="12" y2="13" />
+                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="feature-detailed-title">Alertas de Orçamento</h3>
+                  <p class="feature-detailed-description">
+                    Configure alertas personalizados para ser notificado ao atingir diferentes limites do orçamento.
+                  </p>
+                </div>
+              </div>
+              <ul class="feature-benefits">
+                <li>
+                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  Alertas em múltiplos níveis
+                </li>
+                <li>
+                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  Notificações automáticas
+                </li>
+                <li>
+                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  Controle personalizado
+                </li>
+              </ul>
+            </div>
+          </a>
         </div>
         <div class="features-cta">
           <h2 class="cta-title">Por que escolher o Planner de Sonhos?</h2>
@@ -621,7 +904,7 @@ $idUsuario = (int) $_SESSION['usuario_id'] ?? 0;
               <svg class="star-icon" viewBox="0 0 24 24" fill="none" stroke="hsl(var(--foreground))"
                 color="hsl(var(--foreground))">
                 <path
-                  d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.06L12 2z" />
+                  d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
               </svg>
               <h3>Qualidade Garantida</h3>
               <p>98% de satisfação dos nossos usuários</p>

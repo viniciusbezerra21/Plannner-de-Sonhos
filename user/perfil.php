@@ -4,7 +4,6 @@ require_once "../config/conexao.php";
 
 $cookieName = "lembrar_me";
 
-
 if (!isset($_SESSION["usuario_id"])) {
   header("Location: login.php");
   exit;
@@ -51,6 +50,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
   $telefone = trim($_POST['telefone']);
   $senha = trim($_POST['senha']);
 
+  $local_casamento = trim($_POST['local_casamento'] ?? '');
+  $tipo_cerimonia = trim($_POST['tipo_cerimonia'] ?? '');
+  $quantidade_convidados = (int) ($_POST['quantidade_convidados'] ?? 0);
+  $orcamento_total = (float) str_replace(',', '.', $_POST['orcamento_total'] ?? 0);
 
   $foto_perfil = $_SESSION['foto_perfil'] ?? 'default.png';
   if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
@@ -71,17 +74,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
   }
 
-
   try {
     if (!empty($senha)) {
       $senha_hash = password_hash($senha, PASSWORD_DEFAULT);
-      $sql = "UPDATE usuarios SET nome = ?, nome_conjuge = ?, email = ?, telefone = ?, senha = ?, foto_perfil = ? WHERE id_usuario = ?";
+      $sql = "UPDATE usuarios SET nome = ?, nome_conjuge = ?, email = ?, telefone = ?, senha = ?, foto_perfil = ?, local_casamento = ?, tipo_cerimonia = ?, quantidade_convidados = ?, orcamento_total = ? WHERE id_usuario = ?";
       $stmt = $pdo->prepare($sql);
-      $stmt->execute([$nome, $nome_conjuge, $email, $telefone, $senha_hash, $foto_perfil, $usuario_id]);
+      $stmt->execute([$nome, $nome_conjuge, $email, $telefone, $senha_hash, $foto_perfil, $local_casamento, $tipo_cerimonia, $quantidade_convidados, $orcamento_total, $usuario_id]);
     } else {
-      $sql = "UPDATE usuarios SET nome = ?, nome_conjuge = ?, email = ?, telefone = ?, foto_perfil = ? WHERE id_usuario = ?";
+      $sql = "UPDATE usuarios SET nome = ?, nome_conjuge = ?, email = ?, telefone = ?, foto_perfil = ?, local_casamento = ?, tipo_cerimonia = ?, quantidade_convidados = ?, orcamento_total = ? WHERE id_usuario = ?";
       $stmt = $pdo->prepare($sql);
-      $stmt->execute([$nome, $nome_conjuge, $email, $telefone, $foto_perfil, $usuario_id]);
+      $stmt->execute([$nome, $nome_conjuge, $email, $telefone, $foto_perfil, $local_casamento, $tipo_cerimonia, $quantidade_convidados, $orcamento_total, $usuario_id]);
     }
 
     $_SESSION['foto_perfil'] = $foto_perfil;
@@ -96,7 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
 $usuario = null;
 try {
-  $sql = "SELECT nome, nome_conjuge, telefone, email, foto_perfil, notificacoes_email, tema_cor FROM usuarios WHERE id_usuario = ?";
+  $sql = "SELECT nome, nome_conjuge, telefone, email, foto_perfil, notificacoes_email, tema_cor, local_casamento, tipo_cerimonia, quantidade_convidados, orcamento_total FROM usuarios WHERE id_usuario = ?";
   $stmt = $pdo->prepare($sql);
   $stmt->execute([$usuario_id]);
   $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -654,6 +656,10 @@ if (isset($_POST['logout'])) {
             <p>E-mail: <?php echo htmlspecialchars($usuario['email'] ?? 'Não informado'); ?></p>
             <p>Telefone: <?php echo htmlspecialchars($usuario['telefone'] ?? 'Não informado'); ?></p>
             <p>Cônjuge: <?php echo htmlspecialchars($usuario['nome_conjuge'] ?? 'Não informado'); ?></p>
+            <p>Local do Casamento: <?php echo htmlspecialchars($usuario['local_casamento'] ?? 'Não informado'); ?></p>
+            <p>Tipo de Cerimônia: <?php echo htmlspecialchars($usuario['tipo_cerimonia'] ?? 'Não informado'); ?></p>
+            <p>Quantidade de Convidados: <?php echo htmlspecialchars($usuario['quantidade_convidados'] ?? 'Não informado'); ?></p>
+            <p>Orçamento Total: <?php echo htmlspecialchars($usuario['orcamento_total'] ?? 'Não informado'); ?></p>
             <button class="btn-primary" onclick="openEditModal()">Editar Perfil</button>
           </div>
         </div>
@@ -790,6 +796,30 @@ if (isset($_POST['logout'])) {
           <div class="form-group">
             <label for="modalSenha">Nova Senha (opcional)</label>
             <input type="password" id="modalSenha" name="senha" placeholder="Deixe em branco para manter a senha atual">
+          </div>
+
+          <div class="form-group">
+            <label for="modalLocalCasamento">Local do Casamento</label>
+            <input type="text" id="modalLocalCasamento" name="local_casamento"
+              value="<?php echo htmlspecialchars($usuario['local_casamento']); ?>">
+          </div>
+
+          <div class="form-group">
+            <label for="modalTipoCerimonia">Tipo de Cerimônia</label>
+            <input type="text" id="modalTipoCerimonia" name="tipo_cerimonia"
+              value="<?php echo htmlspecialchars($usuario['tipo_cerimonia']); ?>">
+          </div>
+
+          <div class="form-group">
+            <label for="modalQuantidadeConvidados">Quantidade de Convidados</label>
+            <input type="number" id="modalQuantidadeConvidados" name="quantidade_convidados"
+              value="<?php echo htmlspecialchars($usuario['quantidade_convidados']); ?>">
+          </div>
+
+          <div class="form-group">
+            <label for="modalOrcamentoTotal">Orçamento Total</label>
+            <input type="text" id="modalOrcamentoTotal" name="orcamento_total"
+              value="<?php echo htmlspecialchars($usuario['orcamento_total']); ?>">
           </div>
 
           <button type="submit" class="btn-submit">Salvar Alterações</button>
