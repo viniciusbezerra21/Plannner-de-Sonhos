@@ -1,7 +1,6 @@
 <?php
 session_start();
 
-
 $cookieName = "lembrar_me";
 $cookieTime = time() + (86400 * 30);
 
@@ -31,6 +30,10 @@ if (isset($_SESSION["usuario_id"]) && empty($_SESSION['foto_perfil'])) {
   $_SESSION['foto_perfil'] = "default.png";
 }
 
+if (isset($_SESSION["usuario_id"]) && isset($_SESSION['tipo_usuario']) && $_SESSION['tipo_usuario'] === 'cerimonialista') {
+    header("Location: pages/cerimonialista-home.php");
+    exit;
+}
 
 if (isset($_POST['logout'])) {
   require_once 'config/conexao.php';
@@ -54,7 +57,7 @@ require_once 'config/conexao.php';
 $user_data = ['nome' => 'Usuário', 'email' => ''];
 if (isset($_SESSION["usuario_id"])) {
   try {
-    $stmt = $pdo->prepare("SELECT nome, email, foto_perfil FROM usuarios WHERE id_usuario = ?");
+    $stmt = $pdo->prepare("SELECT nome, email, foto_perfil, tipo_usuario FROM usuarios WHERE id_usuario = ?");
     $stmt->execute([(int) $_SESSION['usuario_id']]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -63,6 +66,10 @@ if (isset($_SESSION["usuario_id"])) {
 
       if (!empty($result['foto_perfil'])) {
         $_SESSION['foto_perfil'] = $result['foto_perfil'];
+      }
+      
+      if (!empty($result['tipo_usuario'])) {
+        $_SESSION['tipo_usuario'] = $result['tipo_usuario'];
       }
     }
   } catch (PDOException $e) {
