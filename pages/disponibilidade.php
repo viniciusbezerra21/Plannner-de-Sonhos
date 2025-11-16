@@ -2,16 +2,39 @@
 session_start();
 require_once '../config/conexao.php';
 
-if (!isset($_SESSION['id_usuario']) || $_SESSION['tipo_usuario'] !== 'fornecedor') {
+if (!isset($_SESSION['usuario_id']) && !isset($_SESSION['fornecedor_id'])) {
     header('Location: ../user/login-unified.php');
     exit();
 }
 
-$id_usuario = $_SESSION['id_usuario'];
+// Determine if user is a fornecedor or regular user
+if (isset($_SESSION['fornecedor_id'])) {
+    $id_fornecedor = $_SESSION['fornecedor_id'];
+} elseif (isset($_SESSION['usuario_id'])) {
+    // Check if this user is linked to a fornecedor account
+    $stmt = $pdo->prepare("SELECT id_fornecedor FROM fornecedores WHERE email = (SELECT email FROM usuarios WHERE id_usuario = ?)");
+    $stmt->execute([$_SESSION['usuario_id']]);
+    $fornecedor_link = $stmt->fetch();
+    
+    if ($fornecedor_link) {
+        $id_fornecedor = $fornecedor_link['id_fornecedor'];
+    } else {
+        // User is not a fornecedor, show message or redirect
+        echo "<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Acesso Negado</title></head><body>";
+        echo "<h1>Acesso restrito</h1>";
+        echo "<p>Esta página é apenas para fornecedores.</p>";
+        echo "<a href='../index.php'>Voltar para início</a>";
+        echo "</body></html>";
+        exit();
+    }
+} else {
+    header('Location: ../index.php');
+    exit();
+}
 
-// Buscar fornecedor
-$stmt = $pdo->prepare("SELECT * FROM fornecedores WHERE id_usuario = ?");
-$stmt->execute([$id_usuario]);
+// Verify fornecedor exists
+$stmt = $pdo->prepare("SELECT * FROM fornecedores WHERE id_fornecedor = ?");
+$stmt->execute([$id_fornecedor]);
 $fornecedor = $stmt->fetch();
 
 if (!$fornecedor) {
@@ -19,14 +42,8 @@ if (!$fornecedor) {
     exit();
 }
 
-$id_fornecedor = $fornecedor['id_fornecedor'];
-
 // Buscar disponibilidades
-$stmt = $pdo->prepare("
-    SELECT * FROM disponibilidade_fornecedor 
-    WHERE id_fornecedor = ? 
-    ORDER BY data_disponivel ASC
-");
+$stmt = $pdo->prepare("SELECT * FROM disponibilidade_fornecedor WHERE id_fornecedor = ? ORDER BY data_disponivel ASC");
 $stmt->execute([$id_fornecedor]);
 $disponibilidades = $stmt->fetchAll();
 

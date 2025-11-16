@@ -245,9 +245,7 @@ try {
           <div class="dropdown">
             <a href="funcionalidades.php" class="nav-link dropdown-toggle">Funcionalidades ▾</a>
             <div class="dropdown-menu">
-              <a href="mensagens.php">Mensagens</a>
               <a href="avaliacoes.php">Avaliações</a>
-              <a href="notificacoes.php">Notificações</a>
               <a href="historico.php">Histórico</a>
               <a href="disponibilidade.php">Minha Disponibilidade</a>
               <a href="candidaturas.php">Candidaturas</a>

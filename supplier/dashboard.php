@@ -3,7 +3,7 @@ session_start();
 require_once "../config/conexao.php";
 
 if (!isset($_SESSION['fornecedor_id'])) {
-  header("Location: login.php");
+  header("Location: ../user/login-unified.php");
   exit;
 }
 
@@ -16,7 +16,7 @@ try {
 
   if (!$fornecedor) {
     session_destroy();
-    header("Location: login.php");
+    header("Location: ../user/login-unified.php");
     exit;
   }
 
@@ -59,7 +59,7 @@ if (isset($_POST['logout'])) {
   setcookie("lembrar_me_fornecedor", "", time() - 3600, "/");
   session_unset();
   session_destroy();
-  header("Location: login.php");
+  header("Location: ../user/login-unified.php");
   exit;
 }
 ?>

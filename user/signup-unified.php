@@ -23,6 +23,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $telefone = $_POST["telefone"] ?? '';
             $email = $_POST["email"] ?? '';
 
+            try {
+                $stmt = $pdo->prepare("SELECT id_usuario FROM usuarios WHERE email = ?");
+                $stmt->execute([$email]);
+                if ($stmt->rowCount() > 0) {
+                    throw new Exception("Este email já está cadastrado. Tente outro.");
+                }
+            } catch (Exception $e) {
+                $_SESSION['signup_error'] = $e->getMessage();
+                header("Location: signup-unified.php?type=cliente");
+                exit;
+            }
+
             $_SESSION['signup_data'] = compact('nome', 'nome_conj', 'genero', 'idade', 'telefone', 'email');
             $_SESSION['signup_step'] = 2;
         } elseif ($userType === 'fornecedor') {
@@ -33,6 +45,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $endereco = $_POST["endereco"] ?? '';
             $categoria = $_POST["categoria"] ?? 'geral';
 
+            try {
+                $stmt = $pdo->prepare("SELECT id_fornecedor FROM fornecedores WHERE email = ?");
+                $stmt->execute([$email]);
+                if ($stmt->rowCount() > 0) {
+                    throw new Exception("Este email já está cadastrado. Tente outro.");
+                }
+            } catch (Exception $e) {
+                $_SESSION['signup_error'] = $e->getMessage();
+                header("Location: signup-unified.php?type=fornecedor");
+                exit;
+            }
+
             $_SESSION['signup_data'] = compact('nome', 'telefone', 'email', 'cnpj', 'endereco', 'categoria');
             $_SESSION['signup_step'] = 2;
         } else {
@@ -41,6 +65,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $email = $_POST["email"] ?? '';
             $especializacao = $_POST["especializacao"] ?? '';
             $experiencia_anos = $_POST["experiencia_anos"] ?? 0;
+
+            try {
+                $stmt = $pdo->prepare("SELECT id_usuario FROM usuarios WHERE email = ?");
+                $stmt->execute([$email]);
+                if ($stmt->rowCount() > 0) {
+                    throw new Exception("Este email já está cadastrado. Tente outro.");
+                }
+            } catch (Exception $e) {
+                $_SESSION['signup_error'] = $e->getMessage();
+                header("Location: signup-unified.php?type=cerimonialista");
+                exit;
+            }
 
             $_SESSION['signup_data'] = compact('nome', 'telefone', 'email', 'especializacao', 'experiencia_anos');
             $_SESSION['signup_step'] = 2;
@@ -56,12 +92,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $mensagem = "<div class='mensagem-erro'>A senha deve ter pelo menos 6 caracteres!</div>";
         } else {
             $_SESSION['signup_data']['senha'] = password_hash($senha, PASSWORD_DEFAULT);
-            
-            if ($userType === 'cliente') {
-                $_SESSION['signup_step'] = 3;
-            } else {
-                $_SESSION['signup_step'] = 3;
-            }
+            $_SESSION['signup_step'] = 3;
         }
     } elseif ($step == 3 && $userType === 'cliente') {
         $data_casamento = $_POST["data_casamento"] ?? '';
@@ -79,8 +110,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         finalizarCadastroCliente();
         exit;
     } elseif ($step == 3 && in_array($userType, ['fornecedor', 'cerimonialista'])) {
-        $plano = $_POST["plano"] ?? 'padrao';
-        
         if ($userType === 'fornecedor') {
             $preco_minimo = (float) str_replace(',', '.', $_POST["preco_minimo"] ?? 0);
             $horario_funcionamento = $_POST["horario_funcionamento"] ?? '';
@@ -93,7 +122,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $_SESSION['signup_data']['tipos_cerimonia'] = json_encode($tipos_cerimonia);
         }
         
-        $_SESSION['signup_data']['plano'] = $plano;
         finalizarCadastroProfissional($userType);
         exit;
     }
@@ -105,28 +133,26 @@ function finalizarCadastroCliente() {
     $data = $_SESSION['signup_data'];
     
     try {
-        $sql = "INSERT INTO usuarios (nome, nome_conjuge, genero, idade, telefone, email, senha, tipo_usuario, cargo, foto_perfil, orcamento_total, orcamento_gasto, local_casamento, tipo_cerimonia, quantidade_convidados, data_casamento, progresso) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, 'cliente', 'cliente', 'default.png', ?, 0, ?, ?, ?, ?, 0)";
+        $sql = "INSERT INTO usuarios (nome, nome_conjuge, genero, idade, telefone, email, senha, cargo, foto_perfil, orcamento_total) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
-            $data['nome'], $data['nome_conj'], $data['genero'], $data['idade'], 
-            $data['telefone'], $data['email'], $data['senha'],
-            $data['orcamento_total'], $data['local_casamento'], $data['tipo_cerimonia'],
-            $data['quantidade_convidados'], $data['data_casamento']
+            $data['nome'], 
+            $data['nome_conj'], 
+            $data['genero'],
+            $data['idade'], 
+            $data['telefone'], 
+            $data['email'], 
+            $data['senha'],
+            'cliente',
+            'default.png',
+            $data['orcamento_total'] ?? 0
         ]);
 
         $id_usuario = $pdo->lastInsertId();
         
-        $categorias = ['Decoração', 'Catering', 'Fotografia', 'Música', 'Convites', 'Transporte', 'Hospedagem', 'Maquiagem'];
-        $orcamento_por_categoria = $data['orcamento_total'] / count($categorias);
-        
-        foreach ($categorias as $categoria) {
-            $sql_cat = "INSERT INTO configuracoes_orcamento (id_usuario, categoria, orcamento_alocado, orcamento_gasto) VALUES (?, ?, ?, 0)";
-            $stmt_cat = $pdo->prepare($sql_cat);
-            $stmt_cat->execute([$id_usuario, $categoria, $orcamento_por_categoria]);
-        }
-        
-        $_SESSION["usuario_id"] = $id_usuario;
+        session_regenerate_id(true);
+        $_SESSION["usuario_id"] = (int) $id_usuario;
         $_SESSION["nome"] = $data['nome'];
         $_SESSION["tipo_usuario"] = 'cliente';
         $_SESSION["foto_perfil"] = 'default.png';
@@ -137,7 +163,10 @@ function finalizarCadastroCliente() {
         header("Location: ../pages/escolher-cerimonialista.php");
         exit;
     } catch (PDOException $e) {
-        die("Erro ao cadastrar: " . $e->getMessage());
+        error_log("Erro ao cadastrar cliente: " . $e->getMessage());
+        $_SESSION['signup_error'] = "Erro ao cadastrar. Tente novamente mais tarde.";
+        header("Location: signup-unified.php?type=cliente");
+        exit;
     }
 }
 
@@ -148,51 +177,88 @@ function finalizarCadastroProfissional($userType) {
     
     try {
         if ($userType === 'fornecedor') {
-            $sql = "INSERT INTO fornecedores (nome_fornecedor, telefone, email, senha, plano, categoria, cnpj, endereco, preco_minimo, horario_funcionamento, verificado) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)";
+            $sql = "INSERT INTO fornecedores (nome_fornecedor, categoria, email, telefone, descricao, senha, apenas_pacotes) 
+                    VALUES (?, ?, ?, ?, ?, ?, 0)";
             $stmt = $pdo->prepare($sql);
+            
+            $descricao = "Empresa cadastrada através do sistema.";
+            if (isset($data['cnpj']) && !empty($data['cnpj'])) {
+                $descricao .= " CNPJ: " . $data['cnpj'] . ".";
+            }
+            if (isset($data['endereco']) && !empty($data['endereco'])) {
+                $descricao .= " Endereço: " . $data['endereco'] . ".";
+            }
+            if (isset($data['preco_minimo']) && $data['preco_minimo'] > 0) {
+                $descricao .= " Preço mínimo: R$ " . number_format($data['preco_minimo'], 2, ',', '.') . ".";
+            }
+            if (isset($data['horario_funcionamento']) && !empty($data['horario_funcionamento'])) {
+                $descricao .= " Horário: " . $data['horario_funcionamento'] . ".";
+            }
+            
             $stmt->execute([
-                $data['nome'], $data['telefone'], $data['email'], $data['senha'], $data['plano'],
-                $data['categoria'], $data['cnpj'], $data['endereco'], 
-                $data['preco_minimo'], $data['horario_funcionamento']
+                $data['nome'], 
+                $data['categoria'], 
+                $data['email'], 
+                $data['telefone'] ?? '', 
+                $descricao,
+                $data['senha']
             ]);
 
             $id_fornecedor = $pdo->lastInsertId();
-            $_SESSION["fornecedor_id"] = $id_fornecedor;
+            
+            session_regenerate_id(true);
+            $_SESSION["fornecedor_id"] = (int) $id_fornecedor;
             $_SESSION["fornecedor_nome"] = $data['nome'];
+            $_SESSION["fornecedor_email"] = $data['email'];
             
             unset($_SESSION['signup_data']);
             unset($_SESSION['signup_step']);
 
             header("Location: ../supplier/dashboard.php");
         } else {
-            $sql = "INSERT INTO usuarios (nome, email, senha, tipo_usuario, cargo, foto_perfil, plano, telefone, especializacao, experiencia_anos, valor_minimo, tipos_cerimonia) 
-                    VALUES (?, ?, ?, 'cerimonialista', 'cerimonialista', 'default.png', ?, ?, ?, ?, ?, ?)";
+            $sql = "INSERT INTO usuarios (nome, email, senha, cargo, foto_perfil, telefone, genero, orcamento_total) 
+                    VALUES (?, ?, ?, 'cerimonialista', 'default.png', ?, 'Outro', 0)";
             $stmt = $pdo->prepare($sql);
             $stmt->execute([
-                $data['nome'], $data['email'], $data['senha'], $data['plano'], $data['telefone'],
-                $data['especializacao'], $data['experiencia_anos'], 
-                $data['valor_minimo'], $data['tipos_cerimonia']
+                $data['nome'], 
+                $data['email'], 
+                $data['senha'], 
+                $data['telefone'] ?? ''
             ]);
 
             $id_usuario = $pdo->lastInsertId();
-            $_SESSION["usuario_id"] = $id_usuario;
+            
+            session_regenerate_id(true);
+            $_SESSION["usuario_id"] = (int) $id_usuario;
             $_SESSION["nome"] = $data['nome'];
             $_SESSION["tipo_usuario"] = 'cerimonialista';
+            $_SESSION["foto_perfil"] = 'default.png';
             
             unset($_SESSION['signup_data']);
             unset($_SESSION['signup_step']);
 
-            header("Location: ../pages/cerimonialista-dashboard.php");
+            header("Location: ../pages/cerimonialista-home.php");
         }
         exit;
     } catch (PDOException $e) {
-        die("Erro ao cadastrar: " . $e->getMessage());
+        error_log("Erro ao cadastrar profissional: " . $e->getMessage());
+        if (strpos($e->getMessage(), 'Duplicate entry') !== false || strpos($e->getMessage(), 'email_unique') !== false) {
+            $_SESSION['signup_error'] = "Este email já está cadastrado. Tente outro.";
+        } else {
+            $_SESSION['signup_error'] = "Erro ao cadastrar. Tente novamente mais tarde.";
+        }
+        $redirectType = $userType === 'fornecedor' ? 'fornecedor' : 'cerimonialista';
+        header("Location: signup-unified.php?type=$redirectType");
+        exit;
     }
 }
 
 $signupData = $_SESSION['signup_data'] ?? [];
 $signupStep = $_SESSION['signup_step'] ?? 1;
+$signup_error = $_SESSION['signup_error'] ?? '';
+if (isset($_SESSION['signup_error'])) {
+    unset($_SESSION['signup_error']);
+}
 ?>
 
 <!DOCTYPE html>
@@ -500,7 +566,11 @@ $signupStep = $_SESSION['signup_step'] ?? 1;
             <div class="progress-fill" style="width: <?php echo $progressPercent; ?>%"></div>
           </div>
 
-          <?php if ($mensagem) echo $mensagem; ?>
+          <?php 
+          if ($signup_error) {
+              echo "<div class='mensagem-erro'>" . htmlspecialchars($signup_error) . "</div>";
+          }
+          ?>
 
           <div class="form-card">
             <?php if ($signupStep == 1): ?>
@@ -546,7 +616,6 @@ $signupStep = $_SESSION['signup_step'] ?? 1;
                   </div>
 
                 <?php elseif ($userType === 'fornecedor'): ?>
-                  <!-- Enhanced supplier fields -->
                   <div class="input-group">
                     <label>Nome da Empresa</label>
                     <input type="text" name="nome" placeholder="Nome da empresa" required />
@@ -587,7 +656,6 @@ $signupStep = $_SESSION['signup_step'] ?? 1;
                   </div>
 
                 <?php else: ?>
-                  <!-- Enhanced ceremonialista fields -->
                   <div class="input-group">
                     <label>Nome Completo</label>
                     <input type="text" name="nome" placeholder="Seu nome completo" required />
@@ -653,8 +721,7 @@ $signupStep = $_SESSION['signup_step'] ?? 1;
 
             <?php elseif ($signupStep == 3): ?>
               <?php if ($userType === 'cliente'): ?>
-                <!-- Enhanced client step 3 with budget and wedding details -->
-                <h2>Detalhes do Casamento</h2>
+                <h2>Informações do Casamento</h2>
                 <form method="POST">
                   <input type="hidden" name="step" value="3">
 
@@ -689,10 +756,6 @@ $signupStep = $_SESSION['signup_step'] ?? 1;
                     <input type="text" name="orcamento_total" placeholder="Ex: 50.000,00" required />
                   </div>
 
-                  <p style="color: hsl(var(--muted-foreground)); margin-bottom: 1rem;">
-                    O orçamento será dividido entre as categorias automaticamente.
-                  </p>
-
                   <div class="form-actions">
                     <button type="button" class="btn-back" onclick="history.back()">Voltar</button>
                     <button type="submit" class="btn-submit">Concluir Cadastro</button>
@@ -700,7 +763,6 @@ $signupStep = $_SESSION['signup_step'] ?? 1;
                 </form>
 
               <?php elseif ($userType === 'fornecedor'): ?>
-                <!-- Enhanced supplier step 3 with pricing and availability -->
                 <h2>Configurações da Empresa</h2>
                 <form method="POST">
                   <input type="hidden" name="step" value="3">
@@ -715,24 +777,6 @@ $signupStep = $_SESSION['signup_step'] ?? 1;
                     <input type="text" name="horario_funcionamento" placeholder="Ex: Seg-Dom 08h-22h" />
                   </div>
 
-                  <h3 style="margin-top: 1.5rem; margin-bottom: 1rem;">Escolha seu Plano</h3>
-                  <div class="plan-selector">
-                    <label class="plan-card selected">
-                      <input type="radio" name="plano" value="premium" checked />
-                      <div class="plan-badge">RECOMENDADO</div>
-                      <div class="plan-name">Premium</div>
-                      <div class="plan-price">R$ 99/mês</div>
-                      <div class="plan-description">Todas as funcionalidades</div>
-                    </label>
-
-                    <label class="plan-card">
-                      <input type="radio" name="plano" value="padrao" />
-                      <div class="plan-name">Padrão</div>
-                      <div class="plan-price">Grátis</div>
-                      <div class="plan-description">Funcionalidades básicas</div>
-                    </label>
-                  </div>
-
                   <div class="form-actions">
                     <button type="button" class="btn-back" onclick="history.back()">Voltar</button>
                     <button type="submit" class="btn-submit">Concluir Cadastro</button>
@@ -740,7 +784,6 @@ $signupStep = $_SESSION['signup_step'] ?? 1;
                 </form>
 
               <?php else: ?>
-                <!-- Enhanced ceremonialista step 3 with pricing and services -->
                 <h2>Configurações Profissionais</h2>
                 <form method="POST">
                   <input type="hidden" name="step" value="3">
@@ -770,24 +813,6 @@ $signupStep = $_SESSION['signup_step'] ?? 1;
                         <label style="margin: 0;">Laico</label>
                       </div>
                     </div>
-                  </div>
-
-                  <h3 style="margin-top: 1.5rem; margin-bottom: 1rem;">Escolha seu Plano</h3>
-                  <div class="plan-selector">
-                    <label class="plan-card selected">
-                      <input type="radio" name="plano" value="premium" checked />
-                      <div class="plan-badge">RECOMENDADO</div>
-                      <div class="plan-name">Premium</div>
-                      <div class="plan-price">R$ 99/mês</div>
-                      <div class="plan-description">Todas as funcionalidades</div>
-                    </label>
-
-                    <label class="plan-card">
-                      <input type="radio" name="plano" value="padrao" />
-                      <div class="plan-name">Padrão</div>
-                      <div class="plan-price">Grátis</div>
-                      <div class="plan-description">Funcionalidades básicas</div>
-                    </label>
                   </div>
 
                   <div class="form-actions">

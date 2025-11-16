@@ -17,17 +17,17 @@ if (!isset($_SESSION['usuario_id']) && !isset($_SESSION['fornecedor_id']) && iss
     $cookieToken = $_COOKIE[$cookieName];
     try {
         // Try usuario first
-        $stmt = $pdo->prepare("SELECT id_usuario, nome, cargo, foto_perfil, email, tipo_usuario FROM usuarios WHERE remember_token = ?");
+        $stmt = $pdo->prepare("SELECT id_usuario, nome, cargo, foto_perfil, email FROM usuarios WHERE remember_token = ?");
         $stmt->execute([$cookieToken]);
         $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if ($usuario) {
             $_SESSION['usuario_id'] = (int) $usuario['id_usuario'];
             $_SESSION['nome'] = $usuario['nome'];
-            $_SESSION['tipo_usuario'] = $usuario['tipo_usuario'];
+            $_SESSION['tipo_usuario'] = $usuario['cargo'];
             $_SESSION['foto_perfil'] = $usuario['foto_perfil'] ?? 'default.png';
             
-            if ($usuario['tipo_usuario'] === 'cerimonialista') {
+            if ($usuario['cargo'] === 'cerimonialista') {
                 header("Location: ../pages/cerimonialista-dashboard.php");
             } else {
                 header("Location: ../index.php");
@@ -83,7 +83,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["acao"]) && $_POST["ac
         }
     } else {
         // Cliente ou Cerimonialista login - search by email only
-        $stmt = $pdo->prepare("SELECT id_usuario, nome, email, senha, tipo_usuario, foto_perfil FROM usuarios WHERE email = ?");
+        $stmt = $pdo->prepare("SELECT id_usuario, nome, email, senha, cargo, foto_perfil FROM usuarios WHERE email = ?");
         $stmt->execute([$email]);
         $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -91,7 +91,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["acao"]) && $_POST["ac
             session_regenerate_id(true);
             $_SESSION["usuario_id"] = (int) $usuario["id_usuario"];
             $_SESSION["nome"] = $usuario["nome"];
-            $_SESSION["tipo_usuario"] = $usuario["tipo_usuario"];
+            $_SESSION["tipo_usuario"] = $usuario["cargo"];
             $_SESSION["foto_perfil"] = $usuario['foto_perfil'] ?? 'default.png';
 
             if ($lembrarMe) {
@@ -101,7 +101,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["acao"]) && $_POST["ac
                 $stmt->execute([$token, $usuario["id_usuario"]]);
             }
 
-            if ($usuario['tipo_usuario'] === 'cerimonialista') {
+            if ($usuario['cargo'] === 'cerimonialista') {
                 header("Location: ../pages/cerimonialista-dashboard.php");
             } else {
                 header("Location: ../index.php");
@@ -358,7 +358,7 @@ $placeholders = [
     <section class="page-content" style="padding-top: 6rem">
       <div class="container">
         <div class="login-container">
-        <div class="login-content">
+          <div class="login-content">
             <h1>Bem-vindo!</h1>
             <p>Faça login para gerenciar seus eventos e casamento com facilidade. Acesse seu calendário, orçamento,
               fornecedores e muito mais.</p>
@@ -421,3 +421,4 @@ $placeholders = [
 </body>
 
 </html>
+

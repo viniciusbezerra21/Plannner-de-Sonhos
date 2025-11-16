@@ -2,13 +2,22 @@
 session_start();
 require_once '../config/conexao.php';
 
-if (!isset($_SESSION['id_usuario'])) {
-    header('Location: ../user/login.php');
+if (!isset($_SESSION['usuario_id']) && !isset($_SESSION['fornecedor_id'])) {
+    header('Location: ../user/login-unified.php');
     exit();
 }
 
-$id_usuario = $_SESSION['id_usuario'];
-$nome_usuario = $_SESSION['nome'] ?? 'Usuário';
+$id_usuario = $_SESSION['usuario_id'] ?? null;
+if ($id_usuario === null) {
+    // Se for fornecedor, redireciona para sua dashboard
+    if (isset($_SESSION['fornecedor_id'])) {
+        header('Location: ../supplier/dashboard.php');
+        exit();
+    }
+    header('Location: ../user/login-unified.php');
+    exit();
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -16,7 +25,7 @@ $nome_usuario = $_SESSION['nome'] ?? 'Usuário';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configurar Orçamento - Wedding Easy</title>
-    <link rel="stylesheet" href="../Style/style.css">
+    <link rel="stylesheet" href="../Style/styles.css">
     <style>
         .config-container {
             max-width: 800px;
@@ -86,7 +95,7 @@ $nome_usuario = $_SESSION['nome'] ?? 'Usuário';
         
         .form-group input[type="number"]:focus {
             outline: none;
-            border-color: #0084a0;
+            border-color: hsl(var(--border));
         }
         
         .checkbox-group {
@@ -148,7 +157,7 @@ $nome_usuario = $_SESSION['nome'] ?? 'Usuário';
         .btn-salvar {
             width: 100%;
             padding: 15px;
-            background: #0084a0;
+            background: hsl(var(--primary));
             color: white;
             border: none;
             border-radius: 8px;
@@ -159,7 +168,7 @@ $nome_usuario = $_SESSION['nome'] ?? 'Usuário';
         }
         
         .btn-salvar:hover {
-            background: #006d85;
+            background: hsl(var(--secondary));
         }
         
         .btn-salvar:disabled {

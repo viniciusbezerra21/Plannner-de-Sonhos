@@ -50,11 +50,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
   $telefone = trim($_POST['telefone']);
   $senha = trim($_POST['senha']);
 
-  $local_casamento = trim($_POST['local_casamento'] ?? '');
-  $tipo_cerimonia = trim($_POST['tipo_cerimonia'] ?? '');
-  $quantidade_convidados = (int) ($_POST['quantidade_convidados'] ?? 0);
-  $orcamento_total = (float) str_replace(',', '.', $_POST['orcamento_total'] ?? 0);
-
   $foto_perfil = $_SESSION['foto_perfil'] ?? 'default.png';
   if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
     $allowed = ['jpg', 'jpeg', 'png', 'gif'];
@@ -77,13 +72,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
   try {
     if (!empty($senha)) {
       $senha_hash = password_hash($senha, PASSWORD_DEFAULT);
-      $sql = "UPDATE usuarios SET nome = ?, nome_conjuge = ?, email = ?, telefone = ?, senha = ?, foto_perfil = ?, local_casamento = ?, tipo_cerimonia = ?, quantidade_convidados = ?, orcamento_total = ? WHERE id_usuario = ?";
+      $sql = "UPDATE usuarios SET nome = ?, nome_conjuge = ?, email = ?, telefone = ?, senha = ?, foto_perfil = ? WHERE id_usuario = ?";
       $stmt = $pdo->prepare($sql);
-      $stmt->execute([$nome, $nome_conjuge, $email, $telefone, $senha_hash, $foto_perfil, $local_casamento, $tipo_cerimonia, $quantidade_convidados, $orcamento_total, $usuario_id]);
+      $stmt->execute([$nome, $nome_conjuge, $email, $telefone, $senha_hash, $foto_perfil, $usuario_id]);
     } else {
-      $sql = "UPDATE usuarios SET nome = ?, nome_conjuge = ?, email = ?, telefone = ?, foto_perfil = ?, local_casamento = ?, tipo_cerimonia = ?, quantidade_convidados = ?, orcamento_total = ? WHERE id_usuario = ?";
+      $sql = "UPDATE usuarios SET nome = ?, nome_conjuge = ?, email = ?, telefone = ?, foto_perfil = ? WHERE id_usuario = ?";
       $stmt = $pdo->prepare($sql);
-      $stmt->execute([$nome, $nome_conjuge, $email, $telefone, $foto_perfil, $local_casamento, $tipo_cerimonia, $quantidade_convidados, $orcamento_total, $usuario_id]);
+      $stmt->execute([$nome, $nome_conjuge, $email, $telefone, $foto_perfil, $usuario_id]);
     }
 
     $_SESSION['foto_perfil'] = $foto_perfil;
@@ -98,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
 $usuario = null;
 try {
-  $sql = "SELECT nome, nome_conjuge, telefone, email, foto_perfil, notificacoes_email, tema_cor, local_casamento, tipo_cerimonia, quantidade_convidados, orcamento_total FROM usuarios WHERE id_usuario = ?";
+  $sql = "SELECT nome, nome_conjuge, telefone, email, foto_perfil, notificacoes_email, tema_cor FROM usuarios WHERE id_usuario = ?";
   $stmt = $pdo->prepare($sql);
   $stmt->execute([$usuario_id]);
   $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -111,7 +106,15 @@ try {
 
   if (!empty($usuario['foto_perfil'])) {
     $_SESSION['foto_perfil'] = $usuario['foto_perfil'];
+  } else {
+    $usuario['foto_perfil'] = 'default.png';
+    $_SESSION['foto_perfil'] = 'default.png';
   }
+  
+  error_log("[v0] Perfil page - foto_perfil: " . $usuario['foto_perfil']);
+  error_log("[v0] Perfil page - checking file: fotos/" . $usuario['foto_perfil']);
+  error_log("[v0] File exists: " . (file_exists(__DIR__ . '/fotos/' . $usuario['foto_perfil']) ? 'YES' : 'NO'));
+  
 } catch (PDOException $e) {
   error_log("Error fetching user profile: " . $e->getMessage());
   $error_message = "Erro ao carregar perfil. Por favor, tente novamente.";
@@ -133,6 +136,8 @@ try {
 
 $foto_perfil = $usuario["foto_perfil"] ?? "default.png";
 $tema_cor = $usuario["tema_cor"] ?? "azul";
+
+error_log("[v0] Final foto_perfil variable: " . $foto_perfil);
 
 if (isset($_POST['logout'])) {
   try {
@@ -590,16 +595,7 @@ if (isset($_POST['logout'])) {
         <nav class="nav">
           <a href="../index.php" class="nav-link">Início</a>
           <a href="perfil.php" class="nav-link">Perfil</a>
-          <div class="dropdown">
-            <a href="../pages/funcionalidades.php" class="nav-link dropdown-toggle">Funcionalidades ▾</a>
-            <div class="dropdown-menu">
-              <a href="../pages/calendario.php">Calendário</a>
-              <a href="../pages/orcamento.php">Orçamento</a>
-              <a href="../pages/itens.php">Serviços</a>
-              <a href="../pages/gestao-contratos.php">Gestão de Contratos</a>
-              <a href="../pages/tarefas.php">Lista de Tarefas</a>
-            </div>
-          </div>
+          
           <form method="post" style="margin:0; display: inline-block;">
             <button class="btn-outline" type="submit" name="logout">
               Sair
@@ -648,7 +644,16 @@ if (isset($_POST['logout'])) {
 
         <div class="profile-card">
           <div class="profile-photo">
-            <img src="fotos/<?php echo htmlspecialchars($foto_perfil); ?>" alt="Foto de perfil">
+            <?php 
+            $foto_path = __DIR__ . '/fotos/' . htmlspecialchars($foto_perfil);
+            if (!file_exists($foto_path)) {
+              error_log("[v0] WARNING: Photo file not found at: " . $foto_path);
+              $foto_perfil = 'default.png';
+            }
+            ?>
+            <img src="fotos/<?php echo htmlspecialchars($foto_perfil); ?>" 
+                 alt="Foto de perfil"
+                 onerror="console.error('[v0] Failed to load image:', this.src); this.src='fotos/default.png';">
           </div>
           <div class="profile-info">
 
@@ -656,10 +661,6 @@ if (isset($_POST['logout'])) {
             <p>E-mail: <?php echo htmlspecialchars($usuario['email'] ?? 'Não informado'); ?></p>
             <p>Telefone: <?php echo htmlspecialchars($usuario['telefone'] ?? 'Não informado'); ?></p>
             <p>Cônjuge: <?php echo htmlspecialchars($usuario['nome_conjuge'] ?? 'Não informado'); ?></p>
-            <p>Local do Casamento: <?php echo htmlspecialchars($usuario['local_casamento'] ?? 'Não informado'); ?></p>
-            <p>Tipo de Cerimônia: <?php echo htmlspecialchars($usuario['tipo_cerimonia'] ?? 'Não informado'); ?></p>
-            <p>Quantidade de Convidados: <?php echo htmlspecialchars($usuario['quantidade_convidados'] ?? 'Não informado'); ?></p>
-            <p>Orçamento Total: <?php echo htmlspecialchars($usuario['orcamento_total'] ?? 'Não informado'); ?></p>
             <button class="btn-primary" onclick="openEditModal()">Editar Perfil</button>
           </div>
         </div>
@@ -755,8 +756,11 @@ if (isset($_POST['logout'])) {
         <h2 style="text-align: center; margin-bottom: 0.5rem;">Editar Perfil</h2>
 
         <div class="modal-profile-photo" style="text-align: center; margin-bottom: 0.5rem;">
-          <img src="fotos/<?php echo htmlspecialchars($foto_perfil); ?>" alt="Foto de perfil" class="modal-profile-photo"
-            id="modalFotoPreview">
+          <img src="fotos/<?php echo htmlspecialchars($foto_perfil); ?>" 
+               alt="Foto de perfil" 
+               class="modal-profile-photo"
+               id="modalFotoPreview"
+               onerror="console.error('[v0] Failed to load modal image:', this.src); this.src='fotos/default.png';">
           <div class="custom-file">
             <input type="file" id="modalFoto" name="foto" accept="image/*" onchange="previewModalFoto(event)">
             <label for="modalFoto">Trocar Foto de Perfil</label>
@@ -798,35 +802,12 @@ if (isset($_POST['logout'])) {
             <input type="password" id="modalSenha" name="senha" placeholder="Deixe em branco para manter a senha atual">
           </div>
 
-          <div class="form-group">
-            <label for="modalLocalCasamento">Local do Casamento</label>
-            <input type="text" id="modalLocalCasamento" name="local_casamento"
-              value="<?php echo htmlspecialchars($usuario['local_casamento']); ?>">
-          </div>
-
-          <div class="form-group">
-            <label for="modalTipoCerimonia">Tipo de Cerimônia</label>
-            <input type="text" id="modalTipoCerimonia" name="tipo_cerimonia"
-              value="<?php echo htmlspecialchars($usuario['tipo_cerimonia']); ?>">
-          </div>
-
-          <div class="form-group">
-            <label for="modalQuantidadeConvidados">Quantidade de Convidados</label>
-            <input type="number" id="modalQuantidadeConvidados" name="quantidade_convidados"
-              value="<?php echo htmlspecialchars($usuario['quantidade_convidados']); ?>">
-          </div>
-
-          <div class="form-group">
-            <label for="modalOrcamentoTotal">Orçamento Total</label>
-            <input type="text" id="modalOrcamentoTotal" name="orcamento_total"
-              value="<?php echo htmlspecialchars($usuario['orcamento_total']); ?>">
-          </div>
-
           <button type="submit" class="btn-submit">Salvar Alterações</button>
         </form>
       </div>
     </div>
   <?php endif; ?>
+
 
 
   <footer class="footer">

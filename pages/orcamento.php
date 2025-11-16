@@ -112,14 +112,21 @@ $stmt = $pdo->prepare("SELECT * FROM orcamentos WHERE id_usuario = ? ORDER BY id
 $stmt->execute([$idUsuario]);
 $itens = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$budget_overview = ['total_alocado' => 0, 'total_gasto' => 0];
-if (!empty($itens)) {
-  $total_gasto = 0;
-  foreach ($itens as $item) {
-    $total_gasto += ($item['quantidade'] * $item['valor_unitario']);
-  }
-  $budget_overview['total_gasto'] = $total_gasto;
-}
+$stmt_user_budget = $pdo->prepare("SELECT orcamento_total FROM usuarios WHERE id_usuario = ?");
+$stmt_user_budget->execute([$idUsuario]);
+$user_budget_result = $stmt_user_budget->fetch(PDO::FETCH_ASSOC);
+$total_alocado = (float)($user_budget_result['orcamento_total'] ?? 0);
+
+$stmt_total_gasto = $pdo->prepare("SELECT COALESCE(SUM(quantidade * valor_unitario), 0) as total_gasto FROM orcamentos WHERE id_usuario = ?");
+$stmt_total_gasto->execute([$idUsuario]);
+$gasto_result = $stmt_total_gasto->fetch(PDO::FETCH_ASSOC);
+
+$total_gasto = (float)($gasto_result['total_gasto'] ?? 0);
+
+$budget_overview = [
+  'total_alocado' => $total_alocado,
+  'total_gasto' => $total_gasto
+];
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -480,7 +487,6 @@ if (!empty($itens)) {
 
 <body>
 
-  <?php include '../components/header.php'; ?>
   <?php include '../components/widget-alertas-orcamento.php'; ?>
 
   <header class="header">
@@ -504,15 +510,8 @@ if (!empty($itens)) {
               <a href="calendario.php">Calendário</a>
               <a href="orcamento.php">Orçamento</a>
               <a href="itens.php">Serviços</a>
-              <a href="gestao-contratos.php">Gestão de Contratos</a>
               <a href="tarefas.php">Lista de Tarefas</a>
-              <a href="mensagens.php">Mensagens</a>
-              <a href="avaliacoes.php">Avaliações</a>
-              <a href="notificacoes.php">Notificações</a>
               <a href="historico.php">Histórico</a>
-              <a href="disponibilidade.php">Disponibilidade</a>
-              <a href="candidaturas.php">Candidaturas</a>
-              <a href="configurar-orcamento.php">Alertas Orçamento</a>
             </div>
           </div>
           <a href="contato.php" class="nav-link">Contato</a>
@@ -596,18 +595,24 @@ if (!empty($itens)) {
         <div class="budget-overview">
           <div class="budget-card">
             <div class="budget-label">Orçamento Total</div>
-            <div class="budget-value">R$ <?= isset($budget_overview['total_alocado']) ? number_format($budget_overview['total_alocado'], 2, ',', '.') : '0,00' ?></div>
+            <div class="budget-value">R$
+              <?= isset($budget_overview['total_alocado']) ? number_format($budget_overview['total_alocado'], 2, ',', '.') : '0,00' ?>
+            </div>
           </div>
           <div class="budget-card">
             <div class="budget-label">Gasto</div>
-            <div class="budget-value">R$ <?= isset($budget_overview['total_gasto']) ? number_format($budget_overview['total_gasto'], 2, ',', '.') : '0,00' ?></div>
+            <div class="budget-value">R$
+              <?= isset($budget_overview['total_gasto']) ? number_format($budget_overview['total_gasto'], 2, ',', '.') : '0,00' ?>
+            </div>
           </div>
           <div class="budget-card">
             <div class="budget-label">Disponível</div>
-            <div class="budget-value">R$ <?= isset($budget_overview['total_alocado'], $budget_overview['total_gasto']) ? number_format($budget_overview['total_alocado'] - $budget_overview['total_gasto'], 2, ',', '.') : '0,00' ?></div>
+            <div class="budget-value">R$
+              <?= isset($budget_overview['total_alocado'], $budget_overview['total_gasto']) ? number_format($budget_overview['total_alocado'] - $budget_overview['total_gasto'], 2, ',', '.') : '0,00' ?>
+            </div>
             <?php
-            $percentual = isset($budget_overview['total_alocado'], $budget_overview['total_gasto']) && $budget_overview['total_alocado'] > 0 
-              ? ($budget_overview['total_gasto'] / $budget_overview['total_alocado']) * 100 
+            $percentual = isset($budget_overview['total_alocado'], $budget_overview['total_gasto']) && $budget_overview['total_alocado'] > 0
+              ? ($budget_overview['total_gasto'] / $budget_overview['total_alocado']) * 100
               : 0;
             ?>
             <div class="budget-bar">
@@ -682,7 +687,8 @@ if (!empty($itens)) {
               <tfoot>
                 <tr style="font-weight: bold; border-top: 2px solid hsl(var(--border));">
                   <td colspan="5" style="text-align:right; padding: 0.75rem;">Total Geral:</td>
-                  <td style="padding: 0.75rem;">R$ <?= isset($total) ? number_format($total, 2, ',', '.') : "0,00" ?></td>
+                  <td style="padding: 0.75rem;">R$ <?= isset($total) ? number_format($total, 2, ',', '.') : "0,00" ?>
+                  </td>
                   <td></td>
                 </tr>
               </tfoot>

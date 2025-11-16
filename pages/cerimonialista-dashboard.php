@@ -186,6 +186,7 @@ try {
         <nav class="nav">
           <a href="cerimonialista-home.php" class="nav-link">Home</a>
           <a href="cerimonialista-dashboard.php" class="nav-link">Dashboard</a>
+          <a href="cerimonialista-disponibilidade.php" class="nav-link">Disponibilidade</a>
           <a href="cerimonialista-fornecedores.php" class="nav-link">Fornecedores</a>
 
           <div class="profile-dropdown-wrapper">

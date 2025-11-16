@@ -84,7 +84,7 @@ try {
         .cerimonialista-header {
             background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 100%);
             color: white;
-            padding: 3rem 0;
+            padding: 3rem ;
             margin-bottom: 2rem;
             border-radius: 1rem;
         }
@@ -298,6 +298,7 @@ try {
                 <nav class="nav">
                     <a href="cerimonialista-home.php" class="nav-link">Home</a>
                     <a href="cerimonialista-dashboard.php" class="nav-link">Dashboard</a>
+                    <a href="cerimonialista-disponibilidade.php" class="nav-link">Disponibilidade</a>
                     <a href="cerimonialista-fornecedores.php" class="nav-link">Fornecedores</a>
 
                     <!-- Fixed profile dropdown positioning and structure -->
@@ -345,7 +346,7 @@ try {
             <div class="container">
                 <!-- Greeting Section -->
                 <div class="cerimonialista-header">
-                    <h1>Bem-vindo, <?php echo htmlspecialchars(explode(' ', $_SESSION['nome'])[0]); ?>! 👋</h1>
+                    <h1>Bem-vindo, <?php echo htmlspecialchars(explode(' ', $_SESSION['nome'])[0]); ?>! </h1>
                     <p>Gerencie seus casamentos e clientes com facilidade</p>
                 </div>
 

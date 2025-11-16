@@ -2,14 +2,21 @@
 session_start();
 require_once '../config/conexao.php';
 
-// Verificar autenticação
-if (!isset($_SESSION['id_usuario'])) {
-    header('Location: ../user/login.php');
+if (!isset($_SESSION['usuario_id']) && !isset($_SESSION['fornecedor_id'])) {
+    header('Location: ../user/login-unified.php');
     exit();
 }
 
-$id_usuario = $_SESSION['id_usuario'];
-$nome_usuario = $_SESSION['nome'] ?? 'Usuário';
+$id_usuario = $_SESSION['usuario_id'] ?? null;
+if ($id_usuario === null) {
+    // Se for fornecedor, redireciona para sua dashboard
+    if (isset($_SESSION['fornecedor_id'])) {
+        header('Location: ../supplier/dashboard.php');
+        exit();
+    }
+    header('Location: ../user/login-unified.php');
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -17,7 +24,7 @@ $nome_usuario = $_SESSION['nome'] ?? 'Usuário';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Histórico de Interações - Wedding Easy</title>
-    <link rel="stylesheet" href="../Style/style.css">
+    <link rel="stylesheet" href="../Style/styles.css">
     <style>
         .historico-container {
             max-width: 1000px;
@@ -31,6 +38,7 @@ $nome_usuario = $_SESSION['nome'] ?? 'Usuário';
             align-items: center;
             margin-bottom: 30px;
             padding-bottom: 20px;
+            margin-top: 2rem;
             border-bottom: 2px solid #e0e0e0;
         }
         
@@ -57,9 +65,9 @@ $nome_usuario = $_SESSION['nome'] ?? 'Usuário';
         }
         
         .filtro-btn.active {
-            background: #0084a0;
+            background: hsl(var(--primary));
             color: white;
-            border-color: #0084a0;
+            border-color: hsl(var(--primary));
         }
         
         .busca-historico {
@@ -86,7 +94,7 @@ $nome_usuario = $_SESSION['nome'] ?? 'Usuário';
             top: 0;
             bottom: 0;
             width: 2px;
-            background: linear-gradient(to bottom, #0084a0, #e0e0e0);
+            background: linear-gradient(to bottom, hsl(var(--primary)), #e0e0e0);
         }
         
         .timeline-item {
@@ -112,7 +120,7 @@ $nome_usuario = $_SESSION['nome'] ?? 'Usuário';
             width: 16px;
             height: 16px;
             background: white;
-            border: 3px solid #0084a0;
+            border: 3px solid hsl(var(--primary));
             border-radius: 50%;
             z-index: 1;
         }
@@ -170,7 +178,7 @@ $nome_usuario = $_SESSION['nome'] ?? 'Usuário';
             display: inline-block;
             padding: 3px 10px;
             background: #e8f4f8;
-            color: #0084a0;
+            color: hsl(var(--primary));
             border-radius: 12px;
             font-size: 11px;
             font-weight: 600;
@@ -207,7 +215,7 @@ $nome_usuario = $_SESSION['nome'] ?? 'Usuário';
         }
         
         .btn-ver-detalhes {
-            background: #0084a0;
+            background: hsl(var(--primary));
             color: white;
             padding: 8px 16px;
             border: none;
@@ -259,7 +267,7 @@ $nome_usuario = $_SESSION['nome'] ?? 'Usuário';
         .estatistica-numero {
             font-size: 32px;
             font-weight: 700;
-            color: #0084a0;
+            color: hsl(var(--primary));
             margin-bottom: 5px;
         }
         

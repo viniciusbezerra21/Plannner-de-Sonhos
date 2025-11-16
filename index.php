@@ -30,6 +30,10 @@ if (isset($_SESSION["usuario_id"]) && empty($_SESSION['foto_perfil'])) {
   $_SESSION['foto_perfil'] = "default.png";
 }
 
+if (isset($_SESSION["usuario_id"])) {
+  error_log("[v0] Session foto_perfil: " . ($_SESSION['foto_perfil'] ?? 'NOT SET'));
+}
+
 if (isset($_SESSION["usuario_id"]) && isset($_SESSION['tipo_usuario']) && $_SESSION['tipo_usuario'] === 'cerimonialista') {
     header("Location: pages/cerimonialista-home.php");
     exit;
@@ -66,7 +70,11 @@ if (isset($_SESSION["usuario_id"])) {
 
       if (!empty($result['foto_perfil'])) {
         $_SESSION['foto_perfil'] = $result['foto_perfil'];
+      } else {
+        $_SESSION['foto_perfil'] = 'default.png';
       }
+      
+      error_log("[v0] Loaded foto_perfil from DB: " . $_SESSION['foto_perfil']);
       
       if (!empty($result['tipo_usuario'])) {
         $_SESSION['tipo_usuario'] = $result['tipo_usuario'];
@@ -341,6 +349,74 @@ if (isset($_SESSION["usuario_id"])) {
     .profile-dropdown-item.logout svg {
       stroke: hsl(var(--destructive));
     }
+
+    .mobile-menu-btn {
+      display: none;
+      flex-direction: column;
+      justify-content: space-between;
+      width: 2rem;
+      height: 1.5rem;
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+
+    .hamburger-line {
+      width: 100%;
+      height: 0.25rem;
+      background-color: hsl(var(--foreground));
+      border-radius: 0.125rem;
+      transition: transform 0.3s ease;
+    }
+
+    .hamburger-active .hamburger-line:nth-child(1) {
+      transform: translateY(0.75rem) rotate(45deg);
+    }
+
+    .hamburger-active .hamburger-line:nth-child(2) {
+      opacity: 0;
+    }
+
+    .hamburger-active .hamburger-line:nth-child(3) {
+      transform: translateY(-0.75rem) rotate(-45deg);
+    }
+
+    @media (max-width: 768px) {
+      .mobile-menu-btn {
+        display: flex;
+      }
+
+      .nav {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        width: 100%;
+        padding: 1rem;
+        background-color: hsl(var(--card));
+        border-bottom-left-radius: 0.75rem;
+        border-bottom-right-radius: 0.75rem;
+      }
+
+      .nav.active {
+        display: flex;
+      }
+
+      .dropdown-menu {
+        display: none;
+        flex-direction: column;
+        gap: 0.5rem;
+        width: 100%;
+        padding: 1rem;
+        background-color: hsl(var(--card));
+        border-bottom-left-radius: 0.75rem;
+        border-bottom-right-radius: 0.75rem;
+      }
+
+      .dropdown.active .dropdown-menu {
+        display: flex;
+      }
+    }
   </style>
 </head>
 
@@ -367,24 +443,45 @@ if (isset($_SESSION["usuario_id"])) {
           <span class="logo-text">Planner de Sonhos</span>
         </a>
 
-        <nav class="nav">
+        <!-- Added mobile menu button and restructured nav for responsive behavior -->
+        <button class="mobile-menu-btn" id="hamburgerBtn" onclick="toggleMobileMenu()">
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+        </button>
+
+        <nav class="nav" id="mobileMenu">
           <?php if (isset($_SESSION["usuario_id"])): ?>
             <a href="index.php" class="nav-link">Início</a>
             <div class="dropdown">
               <a href="pages/funcionalidades.php" class="nav-link dropdown-toggle">Funcionalidades ▾</a>
               <div class="dropdown-menu">
+                <?php 
+                $tipo_usuario = $_SESSION['tipo_usuario'] ?? 'cliente';
+                
+                // Pages for all users
+                ?>
                 <a href="pages/calendario.php">Calendário</a>
                 <a href="pages/orcamento.php">Orçamento</a>
                 <a href="pages/itens.php">Serviços</a>
-                <a href="pages/gestao-contratos.php">Gestão de Contratos</a>
                 <a href="pages/tarefas.php">Lista de Tarefas</a>
-                <a href="pages/mensagens.php">Mensagens</a>
-                <a href="pages/avaliacoes.php">Avaliações</a>
-                <a href="pages/notificacoes.php">Notificações</a>
                 <a href="pages/historico.php">Histórico</a>
-                <a href="pages/disponibilidade.php">Disponibilidade</a>
-                <a href="pages/candidaturas.php">Candidaturas</a>
-                <a href="pages/configurar-orcamento.php">Configurar Alertas</a>
+                
+                <?php 
+                // Pages only for fornecedor and cerimonialista
+                if ($tipo_usuario === 'fornecedor' || $tipo_usuario === 'cerimonialista'): 
+                ?>
+                  <a href="pages/disponibilidade.php">Disponibilidade</a>
+                  <a href="pages/candidaturas.php">Candidaturas</a>
+                  <a href="pages/gestao-contratos.php">Gestão de Contratos</a>
+                <?php endif; ?>
+                
+                <?php 
+                // Pages only for cliente
+                if ($tipo_usuario === 'cliente'): 
+                ?>
+                  <a href="pages/configurar-orcamento.php">Configurar Alertas</a>
+                <?php endif; ?>
               </div>
             </div>
             <a href="pages/contato.php" class="nav-link">Contato</a>
@@ -395,12 +492,16 @@ if (isset($_SESSION["usuario_id"])) {
           <?php if (isset($_SESSION["usuario_id"])): ?>
 
             <div class="profile-dropdown-wrapper">
-              <img src="user/fotos/<?php echo htmlspecialchars($_SESSION['foto_perfil'] ?? 'default.png'); ?>"
+              <?php 
+              $foto_path = 'user/fotos/' . htmlspecialchars($_SESSION['foto_perfil'] ?? 'default.png');
+              error_log("[v0] Navbar photo path: " . $foto_path);
+              ?>
+              <img src="<?php echo $foto_path; ?>"
                 alt="Foto de perfil" class="profile-avatar" onclick="toggleProfileDropdown()">
               <div class="profile-dropdown" id="profileDropdown">
                 <div class="profile-dropdown-header">
                   <div class="profile-dropdown-user">
-                    <img src="user/fotos/<?php echo htmlspecialchars($_SESSION['foto_perfil'] ?? 'default.png'); ?>"
+                    <img src="<?php echo $foto_path; ?>"
                       alt="Avatar" class="profile-dropdown-avatar">
                     <div class="profile-dropdown-info">
 
@@ -416,17 +517,17 @@ if (isset($_SESSION["usuario_id"])) {
                 <div class="profile-dropdown-menu">
                   <a href="user/perfil.php" class="profile-dropdown-item">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                       <circle cx="12" cy="12" r="3"></circle>
                     </svg>
                     Meu Perfil
                   </a>
                   <a href="pages/funcionalidades.php" class="profile-dropdown-item">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <rect x="3" y="4" width="7" height="7"></rect>
-                      <rect x="14" y="3" width="7" height="7"></rect>
-                      <rect x="14" y="14" width="7" height="7"></rect>
-                      <rect x="3" y="14" width="7" height="7"></rect>
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                      <line x1="16" y1="2" x2="16" y2="6"></line>
+                      <line x1="8" y1="2" x2="8" y2="6"></line>
+                      <line x1="3" y1="10" x2="21" y2="10"></line>
                     </svg>
                     Funcionalidades
                   </a>
@@ -485,7 +586,7 @@ if (isset($_SESSION["usuario_id"])) {
                           animation: pulse 3s infinite;
                         " fill="currentColor" viewBox="0 0 24 24">
                     <path
-                      d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09z" />
+                      d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09z" />
                   </svg>
                 </span>
                 . Sem estresse, sem falhas.
@@ -501,10 +602,16 @@ if (isset($_SESSION["usuario_id"])) {
               <?php if (isset($_SESSION["usuario_id"])): ?>
                 <a href="pages/funcionalidades.php" class="btn-primary">
                   Explorar Funcionalidades
+                  <svg style="width: 1rem; height: 1rem" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                  </svg>
                 </a>
               <?php else: ?>
                 <a href="user/login-unified.php" class="btn-primary">
                   Explorar Funcionalidades
+                  <svg style="width: 1rem; height: 1rem" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                  </svg>
                 </a>
               <?php endif; ?>
               <button class="btn-outline" id="abrirModal">Assistir Demonstração</button>
@@ -814,6 +921,31 @@ if (isset($_SESSION["usuario_id"])) {
       mobileMenu.classList.toggle("active");
       hamburgerBtn.classList.toggle("hamburger-active");
     }
+
+    // Close mobile menu when a link is clicked
+    const navLinks = document.querySelectorAll(".nav-link, .profile-dropdown-item");
+    navLinks.forEach(link => {
+      link.addEventListener("click", () => {
+        const mobileMenu = document.getElementById("mobileMenu");
+        const hamburgerBtn = document.getElementById("hamburgerBtn");
+        
+        if (mobileMenu.classList.contains("active")) {
+          mobileMenu.classList.remove("active");
+          hamburgerBtn.classList.remove("hamburger-active");
+        }
+      });
+    });
+
+    // Close mobile menu on window resize (when it goes back to desktop)
+    window.addEventListener("resize", () => {
+      if (window.innerWidth > 768) {
+        const mobileMenu = document.getElementById("mobileMenu");
+        const hamburgerBtn = document.getElementById("hamburgerBtn");
+        
+        mobileMenu.classList.remove("active");
+        hamburgerBtn.classList.remove("hamburger-active");
+      }
+    });
 
     function toggleProfileDropdown() {
       const dropdown = document.getElementById("profileDropdown");

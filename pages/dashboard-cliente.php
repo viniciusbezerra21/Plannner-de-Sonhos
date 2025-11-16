@@ -28,14 +28,13 @@ try {
   $stmt->execute([$usuario_id]);
   $eventos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-  // Get budget summary
-  $sql = "SELECT SUM(valor_item) as total_orcado FROM itens WHERE id_usuario = ?";
+  $sql = "SELECT SUM(quantidade * valor_unitario) as total_orcado FROM orcamentos WHERE id_usuario = ?";
   $stmt = $pdo->prepare($sql);
   $stmt->execute([$usuario_id]);
   $orcamento = $stmt->fetch(PDO::FETCH_ASSOC);
 
   // Get total spent
-  $sql = "SELECT SUM(valor_item) as total_gasto FROM itens WHERE id_usuario = ? AND status_item = 'pago'";
+  $sql = "SELECT SUM(quantidade * valor_unitario) as total_gasto FROM orcamentos WHERE id_usuario = ? AND status_item = 'pago'";
   $stmt = $pdo->prepare($sql);
   $stmt->execute([$usuario_id]);
   $gastos = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -245,9 +244,7 @@ try {
               <a href="itens.php">Serviços</a>
               <a href="gestao-contratos.php">Gestão de Contratos</a>
               <a href="tarefas.php">Lista de Tarefas</a>
-              <a href="mensagens.php">Mensagens</a>
               <a href="avaliacoes.php">Avaliações</a>
-              <a href="notificacoes.php">Notificações</a>
               <a href="historico.php">Histórico</a>
               <a href="configurar-orcamento.php">Alertas Orçamento</a>
             </div>

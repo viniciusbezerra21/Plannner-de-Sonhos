@@ -4,7 +4,6 @@ require_once "../config/conexao.php";
 
 $cookieName = "lembrar_me";
 
-
 if (!isset($_SESSION['usuario_id']) && isset($_COOKIE[$cookieName])) {
   $cookieUserId = (int) $_COOKIE[$cookieName];
   if ($cookieUserId > 0) {
@@ -16,7 +15,6 @@ if (!isset($_SESSION['usuario_id']) && isset($_COOKIE[$cookieName])) {
       $_SESSION['nome'] = $u['nome'];
       $_SESSION['cargo'] = $u['cargo'] ?? 'cliente';
     } else {
-
       setcookie($cookieName, "", time() - 3600, "/");
     }
   }
@@ -27,7 +25,7 @@ $user_data = ['nome' => 'Usuário', 'email' => '', 'foto_perfil' => 'default.png
 if (isset($_POST['logout'])) {
   try {
     $stmt = $pdo->prepare("UPDATE usuarios SET remember_token = NULL WHERE id_usuario = ?");
-    $stmt->execute([$usuario_id]);
+    $stmt->execute([(int) $_SESSION['usuario_id']]);
   } catch (PDOException $e) {
     error_log("Logout error: " . $e->getMessage());
   }
@@ -39,10 +37,9 @@ if (isset($_POST['logout'])) {
   exit;
 }
 
-
 if (isset($_SESSION['usuario_id'])) {
   try {
-    $stmt = $pdo->prepare("SELECT nome, email, foto_perfil FROM usuarios WHERE id_usuario = ?");
+    $stmt = $pdo->prepare("SELECT nome, email, foto_perfil, tipo_usuario FROM usuarios WHERE id_usuario = ?");
     $stmt->execute([(int) $_SESSION['usuario_id']]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -58,12 +55,15 @@ if (isset($_SESSION['usuario_id'])) {
       } else {
         $_SESSION['foto_perfil'] = 'default.png';
       }
+
+      $_SESSION['tipo_usuario'] = $result['tipo_usuario'] ?? 'cliente';
     }
   } catch (PDOException $e) {
     error_log("Error fetching user data: " . $e->getMessage());
   }
 }
 $idUsuario = (int) $_SESSION['usuario_id'] ?? 0;
+$tipo_usuario = $_SESSION['tipo_usuario'] ?? 'cliente';
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -322,7 +322,7 @@ $idUsuario = (int) $_SESSION['usuario_id'] ?? 0;
     <div class="container">
       <div class="header-content">
         <a href="../index.php" class="logo">
-        <div class="heart-icon">
+          <div class="heart-icon">
             <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
               <path
                 d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
@@ -339,15 +339,19 @@ $idUsuario = (int) $_SESSION['usuario_id'] ?? 0;
               <a href="calendario.php">Calendário</a>
               <a href="orcamento.php">Orçamento</a>
               <a href="itens.php">Serviços</a>
-              <a href="gestao-contratos.php">Gestão de Contratos</a>
+              <?php if ($tipo_usuario === 'fornecedor' || $tipo_usuario === 'cerimonialista'): ?>
+                <a href="gestao-contratos.php">Gestão de Contratos</a>
+              <?php endif; ?>
               <a href="tarefas.php">Lista de Tarefas</a>
-              <a href="mensagens.php">Mensagens</a>
               <a href="avaliacoes.php">Avaliações</a>
-              <a href="notificacoes.php">Notificações</a>
               <a href="historico.php">Histórico</a>
-              <a href="disponibilidade.php">Disponibilidade</a>
-              <a href="candidaturas.php">Candidaturas</a>
-              <a href="configurar-orcamento.php">Configurar Orçamento</a>
+              <?php if ($tipo_usuario === 'fornecedor' || $tipo_usuario === 'cerimonialista'): ?>
+                <a href="disponibilidade.php">Disponibilidade</a>
+                <a href="candidaturas.php">Candidaturas</a>
+              <?php endif; ?>
+              <?php if ($tipo_usuario === 'cliente'): ?>
+                <a href="configurar-orcamento.php">Configurar Orçamento</a>
+              <?php endif; ?>
             </div>
           </div>
           <a href="contato.php" class="nav-link">Contato</a>
@@ -362,7 +366,6 @@ $idUsuario = (int) $_SESSION['usuario_id'] ?? 0;
                     <img src="../user/fotos/<?php echo htmlspecialchars($_SESSION['foto_perfil'] ?? 'default.png'); ?>"
                       alt="Avatar" class="profile-dropdown-avatar">
                     <div class="profile-dropdown-info">
-
                       <div class="profile-dropdown-name">
                         <?php echo htmlspecialchars($user_data['nome']); ?>
                       </div>
@@ -375,8 +378,8 @@ $idUsuario = (int) $_SESSION['usuario_id'] ?? 0;
                 <div class="profile-dropdown-menu">
                   <a href="../user/perfil.php" class="profile-dropdown-item">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                      <circle cx="12" cy="7" r="4"></circle>
+                      <path d="M9 11l3 3L22 4" />
+                      <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
                     </svg>
                     Meu Perfil
                   </a>
@@ -461,7 +464,7 @@ $idUsuario = (int) $_SESSION['usuario_id'] ?? 0;
                 <li>
                   <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
                     <path
-                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.06L12 2z" />
+                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                   </svg>
                   Sincronização com Google Calendar
                 </li>
@@ -519,51 +522,53 @@ $idUsuario = (int) $_SESSION['usuario_id'] ?? 0;
               </ul>
             </div>
           </a>
-          <a href="gestao-contratos.php">
-            <div class="feature-detailed-card">
-              <div class="feature-detailed-header">
-                <div class="feature-icon file-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                    <polyline points="14,2 14,8 20,8" />
-                    <line x1="16" y1="13" x2="8" y2="13" />
-                    <line x1="16" y1="17" x2="8" y2="17" />
-                    <polyline points="10,9 9,9 8,9" />
-                  </svg>
+          <?php if ($tipo_usuario === 'fornecedor' || $tipo_usuario === 'cerimonialista'): ?>
+            <a href="gestao-contratos.php">
+              <div class="feature-detailed-card">
+                <div class="feature-detailed-header">
+                  <div class="feature-icon file-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                      <polyline points="14,2 14,8 20,8" />
+                      <line x1="16" y1="13" x2="8" y2="13" />
+                      <line x1="16" y1="17" x2="8" y2="17" />
+                      <polyline points="10,9 9,9 8,9" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="feature-detailed-title">Gestão de Contratos</h3>
+                    <p class="feature-detailed-description">
+                      Centralize todos os contratos e documentos importantes em um
+                      local seguro e organizado.
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h3 class="feature-detailed-title">Gestão de Contratos</h3>
-                  <p class="feature-detailed-description">
-                    Centralize todos os contratos e documentos importantes em um
-                    local seguro e organizado.
-                  </p>
-                </div>
+                <ul class="feature-benefits">
+                  <li>
+                    <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                      <path
+                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.06L12 2z" />
+                    </svg>
+                    Armazenamento seguro
+                  </li>
+                  <li>
+                    <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                      <path
+                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                    </svg>
+                    Lembretes de vencimento
+                  </li>
+                  <li>
+                    <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                      <path
+                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.06L12 2z" />
+                    </svg>
+                    Assinatura digital
+                  </li>
+                </ul>
               </div>
-              <ul class="feature-benefits">
-                <li>
-                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
-                    <path
-                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.06L12 2z" />
-                  </svg>
-                  Armazenamento seguro
-                </li>
-                <li>
-                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
-                    <path
-                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  Lembretes de vencimento
-                </li>
-                <li>
-                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
-                    <path
-                      d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.06L12 2z" />
-                  </svg>
-                  Assinatura digital
-                </li>
-              </ul>
-            </div>
-          </a>
+            </a>
+          <?php endif; ?>
           <a href="tarefas.php">
             <div class="feature-detailed-card">
               <div class="feature-detailed-header">
@@ -608,44 +613,7 @@ $idUsuario = (int) $_SESSION['usuario_id'] ?? 0;
               </ul>
             </div>
           </a>
-          <a href="mensagens.php">
-            <div class="feature-detailed-card">
-              <div class="feature-detailed-header">
-                <div class="feature-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 class="feature-detailed-title">Sistema de Mensagens</h3>
-                  <p class="feature-detailed-description">
-                    Comunique-se diretamente com fornecedores, cerimonialistas e clientes através de mensagens instantâneas.
-                  </p>
-                </div>
-              </div>
-              <ul class="feature-benefits">
-                <li>
-                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  Chat em tempo real
-                </li>
-                <li>
-                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  Notificações de mensagens não lidas
-                </li>
-                <li>
-                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  Histórico completo de conversas
-                </li>
-              </ul>
-            </div>
-          </a>
-
+          
           <a href="avaliacoes.php">
             <div class="feature-detailed-card">
               <div class="feature-detailed-header">
@@ -684,44 +652,7 @@ $idUsuario = (int) $_SESSION['usuario_id'] ?? 0;
             </div>
           </a>
 
-          <a href="notificacoes.php">
-            <div class="feature-detailed-card">
-              <div class="feature-detailed-header">
-                <div class="feature-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 class="feature-detailed-title">Notificações em Tempo Real</h3>
-                  <p class="feature-detailed-description">
-                    Receba alertas instantâneos sobre atividades importantes no seu planejamento.
-                  </p>
-                </div>
-              </div>
-              <ul class="feature-benefits">
-                <li>
-                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  Alertas personalizados
-                </li>
-                <li>
-                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  Histórico completo
-                </li>
-                <li>
-                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  Filtros por tipo
-                </li>
-              </ul>
-            </div>
-          </a>
+  
 
           <a href="historico.php">
             <div class="feature-detailed-card">
@@ -762,128 +693,132 @@ $idUsuario = (int) $_SESSION['usuario_id'] ?? 0;
             </div>
           </a>
 
-          <a href="disponibilidade.php">
-            <div class="feature-detailed-card">
-              <div class="feature-detailed-header">
-                <div class="feature-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                    <line x1="16" y1="2" x2="16" y2="6" />
-                    <line x1="8" y1="2" x2="8" y2="6" />
-                    <line x1="3" y1="10" x2="21" y2="10" />
-                    <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01" />
-                  </svg>
+          <?php if ($tipo_usuario === 'fornecedor' || $tipo_usuario === 'cerimonialista'): ?>
+            <a href="disponibilidade.php">
+              <div class="feature-detailed-card">
+                <div class="feature-detailed-header">
+                  <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                      <line x1="16" y1="2" x2="16" y2="6" />
+                      <line x1="8" y1="2" x2="8" y2="6" />
+                      <line x1="3" y1="10" x2="21" y2="10" />
+                      <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="feature-detailed-title">Calendário de Disponibilidade</h3>
+                    <p class="feature-detailed-description">
+                      Fornecedores podem gerenciar sua agenda e disponibilidade para novos eventos.
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h3 class="feature-detailed-title">Calendário de Disponibilidade</h3>
-                  <p class="feature-detailed-description">
-                    Fornecedores podem gerenciar sua agenda e disponibilidade para novos eventos.
-                  </p>
-                </div>
+                <ul class="feature-benefits">
+                  <li>
+                    <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                    </svg>
+                    Gestão de agenda
+                  </li>
+                  <li>
+                    <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                    </svg>
+                    Visualização mensal
+                  </li>
+                  <li>
+                    <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                    </svg>
+                    Horários personalizados
+                  </li>
+                </ul>
               </div>
-              <ul class="feature-benefits">
-                <li>
-                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  Gestão de agenda
-                </li>
-                <li>
-                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  Visualização mensal
-                </li>
-                <li>
-                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  Horários personalizados
-                </li>
-              </ul>
-            </div>
-          </a>
+            </a>
 
-          <a href="candidaturas.php">
-            <div class="feature-detailed-card">
-              <div class="feature-detailed-header">
-                <div class="feature-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                    <circle cx="8.5" cy="7" r="4" />
-                    <line x1="20" y1="8" x2="20" y2="14" />
-                    <line x1="23" y1="11" x2="17" y2="11" />
-                  </svg>
+            <a href="candidaturas.php">
+              <div class="feature-detailed-card">
+                <div class="feature-detailed-header">
+                  <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                      <circle cx="8.5" cy="7" r="4" />
+                      <line x1="20" y1="8" x2="20" y2="14" />
+                      <line x1="23" y1="11" x2="17" y2="11" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="feature-detailed-title">Sistema de Candidaturas</h3>
+                    <p class="feature-detailed-description">
+                      Fornecedores podem se candidatar para trabalhar com cerimonialistas e gerenciar associações.
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h3 class="feature-detailed-title">Sistema de Candidaturas</h3>
-                  <p class="feature-detailed-description">
-                    Fornecedores podem se candidatar para trabalhar com cerimonialistas e gerenciar associações.
-                  </p>
-                </div>
+                <ul class="feature-benefits">
+                  <li>
+                    <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                    </svg>
+                    Candidaturas automáticas
+                  </li>
+                  <li>
+                    <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                    </svg>
+                    Aprovação/Rejeição
+                  </li>
+                  <li>
+                    <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                    </svg>
+                    Gestão de parcerias
+                  </li>
+                </ul>
               </div>
-              <ul class="feature-benefits">
-                <li>
-                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  Candidaturas automáticas
-                </li>
-                <li>
-                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  Aprovação/Rejeição
-                </li>
-                <li>
-                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  Gestão de parcerias
-                </li>
-              </ul>
-            </div>
-          </a>
+            </a>
+          <?php endif; ?>
 
-          <a href="configurar-orcamento.php">
-            <div class="feature-detailed-card">
-              <div class="feature-detailed-header">
-                <div class="feature-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-                    <line x1="12" y1="9" x2="12" y2="13" />
-                    <line x1="12" y1="17" x2="12.01" y2="17" />
-                  </svg>
+          <?php if ($tipo_usuario === 'cliente'): ?>
+            <a href="configurar-orcamento.php">
+              <div class="feature-detailed-card">
+                <div class="feature-detailed-header">
+                  <div class="feature-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                      <line x1="12" y1="9" x2="12" y2="13" />
+                      <line x1="12" y1="17" x2="12.01" y2="17" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="feature-detailed-title">Alertas de Orçamento</h3>
+                    <p class="feature-detailed-description">
+                      Configure alertas personalizados para ser notificado ao atingir diferentes limites do orçamento.
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h3 class="feature-detailed-title">Alertas de Orçamento</h3>
-                  <p class="feature-detailed-description">
-                    Configure alertas personalizados para ser notificado ao atingir diferentes limites do orçamento.
-                  </p>
-                </div>
+                <ul class="feature-benefits">
+                  <li>
+                    <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                    </svg>
+                    Alertas em múltiplos níveis
+                  </li>
+                  <li>
+                    <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                    </svg>
+                    Notificações automáticas
+                  </li>
+                  <li>
+                    <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                    </svg>
+                    Controle personalizado
+                  </li>
+                </ul>
               </div>
-              <ul class="feature-benefits">
-                <li>
-                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  Alertas em múltiplos níveis
-                </li>
-                <li>
-                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  Notificações automáticas
-                </li>
-                <li>
-                  <svg class="star-icon" viewBox="0 0 24 24" fill="hsl(var(--primary))">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                  Controle personalizado
-                </li>
-              </ul>
-            </div>
-          </a>
+            </a>
+          <?php endif; ?>
         </div>
         <div class="features-cta">
           <h2 class="cta-title">Por que escolher o Planner de Sonhos?</h2>

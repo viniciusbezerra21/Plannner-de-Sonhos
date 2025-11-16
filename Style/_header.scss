@@ -73,6 +73,14 @@
   background: none;
   border: none;
   cursor: pointer;
+  padding: 0;
+  color: hsl(var(--foreground));
+  transition: color $transition-fast;
+  z-index: 51;
+
+  &:hover {
+    color: hsl(var(--primary));
+  }
 }
 
 .mobile-menu {
@@ -97,6 +105,7 @@
   background-color: currentColor;
   transition: all 0.3s ease-in-out;
   transform-origin: center;
+  border-radius: 1px;
 }
 
 .hamburger-active {
@@ -137,6 +146,8 @@
   display: none;
   flex-direction: column;
   z-index: 100;
+  max-height: 400px;
+  overflow-y: auto;
 
   a {
     padding: 0.75rem $spacing-md;
@@ -162,6 +173,24 @@
     svg {
       width: 1.25rem;
       height: 1.25rem;
+    }
+  }
+
+  @media (max-width: 768px) {
+    position: static;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    box-shadow: none;
+    border: none;
+    background: hsla(var(--muted), 0.5);
+    border-radius: 0;
+    margin-top: $spacing-xs;
+    transition: all $transition-fast;
+
+    &.active {
+      max-height: 300px;
+      opacity: 1;
     }
   }
 }
@@ -287,5 +316,65 @@
 }
 
 .page-content {
-  padding-top: 6rem;
+  padding-top: 5rem; // Space for fixed header in desktop
+}
+
+body {
+  // Removed conflicting padding-top that was hiding header
+}
+
+main {
+  padding-top: 0; // Respeitar padding-top de .page-content
+}
+
+@media (max-width: 768px) {
+  .page-content {
+    padding-top: 4rem; // Smaller padding on mobile
+  }
+  
+  .mobile-menu-btn {
+    display: flex;
+  }
+
+  .nav {
+    position: absolute;
+    top: 4rem;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    background: hsl(var(--background));
+    border-bottom: 1px solid hsl(var(--border));
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: all 0.3s ease-in-out;
+    z-index: 49;
+
+    &.active {
+      max-height: 400px;
+      opacity: 1;
+    }
+  }
+
+  .dropdown-menu {
+    position: static;
+    box-shadow: none;
+    border: none;
+    background: hsla(var(--muted), 0.5);
+    border-radius: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-content {
+    padding-top: 3.5rem;
+  }
+
+  .header-content {
+    height: 3.5rem;
+  }
+
+  .logo-text {
+    font-size: 1rem;
+  }
 }

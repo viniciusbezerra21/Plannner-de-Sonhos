@@ -744,8 +744,8 @@ if (isset($_POST['add_to_budget'])) {
               <a href="calendario.php">Calendário</a>
               <a href="orcamento.php">Orçamento</a>
               <a href="itens.php">Serviços</a>
-              <a href="gestao-contratos.php">Gestão de Contratos</a>
               <a href="tarefas.php">Lista de Tarefas</a>
+              <a href="historico.php">Histórico</a>
             </div>
           </div>
           <a href="contato.php" class="nav-link">Contato</a>

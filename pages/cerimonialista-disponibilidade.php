@@ -19,7 +19,7 @@ if (isset($_POST['logout'])) {
     exit;
 }
 
-if (!isset($_SESSION['usuario_id']) || !isset($_SESSION['tipo_usuario']) || $_SESSION['tipo_usuario'] !== 'cerimonialista') {
+if (!isset($_SESSION['usuario_id']) || $_SESSION['tipo_usuario'] !== 'cerimonialista') {
     header("Location: ../user/login-unified.php?type=cerimonialista");
     exit;
 }
@@ -27,90 +27,62 @@ if (!isset($_SESSION['usuario_id']) || !isset($_SESSION['tipo_usuario']) || $_SE
 $id_cerimonialista = $_SESSION['usuario_id'];
 $mensagem = '';
 $tipo_mensagem = '';
+$indisponibilidades = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['logout'])) {
-    $nome_fornecedor = trim($_POST['nome_fornecedor'] ?? '');
-    $tipo_servico = trim($_POST['tipo_servico'] ?? '');
-    $descricao = trim($_POST['descricao'] ?? '');
-    $telefone = trim($_POST['telefone'] ?? '');
-    $email = trim($_POST['email'] ?? '');
-    $valor_servico = trim($_POST['valor_servico'] ?? '0');
+    $data_inicio = $_POST['data_inicio'] ?? '';
+    $data_fim = $_POST['data_fim'] ?? '';
+    $motivo = $_POST['motivo'] ?? '';
 
-    if ($nome_fornecedor && $tipo_servico && $email) {
+    if ($data_inicio && $data_fim && strtotime($data_inicio) <= strtotime($data_fim)) {
         try {
-            $stmt = $pdo->prepare("SELECT id_usuario FROM usuarios WHERE email = ? AND tipo_usuario = 'fornecedor'");
-            $stmt->execute([$email]);
-            if ($stmt->fetch()) {
-                $mensagem = 'Este email já está cadastrado como fornecedor.';
-                $tipo_mensagem = 'erro';
-            } else {
-                $stmt = $pdo->prepare("
-                    INSERT INTO usuarios (nome, email, senha, cargo, tipo_usuario, data_criacao) 
-                    VALUES (?, ?, ?, ?, ?, NOW())
-                ");
-                
-                $senha_padrao = password_hash('senha123', PASSWORD_DEFAULT);
-                $stmt->execute([$nome_fornecedor, $email, $senha_padrao, 'for', 'fornecedor']);
-                
-                $id_fornecedor = $pdo->lastInsertId();
-
-                $stmt = $pdo->prepare("
-                    INSERT INTO cerimonialista_fornecedor (id_cerimonialista, id_fornecedor, tipo_servico, descricao, valor_servico, telefone, data_associacao) 
-                    VALUES (?, ?, ?, ?, ?, ?, NOW())
-                ");
-                
-                $stmt->execute([$id_cerimonialista, $id_fornecedor, $tipo_servico, $descricao, $valor_servico, $telefone]);
-
-                $mensagem = 'Fornecedor cadastrado com sucesso!';
-                $tipo_mensagem = 'sucesso';
-            }
+            $stmt = $pdo->prepare("INSERT INTO cerimonialista_indisponibilidade (id_cerimonialista, data_inicio, data_fim, motivo) VALUES (?, ?, ?, ?)");
+            $stmt->execute([$id_cerimonialista, $data_inicio, $data_fim, $motivo]);
+            
+            $mensagem = 'Período indisponível adicionado com sucesso!';
+            $tipo_mensagem = 'sucesso';
         } catch (PDOException $e) {
-            $mensagem = 'Erro ao cadastrar fornecedor.';
+            $mensagem = 'Erro ao adicionar período: ' . $e->getMessage();
             $tipo_mensagem = 'erro';
-            error_log("Error creating supplier: " . $e->getMessage());
+            error_log("Error adding unavailability: " . $e->getMessage());
         }
     } else {
-        $mensagem = 'Por favor, preencha todos os campos obrigatórios.';
+        $mensagem = 'Por favor, preencha as datas corretamente.';
         $tipo_mensagem = 'erro';
     }
 }
 
-$fornecedores = [];
 try {
-    $stmt = $pdo->prepare("
-        SELECT 
-            cf.id_fornecedor,
-            u.nome,
-            cf.tipo_servico,
-            cf.descricao,
-            cf.valor_servico,
-            u.email,
-            cf.telefone,
-            cf.data_associacao
-        FROM cerimonialista_fornecedor cf
-        INNER JOIN usuarios u ON cf.id_fornecedor = u.id_usuario
-        WHERE cf.id_cerimonialista = ? AND u.tipo_usuario = 'fornecedor'
-        ORDER BY cf.data_associacao DESC
-    ");
+    $stmt = $pdo->prepare("SELECT * FROM cerimonialista_indisponibilidade WHERE id_cerimonialista = ? ORDER BY data_inicio DESC");
     $stmt->execute([$id_cerimonialista]);
-    $fornecedores = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $indisponibilidades = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
-    error_log("Error fetching fornecedores: " . $e->getMessage());
+    error_log("Error fetching indisponibilidades: " . $e->getMessage());
+}
+
+if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
+    try {
+        $stmt = $pdo->prepare("DELETE FROM cerimonialista_indisponibilidade WHERE id_indisponibilidade = ? AND id_cerimonialista = ?");
+        $stmt->execute([$_GET['delete'], $id_cerimonialista]);
+        header("Location: cerimonialista-disponibilidade.php?sucesso=1");
+        exit;
+    } catch (PDOException $e) {
+        error_log("Error deleting indisponibilidade: " . $e->getMessage());
+    }
 }
 ?>
 
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cadastrar Fornecedores - Cerimonialista | Planner de Sonhos</title>
+    <title>Gerenciar Disponibilidade - Cerimonialista | Planner de Sonhos</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="../Style/styles.css" />
     <link rel="shortcut icon" href="../Style/assets/icon.png" type="image/x-icon" />
     <style>
-        .fornecedores-container {
+        .disponibilidade-container {
             display: grid;
             grid-template-columns: 1fr;
             gap: 2rem;
@@ -118,7 +90,7 @@ try {
         }
 
         @media (min-width: 1024px) {
-            .fornecedores-container {
+            .disponibilidade-container {
                 grid-template-columns: 450px 1fr;
             }
         }
@@ -128,6 +100,7 @@ try {
             border: 1px solid hsl(var(--border));
             border-radius: 1rem;
             padding: 2rem;
+            height: fit-content;
         }
 
         .form-title {
@@ -146,11 +119,11 @@ try {
             margin-bottom: 0.5rem;
             font-weight: 600;
             color: hsl(var(--foreground));
+            font-size: 0.9rem;
         }
 
         .form-group input,
-        .form-group textarea,
-        .form-group select {
+        .form-group textarea {
             width: 100%;
             padding: 0.75rem;
             border: 1px solid hsl(var(--border));
@@ -162,14 +135,8 @@ try {
             box-sizing: border-box;
         }
 
-        .form-group textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-
         .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
+        .form-group textarea:focus {
             outline: none;
             border-color: hsl(var(--primary));
             box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1);
@@ -211,87 +178,117 @@ try {
             border: 1px solid hsl(348 100% 61%);
         }
 
-        .fornecedores-list {
+        .indisponibilidades-list {
             background: hsl(var(--card));
             border: 1px solid hsl(var(--border));
             border-radius: 1rem;
             padding: 2rem;
         }
 
-        .fornecedores-title {
+        .list-title {
             font-size: 1.5rem;
             font-weight: 600;
             color: hsl(var(--foreground));
             margin-bottom: 1.5rem;
         }
 
-        .fornecedor-item {
+        .indisponibilidade-item {
             background: hsl(var(--background));
             border: 1px solid hsl(var(--border));
             border-radius: 0.75rem;
             padding: 1.5rem;
             margin-bottom: 1rem;
             transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .fornecedor-item:hover {
+        .indisponibilidade-item:hover {
             border-color: hsl(var(--primary));
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
-        .fornecedor-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-            margin-bottom: 1rem;
+        .indisponibilidade-info {
+            flex: 1;
         }
 
-        .fornecedor-name {
+        .indisponibilidade-periodo {
             font-size: 1.1rem;
             font-weight: 600;
             color: hsl(var(--foreground));
+            margin-bottom: 0.5rem;
         }
 
-        .fornecedor-tipo {
-            background: hsl(var(--primary));
-            color: hsl(var(--primary-foreground));
+        .indisponibilidade-motivo {
+            color: hsl(var(--muted-foreground));
+            font-size: 0.9rem;
+        }
+
+        .indisponibilidade-days {
+            background: hsl(var(--primary) / 0.1);
+            color: hsl(var(--primary));
             padding: 0.25rem 0.75rem;
             border-radius: 9999px;
             font-size: 0.8rem;
             font-weight: 600;
-            white-space: nowrap;
+            margin-right: 1rem;
+            display: inline-block;
         }
 
-        .fornecedor-details {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.75rem;
-            font-size: 0.9rem;
+        .btn-delete {
+            background: hsl(348 100% 61%);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            font-size: 0.85rem;
+        }
+
+        .btn-delete:hover {
+            background: hsl(348 100% 61% / 0.9);
+        }
+
+        .calendar-info {
+            background: hsl(var(--primary) / 0.1);
+            border: 1px solid hsl(var(--primary) / 0.3);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            color: hsl(var(--foreground));
+            font-size: 0.95rem;
+        }
+
+        .calendar-info strong {
+            color: hsl(var(--primary));
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
             color: hsl(var(--muted-foreground));
         }
 
-        .fornecedor-detail {
-            margin-bottom: 0.5rem;
-        }
-
-        .fornecedor-detail-label {
-            font-weight: 600;
-            color: hsl(var(--foreground));
-            margin-right: 0.5rem;
-        }
-
         @media (max-width: 1024px) {
-            .fornecedores-container {
+            .disponibilidade-container {
                 grid-template-columns: 1fr;
             }
 
-            .fornecedor-details {
-                grid-template-columns: 1fr;
+            .indisponibilidade-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .indisponibilidade-days {
+                margin-right: 0;
+                margin-bottom: 1rem;
             }
         }
     </style>
 </head>
-
 <body>
     <header class="header">
         <div class="container">
@@ -351,8 +348,8 @@ try {
     <main>
         <section class="page-content" style="padding-top: 2rem; min-height: 80vh">
             <div class="container">
-                <h1 style="font-size: 2rem; margin-top: 3rem; margin-bottom: 0.5rem; font-weight: 700;">Gerenciar Fornecedores</h1>
-                <p style="color: hsl(var(--muted-foreground)); margin-bottom: 2rem;">Cadastre os fornecedores que trabalham com você</p>
+                <h1 style="font-size: 2rem; margin-bottom: 0.5rem; margin-top: 3rem; font-weight: 700;">Gerenciar Disponibilidade</h1>
+                <p style="color: hsl(var(--muted-foreground)); margin-bottom: 2rem;">Marque os períodos em que você não está disponível. Você será considerado disponível em todos os outros dias.</p>
 
                 <?php if ($mensagem): ?>
                     <div class="mensagem <?php echo $tipo_mensagem; ?>">
@@ -360,98 +357,72 @@ try {
                     </div>
                 <?php endif; ?>
 
-                <div class="fornecedores-container">
+                <?php if (isset($_GET['sucesso'])): ?>
+                    <div class="mensagem sucesso">
+                        Período removido com sucesso!
+                    </div>
+                <?php endif; ?>
+
+                <div class="disponibilidade-container">
+                    <!-- Form Section -->
                     <div class="form-section">
-                        <h2 class="form-title">Novo Fornecedor</h2>
+                        <h2 class="form-title">Novo Período Indisponível</h2>
+                        
+                        <div class="calendar-info">
+                            <strong>💡 Dica:</strong> Você estará disponível em TODOS os dias, exceto naqueles que você marcar aqui.
+                        </div>
+
                         <form method="POST">
                             <div class="form-group">
-                                <label for="nome_fornecedor">Nome do Fornecedor *</label>
-                                <input type="text" id="nome_fornecedor" name="nome_fornecedor" required placeholder="Ex: João Fotografia">
+                                <label for="data_inicio">Data de Início *</label>
+                                <input type="date" id="data_inicio" name="data_inicio" required>
                             </div>
 
                             <div class="form-group">
-                                <label for="tipo_servico">Tipo de Serviço *</label>
-                                <select id="tipo_servico" name="tipo_servico" required>
-                                    <option value="">Selecione um tipo</option>
-                                    <option value="Fotografia">Fotografia</option>
-                                    <option value="Catering">Catering</option>
-                                    <option value="Decoração">Decoração</option>
-                                    <option value="DJ">DJ / Música</option>
-                                    <option value="Transporte">Transporte</option>
-                                    <option value="Locação">Locação de Espaço</option>
-                                    <option value="Confeitaria">Confeitaria</option>
-                                    <option value="Convites">Convites</option>
-                                    <option value="Flores">Flores e Buquês</option>
-                                    <option value="Outro">Outro</option>
-                                </select>
+                                <label for="data_fim">Data de Fim *</label>
+                                <input type="date" id="data_fim" name="data_fim" required>
                             </div>
 
                             <div class="form-group">
-                                <label for="descricao">Descrição</label>
-                                <textarea id="descricao" name="descricao" placeholder="Descreva os serviços oferecidos..."></textarea>
+                                <label for="motivo">Motivo (Opcional)</label>
+                                <textarea id="motivo" name="motivo" placeholder="Ex: Férias, Evento pessoal, etc..."></textarea>
                             </div>
 
-                            <div class="form-group">
-                                <label for="email">Email *</label>
-                                <input type="email" id="email" name="email" required placeholder="fornecedor@email.com">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="telefone">Telefone</label>
-                                <input type="tel" id="telefone" name="telefone" placeholder="(11) 99999-9999">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="valor_servico">Valor do Serviço (R$)</label>
-                                <input type="number" id="valor_servico" name="valor_servico" step="0.01" min="0" placeholder="0,00">
-                            </div>
-
-                            <button type="submit" class="btn-submit">Cadastrar Fornecedor</button>
+                            <button type="submit" class="btn-submit">Adicionar Período</button>
                         </form>
                     </div>
 
-                    <div class="fornecedores-list">
-                        <h2 class="fornecedores-title">Meus Fornecedores</h2>
-                        <?php if (!empty($fornecedores)): ?>
-                            <div style="max-height: 600px; overflow-y: auto;">
-                                <?php foreach ($fornecedores as $fornecedor): ?>
-                                    <div class="fornecedor-item">
-                                        <div class="fornecedor-header">
-                                            <div>
-                                                <div class="fornecedor-name"><?php echo htmlspecialchars($fornecedor['nome']); ?></div>
+                    <!-- Indisponibilidades List -->
+                    <div class="indisponibilidades-list">
+                        <h2 class="list-title">Meus Períodos Indisponíveis</h2>
+                        <?php if (!empty($indisponibilidades)): ?>
+                            <div style="max-height: 700px; overflow-y: auto;">
+                                <?php foreach ($indisponibilidades as $ind): 
+                                    $data_inicio = new DateTime($ind['data_inicio']);
+                                    $data_fim = new DateTime($ind['data_fim']);
+                                    $dias = $data_fim->diff($data_inicio)->days + 1;
+                                ?>
+                                    <div class="indisponibilidade-item">
+                                        <div class="indisponibilidade-info">
+                                            <div class="indisponibilidade-periodo">
+                                                <?php echo $data_inicio->format('d/m/Y'); ?> até <?php echo $data_fim->format('d/m/Y'); ?>
                                             </div>
-                                            <div class="fornecedor-tipo"><?php echo htmlspecialchars($fornecedor['tipo_servico']); ?></div>
+                                            <span class="indisponibilidade-days"><?php echo $dias; ?> <?php echo $dias == 1 ? 'dia' : 'dias'; ?></span>
+                                            <?php if ($ind['motivo']): ?>
+                                                <div class="indisponibilidade-motivo">
+                                                    <?php echo htmlspecialchars($ind['motivo']); ?>
+                                                </div>
+                                            <?php endif; ?>
                                         </div>
-                                        <div class="fornecedor-details">
-                                            <div class="fornecedor-detail">
-                                                <span class="fornecedor-detail-label">Email:</span>
-                                                <span><?php echo htmlspecialchars($fornecedor['email']); ?></span>
-                                            </div>
-                                            <div class="fornecedor-detail">
-                                                <span class="fornecedor-detail-label">Telefone:</span>
-                                                <span><?php echo htmlspecialchars($fornecedor['telefone'] ?? 'N/A'); ?></span>
-                                            </div>
-                                            <div class="fornecedor-detail">
-                                                <span class="fornecedor-detail-label">Valor:</span>
-                                                <span>R$ <?php echo number_format($fornecedor['valor_servico'] ?? 0, 2, ',', '.'); ?></span>
-                                            </div>
-                                            <div class="fornecedor-detail">
-                                                <span class="fornecedor-detail-label">Cadastrado:</span>
-                                                <span><?php echo (new DateTime($fornecedor['data_associacao']))->format('d/m/Y'); ?></span>
-                                            </div>
-                                        </div>
-                                        <?php if ($fornecedor['descricao']): ?>
-                                            <div style="margin-top: 0.75rem; font-size: 0.85rem; color: hsl(var(--muted-foreground));">
-                                                <strong>Descrição:</strong> <?php echo htmlspecialchars($fornecedor['descricao']); ?>
-                                            </div>
-                                        <?php endif; ?>
+                                        <a href="?delete=<?php echo $ind['id_indisponibilidade']; ?>" class="btn-delete" onclick="return confirm('Tem certeza?')">Remover</a>
                                     </div>
                                 <?php endforeach; ?>
                             </div>
                         <?php else: ?>
-                            <p style="text-align: center; color: hsl(var(--muted-foreground)); padding: 2rem;">
-                                Você ainda não cadastrou fornecedores. Crie um novo usando o formulário ao lado.
-                            </p>
+                            <div class="empty-state">
+                                <p style="font-size: 1.1rem;">Nenhum período indisponível configurado.</p>
+                                <p>Você está totalmente disponível!</p>
+                            </div>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -490,7 +461,14 @@ try {
                 dropdown.classList.remove("active");
             }
         });
+
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('data_inicio').setAttribute('min', today);
+        document.getElementById('data_fim').setAttribute('min', today);
+
+        document.getElementById('data_inicio').addEventListener('change', function() {
+            document.getElementById('data_fim').setAttribute('min', this.value);
+        });
     </script>
 </body>
-
 </html>

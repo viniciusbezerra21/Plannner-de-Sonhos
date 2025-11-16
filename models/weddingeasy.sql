@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: 05-Nov-2025 às 11:21
+-- Generation Time: 16-Nov-2025 às 22:31
 -- Versão do servidor: 5.7.11
 -- PHP Version: 7.0.3
 
@@ -32,6 +32,96 @@ CREATE TABLE `atividades_usuario` (
   `tipo_atividade` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   `descricao` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `data_atividade` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura da tabela `avaliacoes`
+--
+
+CREATE TABLE `avaliacoes` (
+  `id_avaliacao` int(11) NOT NULL,
+  `avaliador_id` int(11) NOT NULL,
+  `avaliado_id` int(11) NOT NULL,
+  `nota` int(11) NOT NULL,
+  `comentario` text COLLATE utf8mb4_unicode_ci,
+  `data_avaliacao` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Extraindo dados da tabela `avaliacoes`
+--
+
+INSERT INTO `avaliacoes` (`id_avaliacao`, `avaliador_id`, `avaliado_id`, `nota`, `comentario`, `data_avaliacao`, `updated_at`) VALUES
+(1, 3, 4, 5, 'Excelente profissionalismo', '2025-11-15 02:44:19', '2025-11-15 02:44:19'),
+(2, 4, 3, 4, 'Muito bom, recomendo', '2025-11-15 02:44:19', '2025-11-15 02:44:19'),
+(3, 5, 6, 5, 'Perfeito, voltaria a contratar', '2025-11-15 02:44:19', '2025-11-15 02:44:19'),
+(4, 6, 5, 5, 'Excepcional, muito satisfeito', '2025-11-15 02:44:19', '2025-11-15 02:44:19'),
+(5, 7, 8, 4, 'Bom atendimento', '2025-11-15 02:44:19', '2025-11-15 02:44:19'),
+(6, 8, 7, 4, 'Preço justo e qualidade', '2025-11-15 02:44:19', '2025-11-15 02:44:19'),
+(7, 9, 10, 5, 'Superou expectativas', '2025-11-15 02:44:19', '2025-11-15 02:44:19'),
+(8, 10, 9, 5, 'Recomendo fortemente', '2025-11-15 02:44:19', '2025-11-15 02:44:19'),
+(9, 11, 12, 3, 'Atendeu bem, mas com atrasos', '2025-11-15 02:44:19', '2025-11-15 02:44:19'),
+(10, 12, 11, 4, 'Boa qualidade', '2025-11-15 02:44:19', '2025-11-15 02:44:19');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura da tabela `cerimonialista_datas_bloqueadas`
+--
+
+CREATE TABLE `cerimonialista_datas_bloqueadas` (
+  `id_bloqueio` int(11) NOT NULL,
+  `id_cerimonialista` int(11) NOT NULL,
+  `data_bloqueada` date NOT NULL,
+  `motivo` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura da tabela `cerimonialista_fornecedores`
+--
+
+CREATE TABLE `cerimonialista_fornecedores` (
+  `id_relacao` int(11) NOT NULL,
+  `id_cerimonialista` int(11) NOT NULL,
+  `id_fornecedor` int(11) NOT NULL,
+  `status` enum('ativo','inativo') COLLATE utf8mb4_unicode_ci DEFAULT 'ativo',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura da tabela `cerimonialista_indisponibilidade`
+--
+
+CREATE TABLE `cerimonialista_indisponibilidade` (
+  `id_indisponibilidade` int(11) NOT NULL,
+  `id_cerimonialista` int(11) NOT NULL,
+  `data_inicio` date NOT NULL,
+  `data_fim` date NOT NULL,
+  `motivo` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `criada_em` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura da tabela `cliente_cerimonialista`
+--
+
+CREATE TABLE `cliente_cerimonialista` (
+  `id_assoc` int(11) NOT NULL,
+  `id_cliente` int(11) NOT NULL,
+  `id_cerimonialista` int(11) NOT NULL,
+  `data_casamento` date NOT NULL,
+  `status` enum('ativo','cancelado') COLLATE utf8mb4_unicode_ci DEFAULT 'ativo',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -108,7 +198,9 @@ INSERT INTO `contatos` (`id`, `nome`, `email`, `telefone`, `assunto`, `mensagem`
 (47, 'Katapimbas', 'vinibizarro@email.com', NULL, NULL, '4245245', '2025-10-01 11:21:34', 'pendente', NULL, NULL, NULL),
 (48, 'kaue', 'kauekfs@hotmail.com', NULL, NULL, 'receba casca de bala', '2025-10-08 12:18:55', 'pendente', NULL, NULL, NULL),
 (49, 'Katapimbas', 'vinibizarro@email.com', '41769696969', 'vendas', 'uhjtherjhue', '2025-10-08 12:24:55', 'pendente', NULL, NULL, NULL),
-(50, 'kaue', 'kauekfs@hotmail.com', '41769696969', 'vendas', 'receba casca de bala', '2025-10-08 12:39:16', 'pendente', NULL, NULL, NULL);
+(50, 'kaue', 'kauekfs@hotmail.com', '41769696969', 'vendas', 'receba casca de bala', '2025-10-08 12:39:16', 'pendente', NULL, NULL, NULL),
+(51, 'Vinicius Gabriel Bizarro', 'vinibizarro@email.com', '47991149148', 'duvidas', 'a', '2025-11-16 21:31:04', 'respondida', NULL, NULL, NULL),
+(52, 'Vinicius Gabriel Bizarro', 'vinibizarro@email.com', 'aaa', 'suporte', 'dada', '2025-11-16 21:55:10', 'respondida', NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -306,11 +398,6 @@ CREATE TABLE `fornecedores` (
 --
 
 INSERT INTO `fornecedores` (`id_fornecedor`, `nome_fornecedor`, `avaliacao`, `categoria`, `telefone`, `email`, `descricao`, `senha`, `remember_token`, `apenas_pacotes`, `created_at`, `foto_perfil`) VALUES
-(1, 'Fornecedor 1 - Flores & Arte', '4.8', 'buffet', NULL, NULL, NULL, NULL, NULL, 0, '2025-10-20 11:22:37', NULL),
-(2, 'Fornecedor 2 - Sabor & Festa', '4.6', 'buffet', NULL, NULL, NULL, NULL, NULL, 0, '2025-10-20 11:22:37', NULL),
-(3, 'Fornecedor 3 - FotoLux', '4.5', 'buffet', NULL, NULL, NULL, NULL, NULL, 0, '2025-10-20 11:22:37', NULL),
-(4, 'Fornecedor 4 - Som & Luz', '4.2', 'buffet', NULL, NULL, NULL, NULL, NULL, 0, '2025-10-20 11:22:37', NULL),
-(5, 'Fornecedor 5 - Buffet Mix', '4.1', 'buffet', NULL, NULL, NULL, NULL, NULL, 0, '2025-10-20 11:22:37', NULL),
 (6, 'Fornecedor 6 - Bolo & Cia', '4.7', 'buffet', NULL, NULL, NULL, NULL, NULL, 0, '2025-10-20 11:22:37', NULL),
 (7, 'Fornecedor 7 - Vestidos & Cia', '4.0', 'buffet', NULL, NULL, NULL, NULL, NULL, 0, '2025-10-20 11:22:37', NULL),
 (8, 'Fornecedor 8 - Decora Festa', '3.9', 'buffet', NULL, NULL, NULL, NULL, NULL, 0, '2025-10-20 11:22:37', NULL),
@@ -356,7 +443,7 @@ INSERT INTO `fornecedores` (`id_fornecedor`, `nome_fornecedor`, `avaliacao`, `ca
 (48, 'Fornecedor 48 - Arte Convites', '4.1', 'buffet', NULL, NULL, NULL, NULL, NULL, 0, '2025-10-20 11:22:37', NULL),
 (49, 'Fornecedor 49 - Balões & Festa', '3.8', 'buffet', NULL, NULL, NULL, NULL, NULL, 0, '2025-10-20 11:22:37', NULL),
 (50, 'Fornecedor 50 - Catering Express', '4.0', 'buffet', NULL, NULL, NULL, NULL, NULL, 0, '2025-10-20 11:22:37', NULL),
-(51, 'Moda e Luxo int.', NULL, 'moda', '11999999999', 'receba@email.com', 'Fazendo lindos visuais para seu casamento', '$2y$10$UOIggrzy9rrvtXI6X.FIweQfDXRzxtjOSQwPzesSjQWDnW1eI3xBm', '93422ff8ce574818fafdf63a213c68c2', 0, '2025-10-22 12:20:15', NULL);
+(54, 'a', NULL, 'catering', '47991149148', 'a@hotmail.com', 'Empresa cadastrada através do sistema. CNPJ: 2131241245124. Endereço: Rua Otávio Joaquim Emilio, 130. Preço mínimo: R$ 9.000,00. Horário: esgas.', '$2y$10$oXYXujesGAV9YPIzBHTAkuajj7YuSXgoX5BfhkW75K/F4joS7vv/G', NULL, 0, '2025-11-16 19:59:16', NULL);
 
 -- --------------------------------------------------------
 
@@ -378,10 +465,6 @@ CREATE TABLE `itens` (
 --
 
 INSERT INTO `itens` (`id_item`, `nome_item`, `id_fornecedor`, `valor_unitario`, `descricao`, `data_criacao`) VALUES
-(1, 'Arranjo Floral Padrão', 1, '150.00', NULL, '2025-10-22 12:35:53'),
-(2, 'Menu Buffet Adulto', 2, '45.00', NULL, '2025-10-22 12:35:53'),
-(3, 'Ensaio Fotográfico', 3, '800.00', NULL, '2025-10-22 12:35:53'),
-(4, 'Sistema de Som Completo', 4, '1200.00', NULL, '2025-10-22 12:35:53'),
 (5, 'Bolo 3 andares', 6, '350.00', NULL, '2025-10-22 12:35:53'),
 (6, 'Vestido de Noiva (Aluguel)', 7, '600.00', NULL, '2025-10-22 12:35:53'),
 (7, 'Decoração Cerimonial', 8, '2200.00', NULL, '2025-10-22 12:35:53'),
@@ -426,10 +509,23 @@ INSERT INTO `itens` (`id_item`, `nome_item`, `id_fornecedor`, `valor_unitario`, 
 (46, 'Convite Digital + Impressão', 48, '7.00', NULL, '2025-10-22 12:35:53'),
 (47, 'Decoração com Balões', 49, '200.00', NULL, '2025-10-22 12:35:53'),
 (48, 'Catering Express (pessoa)', 50, '38.00', NULL, '2025-10-22 12:35:53'),
-(49, 'Foto Extras (por hora)', 3, '80.00', NULL, '2025-10-22 12:35:53'),
-(50, 'Montagem Backdrop', 8, '270.00', NULL, '2025-10-22 12:35:53'),
-(51, 'Vestido noiva', 51, '9000.00', 'Manequim: 36/38\r\nSua Altura: 1.60 cm\r\nBusto: 90 cm\r\nCintura: 66 cm\r\nQuadril: 96 cm\r\nAltura do salto que usou: 8 e 10 cm\r\nCor: Branco', '2025-10-22 12:37:20'),
-(52, 'aaaaaaa', 51, '15000.00', 'aaaaaaaaaa', '2025-10-29 12:21:54');
+(50, 'Montagem Backdrop', 8, '270.00', NULL, '2025-10-22 12:35:53');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura da tabela `mensagens`
+--
+
+CREATE TABLE `mensagens` (
+  `id_mensagem` int(11) NOT NULL,
+  `remetente_id` int(11) NOT NULL,
+  `destinatario_id` int(11) NOT NULL,
+  `assunto` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT 'Mensagem',
+  `conteudo` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `data_envio` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `lida` tinyint(1) DEFAULT '0'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -528,13 +624,6 @@ CREATE TABLE `pacotes` (
   `foto_pacote` varchar(225) COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- Extraindo dados da tabela `pacotes`
---
-
-INSERT INTO `pacotes` (`id_pacote`, `id_fornecedor`, `nome_pacote`, `descricao`, `valor_total`, `quantidade_itens`, `data_criacao`, `foto_pacote`) VALUES
-(1, 51, 'Vestido e Terno', 'Um combo de compra do Vestido e do terno para a noiva e o noivo respectivamente', '12000.00', 1, '2025-10-22 12:37:41', NULL);
-
 -- --------------------------------------------------------
 
 --
@@ -546,13 +635,6 @@ CREATE TABLE `pacote_itens` (
   `id_pacote` int(11) NOT NULL,
   `id_item` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Extraindo dados da tabela `pacote_itens`
---
-
-INSERT INTO `pacote_itens` (`id_pacote_item`, `id_pacote`, `id_item`) VALUES
-(2, 1, 51);
 
 -- --------------------------------------------------------
 
@@ -658,72 +740,84 @@ CREATE TABLE `usuarios` (
   `telefone` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `email` varchar(120) COLLATE utf8mb4_unicode_ci NOT NULL,
   `senha` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `cargo` enum('cliente','dev') COLLATE utf8mb4_unicode_ci DEFAULT 'cliente',
+  `cargo` enum('cliente','dev','cerimonialista','fornecedor') COLLATE utf8mb4_unicode_ci DEFAULT 'cliente',
+  `tipo_usuario` enum('cliente','cerimonialista','dev') COLLATE utf8mb4_unicode_ci DEFAULT 'cliente',
+  `avaliacao` decimal(2,1) DEFAULT NULL,
+  `bio` text COLLATE utf8mb4_unicode_ci,
+  `plano` enum('basico','premium') COLLATE utf8mb4_unicode_ci DEFAULT 'basico',
   `remember_token` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `foto_perfil` varchar(225) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'default.png',
   `notificacoes_email` tinyint(1) DEFAULT '1',
   `tema_cor` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT 'azul',
   `ultima_atividade` timestamp NULL DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `orcamento_total` decimal(10,2) DEFAULT '0.00'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Extraindo dados da tabela `usuarios`
 --
 
-INSERT INTO `usuarios` (`id_usuario`, `nome`, `nome_conjuge`, `genero`, `idade`, `telefone`, `email`, `senha`, `cargo`, `remember_token`, `foto_perfil`, `notificacoes_email`, `tema_cor`, `ultima_atividade`, `created_at`) VALUES
-(1, 'Teste de Lima', 'Testa de Souza', 'Masculino', 28, '47991149148', 'testedsilva@gmail.com', '$2y$10$ADFUzpw3Ek1xDbk9Ws/JH.u4buCM05eUHEU9Hs/cFZEq9KnmQorq.', 'cliente', '7f724f03820ffd2c833f0be2c1f6a08e', 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(2, 'Vinicius Gabriel Bizarro', 'Mariana testa da silva', 'Masculino', 18, '47999999999', 'vinibizarro@email.com', '$2y$10$L7MhpDthxOhUKoSx6HqrVe1gLA6ESbbBFYwuD3k65urbUjDpDZFdy', 'dev', '23fd6d731cb751a3b4a596815409f450', 'user_2_1762171916.jpg', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(3, 'Ana Pereira', 'Carlos Pereira', 'Feminino', 29, '47991100001', 'ana.pereira@example.com', '$2y$10$aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(4, 'Bruno Souza', 'Mariana Souza', 'Masculino', 33, '47991100002', 'bruno.souza@example.com', '$2y$10$bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(5, 'Carla Mendes', 'Felipe Mendes', 'Feminino', 27, '47991100003', 'carla.mendes@example.com', '$2y$10$ccccccccccccccccccccccccccccccccccccc', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(6, 'Diego Rocha', 'Luana Rocha', 'Masculino', 31, '47991100004', 'diego.rocha@example.com', '$2y$10$ddddddddddddddddddddddddddddddddddddd', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(7, 'Eduarda Lima', 'Rafael Lima', 'Feminino', 26, '47991100005', 'eduarda.lima@example.com', '$2y$10$eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(8, 'Felipe Castro', 'Bianca Castro', 'Masculino', 35, '47991100006', 'felipe.castro@example.com', '$2y$10$fffffffffffffffffffffffffffffffffffff', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(9, 'Gabriela Alves', 'Thiago Alves', 'Feminino', 30, '47991100007', 'gabriela.alves@example.com', '$2y$10$ggggggggggggggggggggggggggggggggggggg', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(10, 'Hugo Santos', 'Isabela Santos', 'Masculino', 28, '47991100008', 'hugo.santos@example.com', '$2y$10$hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(11, 'Isadora Moraes', 'Vitor Moraes', 'Feminino', 32, '47991100009', 'isadora.moraes@example.com', '$2y$10$iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(12, 'João Paulo', 'Marina Paulo', 'Masculino', 34, '47991100010', 'joao.paulo@example.com', '$2y$10$jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(13, 'Karla Fernandes', 'Ramon Fernandes', 'Feminino', 27, '47991100011', 'karla.fernandes@example.com', '$2y$10$kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(14, 'Lucas Ribeiro', 'Patrícia Ribeiro', 'Masculino', 29, '47991100012', 'lucas.ribeiro@example.com', '$2y$10$lllllllllllllllllllllllllllllllllllll', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(15, 'Marina Costa', 'Daniel Costa', 'Feminino', 31, '47991100013', 'marina.costa@example.com', '$2y$10$mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(16, 'Nicolas Vieira', 'Sofia Vieira', 'Masculino', 25, '47991100014', 'nicolas.vieira@example.com', '$2y$10$nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(17, 'Olívia Martins', 'Gustavo Martins', 'Feminino', 28, '47991100015', 'olivia.martins@example.com', '$2y$10$ooooooooooooooooooooooooooooooooooooo', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(18, 'Pedro Henrique', 'Laura Henrique', 'Masculino', 36, '47991100016', 'pedro.henrique@example.com', '$2y$10$ppppppppppppppppppppppppppppppppppppp', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(19, 'Queila Ramos', 'André Ramos', 'Feminino', 33, '47991100017', 'queila.ramos@example.com', '$2y$10$qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(20, 'Rafael Nunes', 'Camila Nunes', 'Masculino', 37, '47991100018', 'rafael.nunes@example.com', '$2y$10$rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(21, 'Sonia Oliveira', 'Marcelo Oliveira', 'Feminino', 40, '47991100019', 'sonia.oliveira@example.com', '$2y$10$sssssssssssssssssssssssssssssssssssss', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(22, 'Tiago Leal', 'Priscila Leal', 'Masculino', 26, '47991100020', 'tiago.leal@example.com', '$2y$10$ttttttttttttttttttttttttttttttttttttt', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(23, 'Ullyana Rocha', 'Mateus Rocha', 'Feminino', 29, '47991100021', 'ullyana.rocha@example.com', '$2y$10$uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(24, 'Victor Hugo', 'Renata Hugo', 'Masculino', 38, '47991100022', 'victor.hugo@example.com', '$2y$10$vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(25, 'Wendy Alves', 'Bruno Alves', 'Feminino', 24, '47991100023', 'wendy.alves@example.com', '$2y$10$wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(26, 'Xavier Pinto', 'Lara Pinto', 'Masculino', 41, '47991100024', 'xavier.pinto@example.com', '$2y$10$xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(27, 'Yasmin Faria', 'Leandro Faria', 'Feminino', 27, '47991100025', 'yasmin.faria@example.com', '$2y$10$yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(28, 'Zé Carlos', 'Ana Clara', 'Masculino', 45, '47991100026', 'ze.carlos@example.com', '$2y$10$zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(29, 'Amanda Lopes', 'Rogério Lopes', 'Feminino', 32, '47991100027', 'amanda.lopes@example.com', '$2y$10$a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(30, 'Bruno Martins', 'Helena Martins', 'Masculino', 30, '47991100028', 'bruno.martins2@example.com', '$2y$10$b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(31, 'Clara Nascimento', 'Igor Nascimento', 'Feminino', 28, '47991100029', 'clara.nascimento@example.com', '$2y$10$c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(32, 'Daniela Araújo', 'Fábio Araújo', 'Feminino', 34, '47991100030', 'daniela.araujo@example.com', '$2y$10$d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(33, 'Emanuel Costa', 'Bianca Costa', 'Masculino', 29, '47991100031', 'emanuel.costa@example.com', '$2y$10$e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(34, 'Fabiana Lima', 'Ronaldo Lima', 'Feminino', 36, '47991100032', 'fabiana.lima@example.com', '$2y$10$f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(35, 'Guilherme Souza', 'Patrícia Souza', 'Masculino', 27, '47991100033', 'guilherme.souza@example.com', '$2y$10$g7g7g7g7g7g7g7g7g7g7g7g7g7g7g7g7g7g7g', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(36, 'Helena Rocha', 'Mateus Rocha', 'Feminino', 26, '47991100034', 'helena.rocha@example.com', '$2y$10$h8h8h8h8h8h8h8h8h8h8h8h8h8h8h8h8h8h8', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(37, 'Igor Silva', 'Mariana Silva', 'Masculino', 31, '47991100035', 'igor.silva@example.com', '$2y$10$i9i9i9i9i9i9i9i9i9i9i9i9i9i9i9i9i9i9i', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(38, 'Jéssica Freitas', 'Rafael Freitas', 'Feminino', 33, '47991100036', 'jessica.freitas@example.com', '$2y$10$j0j0j0j0j0j0j0j0j0j0j0j0j0j0j0j0j0j0', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(39, 'Kevin Borges', 'Larissa Borges', 'Masculino', 24, '47991100037', 'kevin.borges@example.com', '$2y$10$k1k1k1k1k1k1k1k1k1k1k1k1k1k1k1k1k1k1k', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(40, 'Laura Gomes', 'Diego Gomes', 'Feminino', 29, '47991100038', 'laura.gomes@example.com', '$2y$10$l2l2l2l2l2l2l2l2l2l2l2l2l2l2l2l2l2l2l2', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(41, 'Marcelo Pinto', 'Patrícia Pinto', 'Masculino', 39, '47991100039', 'marcelo.pinto@example.com', '$2y$10$m3m3m3m3m3m3m3m3m3m3m3m3m3m3m3m3m3m3m3', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(42, 'Natália Reis', 'Hugo Reis', 'Feminino', 27, '47991100040', 'natalia.reis@example.com', '$2y$10$n4n4n4n4n4n4n4n4n4n4n4n4n4n4n4n4n4n4n4', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(43, 'Otávio Cardoso', 'Bruna Cardoso', 'Masculino', 28, '47991100041', 'otavio.cardoso@example.com', '$2y$10$o5o5o5o5o5o5o5o5o5o5o5o5o5o5o5o5o5o5o5', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(44, 'Priscila Barros', 'Leandro Barros', 'Feminino', 35, '47991100042', 'priscila.barros@example.com', '$2y$10$p6p6p6p6p6p6p6p6p6p6p6p6p6p6p6p6p6p6p6', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(45, 'Quirino Alves', 'Elaine Alves', 'Masculino', 42, '47991100043', 'quirino.alves@example.com', '$2y$10$q7q7q7q7q7q7q7q7q7q7q7q7q7q7q7q7q7q7q7', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(46, 'Rafaela Dias', 'Eduardo Dias', 'Feminino', 30, '47991100044', 'rafaela.dias@example.com', '$2y$10$r8r8r8r8r8r8r8r8r8r8r8r8r8r8r8r8r8r8r8', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(47, 'Samuel Nogueira', 'Júlia Nogueira', 'Masculino', 33, '47991100045', 'samuel.nogueira@example.com', '$2y$10$s9s9s9s9s9s9s9s9s9s9s9s9s9s9s9s9s9s9s9', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(48, 'Tainá Souza', 'Rayan Souza', 'Feminino', 26, '47991100046', 'taina.souza@example.com', '$2y$10$t0t0t0t0t0t0t0t0t0t0t0t0t0t0t0t0t0t0t0', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(49, 'Ulisses Rocha', 'Caroline Rocha', 'Masculino', 37, '47991100047', 'ulisses.rocha@example.com', '$2y$10$u1u1u1u1u1u1u1u1u1u1u1u1u1u1u1u1u1u1u1', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(50, 'Vanessa Melo', 'Pedro Melo', 'Feminino', 28, '47991100048', 'vanessa.melo@example.com', '$2y$10$v2v2v2v2v2v2v2v2v2v2v2v2v2v2v2v2v2v2v2', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(51, 'Wagner Lopes', 'Sílvia Lopes', 'Masculino', 36, '47991100049', 'wagner.lopes@example.com', '$2y$10$w3w3w3w3w3w3w3w3w3w3w3w3w3w3w3w3w3w3w3', 'cliente', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01'),
-(52, 'Kauê Feltrin', 'Duda', 'Masculino', 18, '47999999999', 'kauekfs@hotmail.com', '$2y$10$q3Fb.zOUDu0wQ.I7Ds6JvuVHuN4600IyJ3oec5KMNW9MJ8laZy4cG', 'cliente', 'd86b45b08308abbd5ca90ef1f8370aed', 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01');
+INSERT INTO `usuarios` (`id_usuario`, `nome`, `nome_conjuge`, `genero`, `idade`, `telefone`, `email`, `senha`, `cargo`, `tipo_usuario`, `avaliacao`, `bio`, `plano`, `remember_token`, `foto_perfil`, `notificacoes_email`, `tema_cor`, `ultima_atividade`, `created_at`, `orcamento_total`) VALUES
+(1, 'Teste de Lima', 'Testa de Souza', 'Masculino', 28, '47991149148', 'testedsilva@gmail.com', '$2y$10$ADFUzpw3Ek1xDbk9Ws/JH.u4buCM05eUHEU9Hs/cFZEq9KnmQorq.', 'cliente', 'cliente', NULL, NULL, 'basico', '7f724f03820ffd2c833f0be2c1f6a08e', 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(2, 'Vinicius Gabriel Bizarro', 'Mariana testa da silva', 'Masculino', 18, '47999999999', 'vinibizarro@email.com', '$2y$10$L7MhpDthxOhUKoSx6HqrVe1gLA6ESbbBFYwuD3k65urbUjDpDZFdy', 'dev', 'cliente', NULL, NULL, 'basico', '2f1b5088e411005bfbce4589057219db', 'user_2_1763172923.jpg', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(3, 'Ana Pereira', 'Carlos Pereira', 'Feminino', 29, '47991100001', 'ana.pereira@example.com', '$2y$10$aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(4, 'Bruno Souza', 'Mariana Souza', 'Masculino', 33, '47991100002', 'bruno.souza@example.com', '$2y$10$bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(5, 'Carla Mendes', 'Felipe Mendes', 'Feminino', 27, '47991100003', 'carla.mendes@example.com', '$2y$10$ccccccccccccccccccccccccccccccccccccc', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(6, 'Diego Rocha', 'Luana Rocha', 'Masculino', 31, '47991100004', 'diego.rocha@example.com', '$2y$10$ddddddddddddddddddddddddddddddddddddd', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(7, 'Eduarda Lima', 'Rafael Lima', 'Feminino', 26, '47991100005', 'eduarda.lima@example.com', '$2y$10$eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(8, 'Felipe Castro', 'Bianca Castro', 'Masculino', 35, '47991100006', 'felipe.castro@example.com', '$2y$10$fffffffffffffffffffffffffffffffffffff', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(9, 'Gabriela Alves', 'Thiago Alves', 'Feminino', 30, '47991100007', 'gabriela.alves@example.com', '$2y$10$ggggggggggggggggggggggggggggggggggggg', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(10, 'Hugo Santos', 'Isabela Santos', 'Masculino', 28, '47991100008', 'hugo.santos@example.com', '$2y$10$hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(11, 'Isadora Moraes', 'Vitor Moraes', 'Feminino', 32, '47991100009', 'isadora.moraes@example.com', '$2y$10$iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(12, 'João Paulo', 'Marina Paulo', 'Masculino', 34, '47991100010', 'joao.paulo@example.com', '$2y$10$jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(13, 'Karla Fernandes', 'Ramon Fernandes', 'Feminino', 27, '47991100011', 'karla.fernandes@example.com', '$2y$10$kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(14, 'Lucas Ribeiro', 'Patrícia Ribeiro', 'Masculino', 29, '47991100012', 'lucas.ribeiro@example.com', '$2y$10$lllllllllllllllllllllllllllllllllllll', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(15, 'Marina Costa', 'Daniel Costa', 'Feminino', 31, '47991100013', 'marina.costa@example.com', '$2y$10$mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(16, 'Nicolas Vieira', 'Sofia Vieira', 'Masculino', 25, '47991100014', 'nicolas.vieira@example.com', '$2y$10$nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(17, 'Olívia Martins', 'Gustavo Martins', 'Feminino', 28, '47991100015', 'olivia.martins@example.com', '$2y$10$ooooooooooooooooooooooooooooooooooooo', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(18, 'Pedro Henrique', 'Laura Henrique', 'Masculino', 36, '47991100016', 'pedro.henrique@example.com', '$2y$10$ppppppppppppppppppppppppppppppppppppp', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(19, 'Queila Ramos', 'André Ramos', 'Feminino', 33, '47991100017', 'queila.ramos@example.com', '$2y$10$qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(20, 'Rafael Nunes', 'Camila Nunes', 'Masculino', 37, '47991100018', 'rafael.nunes@example.com', '$2y$10$rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(21, 'Sonia Oliveira', 'Marcelo Oliveira', 'Feminino', 40, '47991100019', 'sonia.oliveira@example.com', '$2y$10$sssssssssssssssssssssssssssssssssssss', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(22, 'Tiago Leal', 'Priscila Leal', 'Masculino', 26, '47991100020', 'tiago.leal@example.com', '$2y$10$ttttttttttttttttttttttttttttttttttttt', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(23, 'Ullyana Rocha', 'Mateus Rocha', 'Feminino', 29, '47991100021', 'ullyana.rocha@example.com', '$2y$10$uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(24, 'Victor Hugo', 'Renata Hugo', 'Masculino', 38, '47991100022', 'victor.hugo@example.com', '$2y$10$vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(25, 'Wendy Alves', 'Bruno Alves', 'Feminino', 24, '47991100023', 'wendy.alves@example.com', '$2y$10$wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(26, 'Xavier Pinto', 'Lara Pinto', 'Masculino', 41, '47991100024', 'xavier.pinto@example.com', '$2y$10$xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(27, 'Yasmin Faria', 'Leandro Faria', 'Feminino', 27, '47991100025', 'yasmin.faria@example.com', '$2y$10$yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(28, 'Zé Carlos', 'Ana Clara', 'Masculino', 45, '47991100026', 'ze.carlos@example.com', '$2y$10$zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(29, 'Amanda Lopes', 'Rogério Lopes', 'Feminino', 32, '47991100027', 'amanda.lopes@example.com', '$2y$10$a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(30, 'Bruno Martins', 'Helena Martins', 'Masculino', 30, '47991100028', 'bruno.martins2@example.com', '$2y$10$b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(31, 'Clara Nascimento', 'Igor Nascimento', 'Feminino', 28, '47991100029', 'clara.nascimento@example.com', '$2y$10$c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(32, 'Daniela Araújo', 'Fábio Araújo', 'Feminino', 34, '47991100030', 'daniela.araujo@example.com', '$2y$10$d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(33, 'Emanuel Costa', 'Bianca Costa', 'Masculino', 29, '47991100031', 'emanuel.costa@example.com', '$2y$10$e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(34, 'Fabiana Lima', 'Ronaldo Lima', 'Feminino', 36, '47991100032', 'fabiana.lima@example.com', '$2y$10$f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(35, 'Guilherme Souza', 'Patrícia Souza', 'Masculino', 27, '47991100033', 'guilherme.souza@example.com', '$2y$10$g7g7g7g7g7g7g7g7g7g7g7g7g7g7g7g7g7g7g', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(36, 'Helena Rocha', 'Mateus Rocha', 'Feminino', 26, '47991100034', 'helena.rocha@example.com', '$2y$10$h8h8h8h8h8h8h8h8h8h8h8h8h8h8h8h8h8h8', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(37, 'Igor Silva', 'Mariana Silva', 'Masculino', 31, '47991100035', 'igor.silva@example.com', '$2y$10$i9i9i9i9i9i9i9i9i9i9i9i9i9i9i9i9i9i9i', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(38, 'Jéssica Freitas', 'Rafael Freitas', 'Feminino', 33, '47991100036', 'jessica.freitas@example.com', '$2y$10$j0j0j0j0j0j0j0j0j0j0j0j0j0j0j0j0j0j0', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(39, 'Kevin Borges', 'Larissa Borges', 'Masculino', 24, '47991100037', 'kevin.borges@example.com', '$2y$10$k1k1k1k1k1k1k1k1k1k1k1k1k1k1k1k1k1k1k', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(40, 'Laura Gomes', 'Diego Gomes', 'Feminino', 29, '47991100038', 'laura.gomes@example.com', '$2y$10$l2l2l2l2l2l2l2l2l2l2l2l2l2l2l2l2l2l2l2', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(41, 'Marcelo Pinto', 'Patrícia Pinto', 'Masculino', 39, '47991100039', 'marcelo.pinto@example.com', '$2y$10$m3m3m3m3m3m3m3m3m3m3m3m3m3m3m3m3m3m3m3', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(42, 'Natália Reis', 'Hugo Reis', 'Feminino', 27, '47991100040', 'natalia.reis@example.com', '$2y$10$n4n4n4n4n4n4n4n4n4n4n4n4n4n4n4n4n4n4n4', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(43, 'Otávio Cardoso', 'Bruna Cardoso', 'Masculino', 28, '47991100041', 'otavio.cardoso@example.com', '$2y$10$o5o5o5o5o5o5o5o5o5o5o5o5o5o5o5o5o5o5o5', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(44, 'Priscila Barros', 'Leandro Barros', 'Feminino', 35, '47991100042', 'priscila.barros@example.com', '$2y$10$p6p6p6p6p6p6p6p6p6p6p6p6p6p6p6p6p6p6p6', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(45, 'Quirino Alves', 'Elaine Alves', 'Masculino', 42, '47991100043', 'quirino.alves@example.com', '$2y$10$q7q7q7q7q7q7q7q7q7q7q7q7q7q7q7q7q7q7q7', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(46, 'Rafaela Dias', 'Eduardo Dias', 'Feminino', 30, '47991100044', 'rafaela.dias@example.com', '$2y$10$r8r8r8r8r8r8r8r8r8r8r8r8r8r8r8r8r8r8r8', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(47, 'Samuel Nogueira', 'Júlia Nogueira', 'Masculino', 33, '47991100045', 'samuel.nogueira@example.com', '$2y$10$s9s9s9s9s9s9s9s9s9s9s9s9s9s9s9s9s9s9s9', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(48, 'Tainá Souza', 'Rayan Souza', 'Feminino', 26, '47991100046', 'taina.souza@example.com', '$2y$10$t0t0t0t0t0t0t0t0t0t0t0t0t0t0t0t0t0t0t0', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(49, 'Ulisses Rocha', 'Caroline Rocha', 'Masculino', 37, '47991100047', 'ulisses.rocha@example.com', '$2y$10$u1u1u1u1u1u1u1u1u1u1u1u1u1u1u1u1u1u1u1', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(50, 'Vanessa Melo', 'Pedro Melo', 'Feminino', 28, '47991100048', 'vanessa.melo@example.com', '$2y$10$v2v2v2v2v2v2v2v2v2v2v2v2v2v2v2v2v2v2v2', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(51, 'Wagner Lopes', 'Sílvia Lopes', 'Masculino', 36, '47991100049', 'wagner.lopes@example.com', '$2y$10$w3w3w3w3w3w3w3w3w3w3w3w3w3w3w3w3w3w3w3', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(52, 'Kauê Feltrin', 'Duda', 'Masculino', 18, '47999999999', 'kauekfs@hotmail.com', '$2y$10$q3Fb.zOUDu0wQ.I7Ds6JvuVHuN4600IyJ3oec5KMNW9MJ8laZy4cG', 'cliente', 'cliente', NULL, NULL, 'basico', 'd86b45b08308abbd5ca90ef1f8370aed', 'default.png', 1, 'azul', NULL, '2025-10-15 12:05:01', '0.00'),
+(53, 'ab', NULL, 'Masculino', NULL, '47991149148', 'ab@email.com', '$2y$10$b63gaH7ejcZP9FGyeRbo8O35RtzNZ1sGiSGB0z.wj7Py5c/vQU67q', 'dev', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-11-16 20:09:25', '0.00'),
+(54, 'c', 'd', 'Masculino', 18, '47991149148', 'cb@hotmail.com', '$2y$10$ySXETW63SJk7hhklkmSmAe3c8KSsi8JpejpW2UUIXV7XrOsRaZleG', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-11-16 20:40:35', '0.00'),
+(55, 'acd', 'asv', 'Feminino', 18, '47991149148', 'acb@hotmail.com', '$2y$10$syc6NJYR7PNWR7PHlmzEN.CEhNLYn5mgOCTLgflWKfMWisOvdwiMi', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-11-16 20:41:07', '0.00'),
+(56, 'qwe', 'qwe', 'Masculino', 18, '47991149148', 'qwe@hotmail.com', '$2y$10$eKeFcfWBo/osWeefUdUAle6fMGiqUOhXh.R6poufi.G8qKmPREsYu', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-11-16 20:48:36', '0.00'),
+(57, 'wer', 'wer', 'Feminino', 23, '47991149148', 'wer@hotmail.com', '$2y$10$kOb/ERyixx4avGrciWEBKeT7E9JJpox52psJg35kwVh2UGmUlygoe', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-11-16 20:50:27', '0.00'),
+(58, 'a', 'a', 'Masculino', 18, '47991149148', 'a@hotmail.com', '$2y$10$XzJvsl9SCTTHK80su4bkXOk4OzeaZBaaH1SKIKA0m3o9nxLKkBI8u', 'cliente', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-11-16 21:11:25', '12.00'),
+(59, 'a', NULL, 'Outro', NULL, '47991149148', 'a@email.com', '$2y$10$IkI20egSWX8YrCNYbigQsuT9gMZ8DtJaaiRrEPIjUsB4XMY6RV76i', 'cerimonialista', 'cliente', NULL, NULL, 'basico', NULL, 'default.png', 1, 'azul', NULL, '2025-11-16 21:17:36', '0.00');
 
 --
 -- Indexes for dumped tables
@@ -735,6 +829,47 @@ INSERT INTO `usuarios` (`id_usuario`, `nome`, `nome_conjuge`, `genero`, `idade`,
 ALTER TABLE `atividades_usuario`
   ADD PRIMARY KEY (`id_atividade`),
   ADD KEY `idx_usuario_data` (`id_usuario`,`data_atividade`);
+
+--
+-- Indexes for table `avaliacoes`
+--
+ALTER TABLE `avaliacoes`
+  ADD PRIMARY KEY (`id_avaliacao`),
+  ADD UNIQUE KEY `uq_avaliacao` (`avaliador_id`,`avaliado_id`),
+  ADD KEY `idx_avaliador` (`avaliador_id`),
+  ADD KEY `idx_avaliado` (`avaliado_id`);
+
+--
+-- Indexes for table `cerimonialista_datas_bloqueadas`
+--
+ALTER TABLE `cerimonialista_datas_bloqueadas`
+  ADD PRIMARY KEY (`id_bloqueio`),
+  ADD UNIQUE KEY `uq_cerimo_data` (`id_cerimonialista`,`data_bloqueada`);
+
+--
+-- Indexes for table `cerimonialista_fornecedores`
+--
+ALTER TABLE `cerimonialista_fornecedores`
+  ADD PRIMARY KEY (`id_relacao`),
+  ADD UNIQUE KEY `unique_cerimonial_fornecedor` (`id_cerimonialista`,`id_fornecedor`),
+  ADD KEY `id_cerimonialista` (`id_cerimonialista`),
+  ADD KEY `id_fornecedor` (`id_fornecedor`);
+
+--
+-- Indexes for table `cerimonialista_indisponibilidade`
+--
+ALTER TABLE `cerimonialista_indisponibilidade`
+  ADD PRIMARY KEY (`id_indisponibilidade`),
+  ADD KEY `id_cerimonialista` (`id_cerimonialista`);
+
+--
+-- Indexes for table `cliente_cerimonialista`
+--
+ALTER TABLE `cliente_cerimonialista`
+  ADD PRIMARY KEY (`id_assoc`),
+  ADD UNIQUE KEY `unique_cliente_data` (`id_cliente`,`data_casamento`),
+  ADD KEY `id_cliente` (`id_cliente`),
+  ADD KEY `id_cerimonialista` (`id_cerimonialista`);
 
 --
 -- Indexes for table `contatos`
@@ -772,6 +907,15 @@ ALTER TABLE `fornecedores`
 ALTER TABLE `itens`
   ADD PRIMARY KEY (`id_item`),
   ADD KEY `id_fornecedor` (`id_fornecedor`);
+
+--
+-- Indexes for table `mensagens`
+--
+ALTER TABLE `mensagens`
+  ADD PRIMARY KEY (`id_mensagem`),
+  ADD KEY `remetente_id` (`remetente_id`),
+  ADD KEY `destinatario_id` (`destinatario_id`),
+  ADD KEY `idx_conversas` (`remetente_id`,`destinatario_id`);
 
 --
 -- Indexes for table `orcamentos`
@@ -828,10 +972,35 @@ ALTER TABLE `usuarios`
 ALTER TABLE `atividades_usuario`
   MODIFY `id_atividade` int(11) NOT NULL AUTO_INCREMENT;
 --
+-- AUTO_INCREMENT for table `avaliacoes`
+--
+ALTER TABLE `avaliacoes`
+  MODIFY `id_avaliacao` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+--
+-- AUTO_INCREMENT for table `cerimonialista_datas_bloqueadas`
+--
+ALTER TABLE `cerimonialista_datas_bloqueadas`
+  MODIFY `id_bloqueio` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `cerimonialista_fornecedores`
+--
+ALTER TABLE `cerimonialista_fornecedores`
+  MODIFY `id_relacao` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `cerimonialista_indisponibilidade`
+--
+ALTER TABLE `cerimonialista_indisponibilidade`
+  MODIFY `id_indisponibilidade` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `cliente_cerimonialista`
+--
+ALTER TABLE `cliente_cerimonialista`
+  MODIFY `id_assoc` int(11) NOT NULL AUTO_INCREMENT;
+--
 -- AUTO_INCREMENT for table `contatos`
 --
 ALTER TABLE `contatos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
 --
 -- AUTO_INCREMENT for table `contratos`
 --
@@ -846,12 +1015,17 @@ ALTER TABLE `eventos`
 -- AUTO_INCREMENT for table `fornecedores`
 --
 ALTER TABLE `fornecedores`
-  MODIFY `id_fornecedor` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
+  MODIFY `id_fornecedor` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=55;
 --
 -- AUTO_INCREMENT for table `itens`
 --
 ALTER TABLE `itens`
   MODIFY `id_item` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
+--
+-- AUTO_INCREMENT for table `mensagens`
+--
+ALTER TABLE `mensagens`
+  MODIFY `id_mensagem` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT for table `orcamentos`
 --
@@ -881,7 +1055,7 @@ ALTER TABLE `tarefas`
 -- AUTO_INCREMENT for table `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
+  MODIFY `id_usuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
 --
 -- Constraints for dumped tables
 --
@@ -891,6 +1065,39 @@ ALTER TABLE `usuarios`
 --
 ALTER TABLE `atividades_usuario`
   ADD CONSTRAINT `atividades_usuario_ibfk_1` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`) ON DELETE CASCADE;
+
+--
+-- Limitadores para a tabela `avaliacoes`
+--
+ALTER TABLE `avaliacoes`
+  ADD CONSTRAINT `avaliacoes_ibfk_1` FOREIGN KEY (`avaliador_id`) REFERENCES `usuarios` (`id_usuario`) ON DELETE CASCADE,
+  ADD CONSTRAINT `avaliacoes_ibfk_2` FOREIGN KEY (`avaliado_id`) REFERENCES `usuarios` (`id_usuario`) ON DELETE CASCADE;
+
+--
+-- Limitadores para a tabela `cerimonialista_datas_bloqueadas`
+--
+ALTER TABLE `cerimonialista_datas_bloqueadas`
+  ADD CONSTRAINT `cerimonialista_datas_bloqueadas_ibfk_1` FOREIGN KEY (`id_cerimonialista`) REFERENCES `usuarios` (`id_usuario`) ON DELETE CASCADE;
+
+--
+-- Limitadores para a tabela `cerimonialista_fornecedores`
+--
+ALTER TABLE `cerimonialista_fornecedores`
+  ADD CONSTRAINT `cerimonialista_fornecedores_ibfk_1` FOREIGN KEY (`id_cerimonialista`) REFERENCES `usuarios` (`id_usuario`) ON DELETE CASCADE,
+  ADD CONSTRAINT `cerimonialista_fornecedores_ibfk_2` FOREIGN KEY (`id_fornecedor`) REFERENCES `fornecedores` (`id_fornecedor`) ON DELETE CASCADE;
+
+--
+-- Limitadores para a tabela `cerimonialista_indisponibilidade`
+--
+ALTER TABLE `cerimonialista_indisponibilidade`
+  ADD CONSTRAINT `cerimonialista_indisponibilidade_ibfk_1` FOREIGN KEY (`id_cerimonialista`) REFERENCES `usuarios` (`id_usuario`) ON DELETE CASCADE;
+
+--
+-- Limitadores para a tabela `cliente_cerimonialista`
+--
+ALTER TABLE `cliente_cerimonialista`
+  ADD CONSTRAINT `cliente_cerimonialista_ibfk_1` FOREIGN KEY (`id_cliente`) REFERENCES `usuarios` (`id_usuario`) ON DELETE CASCADE,
+  ADD CONSTRAINT `cliente_cerimonialista_ibfk_2` FOREIGN KEY (`id_cerimonialista`) REFERENCES `usuarios` (`id_usuario`) ON DELETE CASCADE;
 
 --
 -- Limitadores para a tabela `contatos`
@@ -915,6 +1122,13 @@ ALTER TABLE `eventos`
 --
 ALTER TABLE `itens`
   ADD CONSTRAINT `itens_ibfk_1` FOREIGN KEY (`id_fornecedor`) REFERENCES `fornecedores` (`id_fornecedor`) ON DELETE CASCADE;
+
+--
+-- Limitadores para a tabela `mensagens`
+--
+ALTER TABLE `mensagens`
+  ADD CONSTRAINT `mensagens_ibfk_1` FOREIGN KEY (`remetente_id`) REFERENCES `usuarios` (`id_usuario`) ON DELETE CASCADE,
+  ADD CONSTRAINT `mensagens_ibfk_2` FOREIGN KEY (`destinatario_id`) REFERENCES `usuarios` (`id_usuario`) ON DELETE CASCADE;
 
 --
 -- Limitadores para a tabela `orcamentos`
